@@ -109,7 +109,7 @@ for ii = t_index
             mkdir figures
         end
         cd figures
-        saveas(gcf,[var,'_',num2str(ii),'.fig'],'fig');
+        saveas(gcf,[filename,'.fig'],'fig');
         cd('..')
     end
     hold off

@@ -25,7 +25,6 @@ exp_style = {'pcolor','contourf','contour'};
 d.dimen = 'Y';			% dimension
 d.slice = [0 0];		% cross-section. opt. arg. must be single number
 d.fnum = 1;			% figure window number to use
-d.savefig = false;		% save figure? (bool)
 d.style = 'contourf';		% plotting style
 d.ncontourf = 30;		% plotting regions in contourf style
 d.ncontour = 10;		% contours in contour style
@@ -37,13 +36,14 @@ d.yskp = 1;			% y	"
 d.zskp = 1;			% z	"
 d.axis = 0;			% axis to plot. 0 denotes use of full domain
 d.visible = true;		% make plot visible or not (bool)
+d.savefig = false;		% save figure? (bool)
+d.filename = 'filename';	% name of file to save
 
 % parse options
 p = inputParser;
 addParameter(p,'dimen',d.dimen, @(x) any(validatestring(x,exp_dimen)))
 addParameter(p,'slice',d.slice,@isnumeric)
 addParameter(p,'fnum',d.fnum,@isnumeric)
-addParameter(p,'savefig',d.savefig,@islogical)
 addParameter(p,'style',d.style, @(x) any(validatestring(x,exp_style)))
 addParameter(p,'ncontourf',d.ncontourf,@isnumeric)
 addParameter(p,'ncontour',d.ncontour,@isnumeric)
@@ -55,6 +55,8 @@ addParameter(p,'yskp',d.yskp,@isnumeric)
 addParameter(p,'zskp',d.zskp,@isnumeric)
 addParameter(p,'axis',d.axis,@isnumeric)
 addParameter(p,'visible',d.visible,@islogical)
+addParameter(p,'savefig',d.savefig,@islogical)
+addParameter(p,'filename',d.filename,@ischar)
 try
     parse(p,varargin{:})
 catch
@@ -72,6 +74,13 @@ if length(p.Results.slice) == 2
     end
 elseif length(p.Results.slice) == 1
     cross_section = p.Results.slice;
+end
+
+% make file name more appropriate if not given
+if strcmp(p.Results.filename,'filename')
+    filename = [var,int2str(t_index)];
+else
+    filename = p.Results.filename;
 end
 
 % find grid points to read in
