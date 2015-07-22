@@ -31,7 +31,7 @@ for ii = t_index
         end
     elseif params.ndims == 2
         if isfield(params, 'plot_interval')
-            title([var,', t=',int2str(ii*params.plot_interval)])
+            title([var,', t=',int2str(ii*params.plot_interval),' s'])
         else
             title([var,', tn=',int2str(ii)])
         end
@@ -52,7 +52,7 @@ for ii = t_index
 
     % choose plotting style (contourf may take up less memory,
     % but can be slower than pcolor)
-    if strcmp(var,'Streamline')
+    if strcmpi(var,'Streamline')
         prompt = 'Provide a sensible wave speed in m/s: ';
         uwave = input(prompt);
         disp(['background speed = ',num2str(uwave),' m/s'])
@@ -60,13 +60,13 @@ for ii = t_index
         u2 = data1(:,:,2);
         streamslice(xvar,yvar,u1',u2',0.75)
         cont2col = 'r-';
-    elseif strcmp(p.Results.style,'pcolor')
+    elseif strcmpi(p.Results.style,'pcolor')
         pcolor(xvar,yvar,data1')
         cont2col = 'w-';
-    elseif strcmp(p.Results.style,'contourf')
+    elseif strcmpi(p.Results.style,'contourf')
         contourf(xvar,yvar,data1',p.Results.ncontourf)
         cont2col = 'w-';
-    elseif strcmp(p.Results.style,'contour')
+    elseif strcmpi(p.Results.style,'contour')
         contour(xvar,yvar,data1',p.Results.ncontour)
         cont2col = 'k-';
     end
@@ -74,7 +74,7 @@ for ii = t_index
     shading flat
     colormap(cmap)
     caxis(primcol);
-    if p.Results.colorbar == true
+    if p.Results.colorbar == true && ~strcmpi(var,'Streamline')
         colorbar
     end
     if ~strcmp(p.Results.cont2,'None')      % add contours of another field
