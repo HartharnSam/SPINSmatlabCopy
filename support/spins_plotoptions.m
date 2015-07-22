@@ -1,9 +1,6 @@
 % spinsplotoptions.m creates the optional arguments for spinsplot
 
 % create empty domain limits (needed for 2D)
-xlimits = 0;
-ylimits = 0;
-zlimits = 0;
 % shorten some parameters
 if isfield(gd, 'x')
     x = gd.x;
@@ -68,16 +65,20 @@ catch
 end
 
 % choose default cross-section slice based on which dimension is plotted
-if length(p.Results.slice) == 2
-    if strcmp(p.Results.dimen, 'X')
-        cross_section = sum(xlimits)/2;
-    elseif strcmp(p.Results.dimen, 'Y')
-        cross_section = sum(ylimits)/2;
-    elseif strcmp(p.Results.dimen, 'Z')
-        cross_section = sum(zlimits)/2;
+if params.ndims == 3
+    if length(p.Results.slice) == 2
+        if strcmp(p.Results.dimen, 'X')
+            cross_section = sum(xlimits)/2;
+        elseif strcmp(p.Results.dimen, 'Y')
+            cross_section = sum(ylimits)/2;
+        elseif strcmp(p.Results.dimen, 'Z')
+            cross_section = sum(zlimits)/2;
+        end
+    elseif length(p.Results.slice) == 1
+        cross_section = p.Results.slice;
     end
-elseif length(p.Results.slice) == 1
-    cross_section = p.Results.slice;
+else
+    cross_section = 0;
 end
 
 % make file name more appropriate if not given
