@@ -1,5 +1,9 @@
 % spinsplotoptions.m creates the optional arguments for spinsplot
 
+% create empty domain limits (needed for 2D)
+xlimits = 0;
+ylimits = 0;
+zlimits = 0;
 % shorten some parameters
 if isfield(gd, 'x')
     x = gd.x;

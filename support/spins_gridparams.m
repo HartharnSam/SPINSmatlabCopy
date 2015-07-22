@@ -36,10 +36,15 @@ end
     
 function par = add_unmapped_params(gd, params)
     % Number of dimensions
-    params.ndims = length(fieldnames(gd));
+    gdnames = fieldnames(gd);
+    params.ndims = length(gdnames);
 
-    % get vectorized grid
-    gdvec = spins_grid();
+    % check if grid is vectorized
+    if isvector(getfield(gd, gdnames{1}))
+       gdvec = gd;
+    else  % read in vector grid
+        gdvec = spins_grid('Vector');
+    end
     try 
         x1d = gdvec.x;
     end
@@ -55,7 +60,7 @@ function par = add_unmapped_params(gd, params)
         Nx = length(x1d);
         params.Nx = Nx;
     elseif isfield(params,'Nx') && isfield(gd,'x')
-	Nx = params.Nx;
+	Nx = params.Nx;		% save for use later
     end
     if ~isfield(params,'Ny') && isfield(gd,'y')
         Ny = length(y1d);
@@ -178,7 +183,54 @@ function par = add_unmapped_params(gd, params)
 end
 
 function par = add_mapped_params(gd, params)    
-    error('Mapped grid is not supported yet.\n')
+    % Number of dimensions
+    gdnames = fieldnames(gd);
+    params.ndims = length(gdnames);
+
+    % size of domain
+    sz = size(getfield(gd, gdnames{1}));
+    % Number of points in each dimension
+    if ~isfield(params,'Nx') && isfield(gd,'x')
+        Nx = sz(1);
+        params.Nx = Nx;
+    elseif isfield(params,'Nx') && isfield(gd,'x')
+	Nx = params.Nx;		% save for use later
+    end
+    if ~isfield(params,'Ny') && isfield(gd,'y')
+        Ny = sz(2);
+        params.Ny = Ny;
+    elseif isfield(params,'Ny') && isfield(gd,'y')
+	Ny = params.Ny;
+    end
+    if ~isfield(params,'Nz') && isfield(gd,'z')
+        Nz = sz(3);
+	params.Nz = Nz;
+    elseif isfield(params,'Nz') && isfield(gd,'z')
+	Nz = params.Nz;
+    end
+
+    % Check vertical expansion type
+    if ~isfield(params,'type_x') && isfield(gd,'x')
+        if abs((x1d(Nz/2)-x1d(Nz/2-1))/(x1d(2)-x1d(1))) > 2
+            params.type_x = 'NO_SLIP';
+        else
+            params.type_x = 'FREE_SLIP or PERIODIC';
+        end
+    end
+    if ~isfield(params,'type_y') && isfield(gd,'y')
+        if abs((y1d(Ny/2)-y1d(Ny/2-1))/(y1d(2)-y1d(1))) > 2
+            params.type_y = 'NO_SLIP';
+        else
+            params.type_y = 'FREE_SLIP or PERIODIC';
+        end
+    end
+    if ~isfield(params,'type_z') && isfield(gd,'z')
+        if abs((z1d(Nz/2)-z1d(Nz/2-1))/(z1d(2)-z1d(1))) > 2
+            params.type_z = 'NO_SLIP';
+        else
+            params.type_z = 'FREE_SLIP or PERIODIC';
+        end
+    end
 
     par = params;
 end

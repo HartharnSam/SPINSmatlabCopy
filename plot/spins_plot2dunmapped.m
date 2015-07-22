@@ -77,7 +77,7 @@ for ii = t_index
     if p.Results.colorbar == true
         colorbar
     end
-    if ~strcmp(p.Results.cont2,'None')      % add contours of another field
+    if ~strcmpi(p.Results.cont2,'None')      % add contours of another field
         if strncmp(var,'Mean',4) || strncmp(var,'SD',2)
             % choose Mean of field if primary field is Mean or SD
             cont2 = ['Mean ',p.Results.cont2];
