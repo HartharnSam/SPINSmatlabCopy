@@ -70,4 +70,4 @@ else
 end
 
 % get grid points and grid for plotting
-[nx, ny, nz, xvar, yvar] = get_plot_points(gd, params, cross_section, p, primaxis)
+[nx, ny, nz, xvar, yvar, primaxis] = get_plot_points(gd, params, cross_section, p);

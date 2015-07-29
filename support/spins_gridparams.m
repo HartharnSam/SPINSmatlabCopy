@@ -20,11 +20,11 @@ function gdpar = spins_gridparams(varargin)
             gd = spins_grid(varargin{1});
         end
     elseif nargin == 0
-        if strcmp(params.mapped_grid,'false')
+        %if strcmp(params.mapped_grid,'false')
             gd = spins_grid('Vector');
         %elseif strcmp(params.mapped_grid,'true') % default to give full grid if mapped grid
         %    gd = spins_grid('Full');
-        end
+        %end
     end
 
     % Add other information into params structure
