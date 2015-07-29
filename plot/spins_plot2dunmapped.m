@@ -2,7 +2,7 @@ function pltinfo = spins_plot2dunmapped(var, t_index, varargin)
 % SPINS_PLOT2DUNMAPPED  Plot cross-section, averages and standard deviations of variables from an unmapped grid.
 %
 %   pltinfo = spinsplot_unmapped(var,t_i) plots var at t_i
-%   other options
+%   other options are listed in the help for spins_plot2d()
 %
 %    David Deepwell, 2015
 global gdpar
@@ -25,15 +25,15 @@ for ii = t_index
     % Title and axis labels
     if strncmp(var,'Mean',4) || strncmp(var,'SD',2)
         if isfield(params, 'plot_interval')
-            title(['Spanwise ',var,', t=',int2str(ii*params.plot_interval)])
+            title(['Spanwise ',var,', t=',int2str(ii*params.plot_interval),' s'])
         else
-            title(['Spanwise ',var,', tn=',int2str(ii)])
+            title(['Spanwise ',var,', t_n=',int2str(ii)])
         end
     elseif params.ndims == 2
         if isfield(params, 'plot_interval')
-            title([var,', t=',int2str(ii*params.plot_interval)])
+            title([var,', t=',int2str(ii*params.plot_interval),' s'])
         else
-            title([var,', tn=',int2str(ii)])
+            title([var,', t_n=',int2str(ii)])
         end
     else
         if isfield(params, 'plot_interval')
@@ -41,7 +41,7 @@ for ii = t_index
                    ' m, t=',int2str(ii*params.plot_interval),' s'])
         else
             title([var,', ',p.Results.dimen,'=',num2str(cross_section),...
-                   ' m, tn=',int2str(ii)])
+                   ' m, t_n=',int2str(ii)])
         end
     end
     if length(nx)>1, xlabel('x (m)'), else xlabel('y (m)'), end
@@ -92,12 +92,12 @@ for ii = t_index
         end
     end
     % axis options
-    if primaxis(2)/primaxis(4)>6 && (primaxis(2)-primaxis(1)>0.75)
+    if (plotaxis(2)-plotaxis(1))/(plotaxis(4)-plotaxis(3))>6
         axis normal
     else
         axis image
     end
-    axis(primaxis)
+    axis(plotaxis)
     set(gca,'layer','top')
 
     % drawnow if plotting multiple outputs

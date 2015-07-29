@@ -27,7 +27,7 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 global gdpar
 
 % get grid and parameters
-gd = gdpar.gd;
+%gd = gdpar.gd;
 params = gdpar.params;
 
 % choose correct plot type

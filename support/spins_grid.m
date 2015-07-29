@@ -43,3 +43,8 @@ elseif strcmpi(varargin,'Full') && nargin == 1
         gd.z = zgrid_reader();
     end
 end
+
+% error message if no grid_readers are in directory
+if ~exist('gd','var')
+    error('No grid readers were found in working directory. Do you know where you are?')
+end

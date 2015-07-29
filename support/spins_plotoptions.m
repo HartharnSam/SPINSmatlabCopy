@@ -49,11 +49,11 @@ end
 if params.ndims == 3
     if length(p.Results.slice) == 2
         if strcmp(p.Results.dimen, 'X')
-            cross_section = sum(xlimits)/2;
+            cross_section = sum(params.xlim)/2;
         elseif strcmp(p.Results.dimen, 'Y')
-            cross_section = sum(ylimits)/2;
+            cross_section = sum(params.ylim)/2;
         elseif strcmp(p.Results.dimen, 'Z')
-            cross_section = sum(zlimits)/2;
+            cross_section = sum(params.zlim)/2;
         end
     elseif length(p.Results.slice) == 1
         cross_section = p.Results.slice;
@@ -70,4 +70,4 @@ else
 end
 
 % get grid points and grid for plotting
-[nx, ny, nz, xvar, yvar, primaxis] = get_plot_points(gd, params, cross_section, p);
+[nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(gd, params, cross_section, p);

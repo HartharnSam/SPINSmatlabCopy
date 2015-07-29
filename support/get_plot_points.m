@@ -1,4 +1,4 @@
-function [nx, ny, nz, xvar, yvar, primaxis] = get_plot_points(gd, params, cross_section, p)
+function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(gd, params, cross_section, p)
 % GET_PLOT_POINTS  get the points to plot given the options (p) and the parameters (params)
 %
 %   used exclusively in spins_plotoptions
@@ -6,13 +6,13 @@ function [nx, ny, nz, xvar, yvar, primaxis] = get_plot_points(gd, params, cross_
 %   David Deepwell, 2015
 
     if strcmp(params.mapped_grid,'false')
-        [nx, ny, nz, xvar, yvar, primaxis] = unmapped_points(gd, params, cross_section, p);
+        [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, cross_section, p);
     elseif strcmp(params.mapped_grid,'true')
-        [nx, ny, nz, xvar, yvar, primaxis] = mapped_points(gd, params, cross_section, p);
+        [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cross_section, p);
     end
 end
 
-function [nx, ny, nz, xvar, yvar, primaxis] = unmapped_points(gd, params, cross_section, p)
+function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, cross_section, p)
 
     % if full grid, give vector grid
     gdnames = fieldnames(gd);
@@ -49,16 +49,16 @@ function [nx, ny, nz, xvar, yvar, primaxis] = unmapped_points(gd, params, cross_
         if length(p.Results.axis) == 1		% no axis flag
             ny = 1:p.Results.yskp:Ny;
             nz = 1:p.Results.zskp:Nz;
-            primaxis=[ylimits zlimits]; % the plot area
+            plotaxis=[ylimits zlimits]; % the plot area
         else					% with axis flag
-            primaxis = p.Results.axis;
-            if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
+            plotaxis = p.Results.axis;
+            if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(y, primaxis(1));
-            xvarR = nearestindex(y, primaxis(2));
-            yvarB = nearestindex(z, primaxis(3));
-            yvarT = nearestindex(z, primaxis(4));
+            xvarL = nearestindex(y, plotaxis(1));
+            xvarR = nearestindex(y, plotaxis(2));
+            yvarB = nearestindex(z, plotaxis(3));
+            yvarT = nearestindex(z, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             ny = xvarL2:p.Results.xskp:xvarR2;
@@ -75,16 +75,16 @@ function [nx, ny, nz, xvar, yvar, primaxis] = unmapped_points(gd, params, cross_
         if length(p.Results.axis) == 1		% no axis flag
             nx = 1:p.Results.xskp:Nx;
             nz = 1:p.Results.zskp:Nz;
-            primaxis = [xlimits zlimits]; % the plot area
+            plotaxis = [xlimits zlimits]; % the plot area
         else					% with axis flag
-            primaxis = p.Results.axis;
-            if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
+            plotaxis = p.Results.axis;
+            if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(x, primaxis(1));
-            xvarR = nearestindex(x, primaxis(2));
-            yvarB = nearestindex(z, primaxis(3));
-            yvarT = nearestindex(z, primaxis(4));
+            xvarL = nearestindex(x, plotaxis(1));
+            xvarR = nearestindex(x, plotaxis(2));
+            yvarB = nearestindex(z, plotaxis(3));
+            yvarT = nearestindex(z, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:p.Results.xskp:xvarR2;
@@ -101,16 +101,16 @@ function [nx, ny, nz, xvar, yvar, primaxis] = unmapped_points(gd, params, cross_
         if length(p.Results.axis) == 1              % no axis flag
             nx = 1:p.Results.xskp:Nx;
             ny = 1:p.Results.yskp:Ny;
-            primaxis=[xlimits ylimits]; % the plot area
+            plotaxis=[xlimits ylimits]; % the plot area
         else                                        % with axis flag
-            primaxis = p.Results.axis;
-            if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
+            plotaxis = p.Results.axis;
+            if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(x, primaxis(1));
-            xvarR = nearestindex(x, primaxis(2));
-            yvarB = nearestindex(y, primaxis(3));
-            yvarT = nearestindex(y, primaxis(4));
+            xvarL = nearestindex(x, plotaxis(1));
+            xvarR = nearestindex(x, plotaxis(2));
+            yvarB = nearestindex(y, plotaxis(3));
+            yvarT = nearestindex(y, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:p.Results.xskp:xvarR2;
@@ -119,10 +119,12 @@ function [nx, ny, nz, xvar, yvar, primaxis] = unmapped_points(gd, params, cross_
         xvar = x(nx);
         yvar = y(ny);
     end
+
+    zvar = [];	% empty arry, since it's not used for unmapped grids
 end
 
 
-function [nx, ny, nz, xvar, yvar, primaxis] = mapped_points(gd, params, cross_section, p)
+function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cross_section, p)
 
     % if vector grid, call for vector grid
     gdnames = fieldnames(gd);
@@ -157,21 +159,21 @@ function [nx, ny, nz, xvar, yvar, primaxis] = mapped_points(gd, params, cross_se
         if params.ndims == 3
             nx = nearestindex(x1d, cross_section);
         else
-            error('get_plot_points assumes 2D is in x-z plane.')
+            error('get_plot_points assumes x-z plane for 2D mapped grids.')
         end
         if length(p.Results.axis) == 1		% no axis flag
             ny = 1:p.Results.yskp:Ny;
             nz = 1:p.Results.zskp:Nz;
-            primaxis=[ylimits zlimits]; % the plot area
+            plotaxis=[ylimits zlimits]; % the plot area
         else					% with axis flag
-            primaxis = p.Results.axis;
-            if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
+            plotaxis = p.Results.axis;
+            if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(y1d, primaxis(1));
-            xvarR = nearestindex(y1d, primaxis(2));
-            yvarB = nearestindex(z(nx,1,:), primaxis(3));
-            yvarT = nearestindex(z(nx,1,:), primaxis(4));
+            xvarL = nearestindex(y1d, plotaxis(1));
+            xvarR = nearestindex(y1d, plotaxis(2));
+            yvarB = nearestindex(z(nx,1,:), plotaxis(3));
+            yvarT = nearestindex(z(nx,1,:), plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             ny = xvarL2:p.Results.xskp:xvarR2;
@@ -179,33 +181,70 @@ function [nx, ny, nz, xvar, yvar, primaxis] = mapped_points(gd, params, cross_se
         end
         xvar = squeeze(y(nx,ny,nz));
         yvar = squeeze(z(nx,ny,nz));
+        zvar = [];
     elseif strcmp(p.Results.dimen,'Y')	% Y dimen
         if params.ndims == 3
-            ny = nearestindex(y, cross_section);
-        %else
-        %    ny = 1;
+            ny = nearestindex(y1d, cross_section);
+        else
+            ny = 1;
         end
         if length(p.Results.axis) == 1		% no axis flag
             nx = 1:p.Results.xskp:Nx;
             nz = 1:p.Results.zskp:Nz;
-            primaxis = [xlimits zlimits]; % the plot area
+            plotaxis = [xlimits zlimits]; % the plot area
         else					% with axis flag
-            primaxis = p.Results.axis;
-            if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
+            plotaxis = p.Results.axis;
+            if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(x1d, primaxis(1));
-            xvarR = nearestindex(x1d, primaxis(2));
+            xvarL = nearestindex(x1d, plotaxis(1));
+            xvarR = nearestindex(x1d, plotaxis(2));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             if params.ndims == 3
-                yvarB = nearestindex(z(xvarL2:xvarR2,1,:), primaxis(3));
-                yvarT = nearestindex(z(xvarL2:xvarR2,1,:), primaxis(4));
+                yvarB = max(nearestindex(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(3)));
+                yvarT = min(nearestindex(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(4)));
             elseif params.ndims == 2
+                yvarB = max(nearestindex(z(xvarL2:xvarR2,:)', plotaxis(3)));
+                yvarT = min(nearestindex(z(xvarL2:xvarR2,:)', plotaxis(4)));
             end
+            %yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
+            nx = xvarL2:p.Results.xskp:xvarR2;
+            nz = yvarB:p.Results.zskp:yvarT;
+        end
+        if params.ndims == 3
+            xvar = squeeze(x(nx,ny,nz));
+            yvar = squeeze(z(nx,ny,nz));
+        elseif params.ndims == 2
+            xvar = x(nx,nz);
+            yvar = z(nx,nz);
+        end
+        zvar = [];
+    elseif strcmp(p.Results.dimen,'Z')      % Z dimen
+        if params.ndims == 3
+            nz = 1:Nz;
+        else
+            error('get_plot_points assumes x-z plane for 2D mapped grids.')
+        end
+        if length(p.Results.axis) == 1              % no axis flag
+            nx = 1:p.Results.xskp:Nx;
+            ny = 1:p.Results.yskp:Ny;
+            plotaxis=[xlimits ylimits]; % the plot area
+        else                                        % with axis flag
+            plotaxis = p.Results.axis;
+            if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
+                error('Axis must be ordered correctly.')
+            end
+            xvarL = nearestindex(x1d, plotaxis(1));
+            xvarR = nearestindex(x1d, plotaxis(2));
+            yvarB = nearestindex(y1d, plotaxis(3));
+            yvarT = nearestindex(y1d, plotaxis(4));
+            xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:p.Results.xskp:xvarR2;
-            nz = yvarB2:p.Results.zskp:yvarT2;
+            ny = yvarB2:p.Results.zskp:yvarT2;
         end
-        xvar = x(nx);
-        yvar = z(nz);
+        xvar = x(nx,ny,nz);
+        yvar = y(nx,ny,nz);
+        zvar = z(nx,ny,nz);
+    end
 end

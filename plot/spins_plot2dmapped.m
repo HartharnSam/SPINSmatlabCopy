@@ -31,15 +31,15 @@ for ii = t_index
     % Title and axis labels
     if strncmp(var,'Mean',4) || strncmp(var,'SD',2)
         if isfield(params, 'plot_interval')
-            title(['Spanwise ',var,', t=',int2str(ii*params.plot_interval)])
+            title(['Spanwise ',var,', t=',int2str(ii*params.plot_interval),' s'])
         else
-            title(['Spanwise ',var,', tn=',int2str(ii)])
+            title(['Spanwise ',var,', t_n=',int2str(ii)])
         end
     elseif params.ndims == 2
         if isfield(params, 'plot_interval')
-            title([var,', t=',int2str(ii*params.plot_interval)])
+            title([var,', t=',int2str(ii*params.plot_interval),' s'])
         else
-            title([var,', tn=',int2str(ii)])
+            title([var,', t_n=',int2str(ii)])
         end
     else
         if isfield(params, 'plot_interval')
@@ -47,7 +47,7 @@ for ii = t_index
                    ' m, t=',int2str(ii*params.plot_interval),' s'])
         else
             title([var,', ',p.Results.dimen,'=',num2str(cross_section),...
-                   ' m, tn=',int2str(ii)])
+                   ' m, t_n=',int2str(ii)])
         end
     end
     if length(nx)>1, xlabel('x (m)'), else xlabel('y (m)'), end
@@ -55,6 +55,9 @@ for ii = t_index
 
     % get data to plot
     [data1,primcol,cmap] = spins_readdata(var,ii,nx,ny,nz);
+    if strcmp(p.Results.dimen, 'Z')
+        [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, cross_section);
+    end
 
     % choose plotting style (contourf may take up less memory,
     % but can be slower than pcolor)
@@ -64,16 +67,16 @@ for ii = t_index
         disp(['background speed = ',num2str(uwave),' m/s'])
         u1 = data1(:,:,1) - uwave;
         u2 = data1(:,:,2);
-        streamslice(xvar,yvar,u1',u2',0.75)
+        streamslice(xvar,yvar,u1,u2,0.75)
         cont2col = 'r-';
     elseif strcmp(p.Results.style,'pcolor')
-        pcolor(xvar,yvar,data1')
+        pcolor(xvar,yvar,data1)
         cont2col = 'w-';
     elseif strcmp(p.Results.style,'contourf')
-        contourf(xvar,yvar,data1',p.Results.ncontourf)
+        contourf(xvar,yvar,data1,p.Results.ncontourf)
         cont2col = 'w-';
     elseif strcmp(p.Results.style,'contour')
-        contour(xvar,yvar,data1',p.Results.ncontour)
+        contour(xvar,yvar,data1,p.Results.ncontour)
         cont2col = 'k-';
     end
     % add extra information
@@ -98,12 +101,12 @@ for ii = t_index
         end
     end
     % axis options
-    if primaxis(2)/primaxis(4)>6 && (primaxis(2)-primaxis(1)>0.75)
+    if (plotaxis(2)-plotaxis(1))/(plotaxis(4)-plotaxis(3))>6
         axis normal
     else
         axis image
     end
-    axis(primaxis)
+    axis(plotaxis)
     set(gca,'layer','top')
 
     % drawnow if plotting multiple outputs
