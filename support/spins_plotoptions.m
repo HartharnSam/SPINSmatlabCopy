@@ -1,4 +1,4 @@
-% spinsplotoptions.m creates the optional arguments for spins_plot2d and it's children
+% spinsplotoptions.m creates the optional arguments for spins_plot2d
 
 % define expected options 
 exp_dimen = {'X','Y','Z'};
@@ -39,35 +39,34 @@ addParameter(p,'axis',d.axis,@isnumeric)
 addParameter(p,'visible',d.visible,@islogical)
 addParameter(p,'savefig',d.savefig,@islogical)
 addParameter(p,'filename',d.filename,@ischar)
-try
-    parse(p,varargin{:})
-catch
-    parse(p,varargin{1}{:})
-end
+parse(p,varargin{:})
+
+% put options into a shorter structure
+opts = p.Results;
 
 % choose default cross-section slice based on which dimension is plotted
 if params.ndims == 3
-    if length(p.Results.slice) == 2
-        if strcmp(p.Results.dimen, 'X')
+    if length(opts.slice) == 2
+        if strcmp(opts.dimen, 'X')
             cross_section = sum(params.xlim)/2;
-        elseif strcmp(p.Results.dimen, 'Y')
+        elseif strcmp(opts.dimen, 'Y')
             cross_section = sum(params.ylim)/2;
-        elseif strcmp(p.Results.dimen, 'Z')
+        elseif strcmp(opts.dimen, 'Z')
             cross_section = sum(params.zlim)/2;
         end
-    elseif length(p.Results.slice) == 1
-        cross_section = p.Results.slice;
+    elseif length(opts.slice) == 1
+        cross_section = opts.slice;
     end
 else
     cross_section = 0;
 end
 
 % make file name more appropriate if not given
-if strcmp(p.Results.filename,'filename')
+if strcmp(opts.filename,'filename')
     filename = [var,int2str(t_index)];
 else
-    filename = p.Results.filename;
+    filename = opts.filename;
 end
 
 % get grid points and grid for plotting
-[nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(gd, params, cross_section, p);
+[nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(gd, params, cross_section, opts);

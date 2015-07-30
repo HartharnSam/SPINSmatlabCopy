@@ -6,6 +6,7 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   
 %   % Optional arguments:
 %	Name:	Options			- Description
+%       ---------------------------------------------------------
 %       dimen:	{'X','Y','Z'}		- dimension to take cross-section
 %       slice:	{double}		- location to take cross-section
 %       style:  {'pcolor','contourf','contour'}
@@ -27,13 +28,135 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 global gdpar
 
 % get grid and parameters
-%gd = gdpar.gd;
+gd = gdpar.gd;
 params = gdpar.params;
 
-% choose correct plot type
-if strcmp(params.mapped_grid,'false');
-    pltinfo = spins_plot2dunmapped(var,t_index,varargin);
-elseif strcmp(params.mapped_grid,'true');
-    pltinfo = spins_plot2dmapped(var,t_index,varargin);
+% set plotting options
+spins_plotoptions
+
+% figure visibility options
+if opts.visible == false
+    figure('Visible','off'), clf
+else
+    figure(opts.fnum), clf
 end
 
+for ii = t_index
+    clf
+    hold on
+    % Title
+    plot_title = var;
+    if strncmp(var,'Mean',4) || strncmp(var,'SD',2)
+        plot_title = ['Spanwise ', plot_title];
+    end
+    if params.ndims == 3	% add cross-section information
+        plot_title = [plot_title,', ',opts.dimen,'=',num2str(cross_section),' m'];
+    end
+    if isfield(params, 'plot_interval')	% add time in seconds or output number
+        plot_title = [plot_title,', t=',int2str(ii*params.plot_interval),' s'];
+    else
+        plot_title = [plot_title,', t_n=',int2str(ii),' s'];
+    end
+    title(plot_title);
+    % axis labels
+    if length(nx)>1, xlabel('x (m)'), else xlabel('y (m)'), end
+    if length(nz)>1, ylabel('z (m)'), else ylabel('y (m)'), end
+
+    % get data to plot
+    [data1,primcol,cmap] = spins_readdata(var,ii,nx,ny,nz);
+    % if mapped grid and taking horizontal cross_section, then find interpolation
+    if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
+        [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, cross_section);
+    end
+    % transpose unmapped data
+    if strcmp(params.mapped_grid, 'false')
+        data1 = data1';
+    end
+
+    % choose plotting style (contourf may take up less memory,
+    % but can be slower than pcolor)
+    if strcmpi(var,'Streamline')
+        if strcmp(params.mapped_grid, 'false')
+            fprintf('WARNING: Streamline has not been tested for mapped grids.\n\n')
+        end
+        prompt = 'Provide a sensible wave speed in m/s: ';
+        uwave = input(prompt);
+        disp(['background speed = ',num2str(uwave),' m/s'])
+        u1 = data1(:,:,1) - uwave;
+        u2 = data1(:,:,2);
+        streamslice(xvar,yvar,u1',u2',0.75)
+        cont2col = 'r-';
+    elseif strcmp(opts.style,'pcolor')
+        pcolor(xvar,yvar,data1)
+        cont2col = 'w-';
+    elseif strcmp(opts.style,'contourf')
+        contourf(xvar,yvar,data1,opts.ncontourf)
+        cont2col = 'w-';
+    elseif strcmp(opts.style,'contour')
+        contour(xvar,yvar,data1,opts.ncontour)
+        cont2col = 'k-';
+    end
+
+    % add extra information
+    shading flat	% need to change in version 2015
+    colormap(cmap)
+    caxis(primcol);
+    if opts.colorbar == true
+        colorbar
+    end
+
+    % add contours of another field
+    if ~strcmpi(opts.cont2,'None')
+        if strncmp(var,'Mean',4) || strncmp(var,'SD',2)
+            % choose Mean of field if primary field is Mean or SD
+            cont2 = ['Mean ',opts.cont2];
+        else
+            cont2 = opts.cont2;
+        end
+        if strcmp(cont2,var)            % read in data only if the field is different
+            data2 = data1;
+        else
+            [data2,~,~] = spins_readdata(cont2,ii,nx,ny,nz);
+            if strcmp(params.mapped_grid, 'false')
+                data2 = data2';
+            end
+            contour(xvar,yvar,data2,opts.ncont2,cont2col)
+        end
+    end
+
+    % axis options
+    if (plotaxis(2)-plotaxis(1))/(plotaxis(4)-plotaxis(3)) > 5
+        axis normal
+    else
+        axis image
+    end
+    axis(plotaxis)
+    set(gca,'layer','top')
+
+    % drawnow if plotting multiple outputs
+    if length(t_index) > 1, drawnow, end
+
+    % save figure
+    if opts.savefig == true
+        if ~(exist('figures','dir') == 7)
+            mkdir figures
+        end
+        cd figures
+        saveas(gcf,[filename,'.fig'],'fig');
+        cd('..')
+    end
+    hold off
+
+    % output plotted data
+    pltinfo.xvar = xvar;
+    pltinfo.yvar = yvar;
+    pltinfo.data1 = data1;
+    pltinfo.var1 = var;
+    try
+        pltinfo.data2 = data2;
+        pltinfo.var2 = cont2;
+    end
+    pltinfo.dimen = opts.dimen;
+    pltinfo.slice = cross_section;
+
+end
