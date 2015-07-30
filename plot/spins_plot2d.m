@@ -125,6 +125,9 @@ for ii = t_index
             data2 = data1;
         else
             [data2,~,~] = spins_readdata(cont2,ii,nx,ny,nz);
+            if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
+                [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, cross_section);
+            end
             if strcmp(params.mapped_grid, 'false')
                 data2 = data2';
             end
