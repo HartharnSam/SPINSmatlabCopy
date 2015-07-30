@@ -5,6 +5,8 @@ function [data,primcol,cmap] = spins_readdata(var,ii,nx,ny,nz)
 %                          where nx, ny, nz are scalars or 1D vectors
 %
 %    var may be of different forms:
+%        any field in the working directory
+%        'KE' finds the local kinetic energy
 %        'Density' or 'rho' uses the 'rho_reader' file
 %        'Mean ...' takes the spanwise mean of ...
 %        'SD ...' takes the spanwise standard deviation of ...
@@ -85,7 +87,7 @@ if params.ndims == 3		% for 3D data
             t = t_reader(ii,nx,ny,nz);
             data = eqn_of_state(t,s);
         end
-        if min(data(:))>0 
+        if min(data(:)) > 0 
             primcol = [min(data(:)) max(data(:))];
         else
             primcol = [-1 1]*max(abs(data(:)));

@@ -4,7 +4,15 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   pltinfo = spins_plot2d(var, t_i) plots var at t_i
 %   pltinfo = spins_plot2d(var, t_i, 'opt1', val1, ...) plots var at t_i with option 'opt1' as val1
 %   
-%   % Optional arguments:
+%    var may be of different forms:
+%        any field in the working directory
+%        'KE' finds the local kinetic energy
+%        'Density' or 'rho' uses the 'rho_reader' file
+%        'Mean ...' takes the spanwise mean of ...
+%        'SD ...' takes the spanwise standard deviation of ...
+%        'Scaled SD ...' scales SD ... by the maximum of ...	
+%
+%   Optional arguments:
 %	Name:	Options			- Description
 %       ---------------------------------------------------------
 %       dimen:	{'X','Y','Z'}		- dimension to take cross-section
