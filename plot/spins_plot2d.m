@@ -63,7 +63,7 @@ for ii = t_index
     if isfield(params, 'plot_interval')	% add time in seconds or output number
         plot_title = [plot_title,', t=',int2str(ii*params.plot_interval),' s'];
     else
-        plot_title = [plot_title,', t_n=',int2str(ii),' s'];
+        plot_title = [plot_title,', t_n=',int2str(ii)];
     end
     title(plot_title);
     % axis labels
