@@ -112,7 +112,6 @@ if params.ndims == 3		% for 3D data
         error('Vorticity not written yet.');
     % read in data for plotting streamlines
     elseif strcmp(var,'Streamline')
-        disp('Only working in x-z plane')
         ny = 1:Ny;
         u = squeeze(mean(u_reader(ii,nx,ny,nz),2));
         w = squeeze(mean(w_reader(ii,nx,ny,nz),2));
@@ -186,7 +185,18 @@ elseif params.ndims == 2
             data = T_reader(ii,nx,nz);		primcol = [min(data(:)) max(data(:))];
         end
     elseif strcmp(var,'Density')
-        data = rho_reader(ii,nx,nz);		primcol = [-1 1]*max(abs(data(:)));
+        try
+            data = rho_reader(ii,nx,nz);
+        catch
+            s = s_reader(ii,nx,nz);
+            t = t_reader(ii,nx,nz);
+            data = eqn_of_state(t,s);
+        end
+        if min(data(:)) > 0
+            primcol = [min(data(:)) max(data(:))];
+        else
+            primcol = [-1 1]*max(abs(data(:)));
+        end
     elseif strcmp(var,'U')
         data = u_reader(ii,nx,nz);		primcol = [-1 1]*max(abs(data(:)));
     elseif strcmp(var,'W')

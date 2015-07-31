@@ -10,7 +10,8 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %        'Density' or 'rho' uses the 'rho_reader' file
 %        'Mean ...' takes the spanwise mean of ...
 %        'SD ...' takes the spanwise standard deviation of ...
-%        'Scaled SD ...' scales SD ... by the maximum of ...	
+%        'Scaled SD ...' scales SD ... by the maximum of ...
+%        'Streamline' plots streamlines in the x-z plane
 %
 %   Optional arguments:
 %	Name:	Options			- Description
@@ -44,9 +45,9 @@ spins_plotoptions
 
 % figure visibility options
 if opts.visible == false
-    figure('Visible','off'), clf
+    figure('Visible','off')
 else
-    figure(opts.fnum), clf
+    figure(opts.fnum)
 end
 
 for ii = t_index
@@ -85,7 +86,7 @@ for ii = t_index
     % but can be slower than pcolor)
     if strcmpi(var,'Streamline')
         if strcmp(params.mapped_grid, 'false')
-            fprintf('WARNING: Streamline has not been tested for mapped grids.\n\n')
+            warning('Streamline has not been tested for mapped grids.')
         end
         prompt = 'Provide a sensible wave speed in m/s: ';
         uwave = input(prompt);
@@ -133,6 +134,19 @@ for ii = t_index
             end
             contour(xvar,yvar,data2,opts.ncont2,cont2col)
         end
+    end
+
+    % add contour of hill if grid is mapped
+    if strcmp(params.mapped_grid,'true') && strcmp(opts.style,'contour')
+        hill_nx = nx(1):nx(end);
+        if params.ndims == 3
+            hill   = squeeze(gd.z(hill_nx,1,params.Nz));
+            hill_x = squeeze(gd.x(hill_nx,1,params.Nz));
+        elseif params.ndims == 2
+            hill   = squeeze(gd.z(hill_nx,params.Nz));
+            hill_x = squeeze(gd.x(hill_nx,params.Nz));
+        end
+        plot(hill_x,hill,'k')
     end
 
     % axis options

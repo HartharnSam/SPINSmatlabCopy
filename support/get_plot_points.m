@@ -129,7 +129,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cr
     % if vector grid, call for vector grid
     gdnames = fieldnames(gd);
     if isvector(gd.(gdnames{1}))
-        error('Mapped grid requires full grid to be read in. Use spins_gridparams("Full").')
+        error('A mapped grid requires full grid to be read in. Use spins_gridparams("Full").')
     end
     % read in vector grid for easiness with other dimensions
     gdvec = get_vector_grid(gd, params);

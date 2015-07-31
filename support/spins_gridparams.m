@@ -1,13 +1,16 @@
 function gdpar = spins_gridparams(varargin)
 % SPINS_GRIDPARAMS  Parse spins.conf, read in grid and deduce other grid parameters
 %
-%   gdpar = spins_gridparams()  gives the (vector) grid and parameters in a structure
-%   gdpar = spins_gridparams('Full')  gives the full grid and parameters in a structure
+%   gdpar = spins_gridparams()  gives the grid and parameters in a structure
+%
+%   Optional arguments are:
+%	'Vector'    - (default) gives vector grid in output structure
+%	'Full'      -  gives the entire grid in output structure
 %
 %   David Deepwell, 2015
     global gdpar    
 
-    % Parser spins.conf
+    % Parse spins.conf
     params = spins_params();
 
     % Read in grid
@@ -20,17 +23,13 @@ function gdpar = spins_gridparams(varargin)
             gd = spins_grid(varargin{1});
         end
     elseif nargin == 0
-        %if strcmp(params.mapped_grid,'false')
-            gd = spins_grid('Vector');
-        %elseif strcmp(params.mapped_grid,'true') % default to give full grid if mapped grid
-        %    gd = spins_grid('Full');
-        %end
+        gd = spins_grid('Vector');
     end
 
     % Add other information into params structure
     par = add_params(gd, params);
 
-    % Place information into another structure
+    % Place information into output structure
     gdpar.gd = gd;
     gdpar.params = par;
 end
@@ -74,6 +73,39 @@ function par = add_params(gd, params)
 	params.Nz = Nz;
     elseif isfield(params,'Nz') && isfield(gd,'z')
 	Nz = params.Nz;
+    end
+
+    % check if grid is mapped
+    if isfield(gd,'z')
+        % get vector of depths at bottom of domain
+        if isvector(gd.z)
+            if params.ndims == 3
+                zbottom = zgrid_reader(':',1,Nz);
+            elseif params.ndims == 2
+                zbottom = zgrid_reader(':',Nz);
+            end
+        else
+            if params.ndims == 3
+                zbottom = gd.z(:,1,Nz);
+            elseif params.ndims == 2
+                zbottom = gd.z(:,Nz);
+            end
+        end
+        % grid is mapped if there is variation in the depth
+        zratio =  min(zbottom)/max(zbottom);
+        if zratio ~= 1
+            if isfield(params,'mapped_grid') == false
+                params.mapped_grid = 'true';
+            elseif strcmp(params.mapped_grid, 'false')
+                error('The grid appears to be mapped, but the config file says otherwise. Fix before proceeding.')
+            end
+        else
+            if isfield(params,'mapped_grid') == false
+                params.mapped_grid = 'false';
+            elseif strcmp(params.mapped_grid, 'true')
+                error('The grid appears to be unmapped, but the config file says otherwise. Fix before proceeding.')
+            end
+        end
     end
 
     % Check vertical expansion type
