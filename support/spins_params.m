@@ -22,12 +22,7 @@ try
     end
     fclose(fileID);
 catch
-    disp('spins.conf was not found.')
+    warning('spins.conf was not found.')
     params = struct();
 end
 
-% check if grid is mapped
-if isfield(params,'mapped_grid') == false
-    params.mapped_grid = 'false';
-    fprintf('The grid was not declared to be mapped or unmapped.\nIt is now assumed to be unmapped, This WILL make problems if incorrect.\n')
-end

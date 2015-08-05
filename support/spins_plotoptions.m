@@ -1,22 +1,4 @@
-% spinsplotoptions.m creates the optional arguments for spinsplot
-
-% shorten some parameters
-if isfield(gd, 'x')
-    x = gd.x;
-    Nx = params.Nx;
-    xlimits = params.xlim;
-end
-if isfield(gd, 'y')
-    y = gd.y;
-    Ny = params.Ny;
-    ylimits = params.ylim;
-end
-if isfield(gd, 'z')
-    z = gd.z;
-    Nz = params.Nz;
-    zlimits = params.zlim;
-end
-
+% spinsplotoptions.m creates the optional arguments for spins_plot2d
 
 % define expected options 
 exp_dimen = {'X','Y','Z'};
@@ -57,113 +39,34 @@ addParameter(p,'axis',d.axis,@isnumeric)
 addParameter(p,'visible',d.visible,@islogical)
 addParameter(p,'savefig',d.savefig,@islogical)
 addParameter(p,'filename',d.filename,@ischar)
-try
-    parse(p,varargin{:})
-catch
-    parse(p,varargin{1}{:})
-end
+parse(p,varargin{:})
+
+% put options into a shorter structure
+opts = p.Results;
 
 % choose default cross-section slice based on which dimension is plotted
 if params.ndims == 3
-    if length(p.Results.slice) == 2
-        if strcmp(p.Results.dimen, 'X')
-            cross_section = sum(xlimits)/2;
-        elseif strcmp(p.Results.dimen, 'Y')
-            cross_section = sum(ylimits)/2;
-        elseif strcmp(p.Results.dimen, 'Z')
-            cross_section = sum(zlimits)/2;
+    if length(opts.slice) == 2
+        if strcmp(opts.dimen, 'X')
+            cross_section = sum(params.xlim)/2;
+        elseif strcmp(opts.dimen, 'Y')
+            cross_section = sum(params.ylim)/2;
+        elseif strcmp(opts.dimen, 'Z')
+            cross_section = sum(params.zlim)/2;
         end
-    elseif length(p.Results.slice) == 1
-        cross_section = p.Results.slice;
+    elseif length(opts.slice) == 1
+        cross_section = opts.slice;
     end
 else
     cross_section = 0;
 end
 
 % make file name more appropriate if not given
-if strcmp(p.Results.filename,'filename')
+if strcmp(opts.filename,'filename')
     filename = [var,int2str(t_index)];
 else
-    filename = p.Results.filename;
+    filename = opts.filename;
 end
 
-% find grid points to read in
-if strcmp(p.Results.dimen,'X')		% X dimen
-    if length(p.Results.axis) == 1		% no axis flag
-        ny = 1:p.Results.yskp:Ny;
-        nz = 1:p.Results.zskp:Nz;
-        primaxis=[ylimits zlimits]; % the plot area
-    else					% with axis flag
-        primaxis = p.Results.axis;
-        if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
-            error('Axis must be ordered correctly.')
-        end
-        xvarL = nearestindex(y, primaxis(1));
-        xvarR = nearestindex(y, primaxis(2));
-        yvarB = nearestindex(z, primaxis(3));
-        yvarT = nearestindex(z, primaxis(4));
-        xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
-        yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
-        ny = xvarL2:p.Results.xskp:xvarR2;
-        nz = yvarB2:p.Results.zskp:yvarT2;
-    end
-    if params.ndims == 3
-        nx = nearestindex(x, cross_section);
-    else
-        nx = 1;
-    end
-    xvar = y(ny);
-    yvar = z(nz);
-elseif strcmp(p.Results.dimen,'Y')	% Y dimen
-    if length(p.Results.axis) == 1		% no axis flag
-        nx = 1:p.Results.xskp:Nx;
-        nz = 1:p.Results.zskp:Nz;
-        primaxis = [xlimits zlimits]; % the plot area
-    else					% with axis flag
-        primaxis = p.Results.axis;
-        if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
-            error('Axis must be ordered correctly.')
-        end
-        xvarL = nearestindex(x, primaxis(1));
-        xvarR = nearestindex(x, primaxis(2));
-        yvarB = nearestindex(z, primaxis(3));
-        yvarT = nearestindex(z, primaxis(4));
-        xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
-        yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
-        nx = xvarL2:p.Results.xskp:xvarR2;
-        nz = yvarB2:p.Results.zskp:yvarT2;
-    end
-    if params.ndims == 3
-        ny = nearestindex(y, cross_section);
-    else
-        ny = 1;
-    end
-    xvar = x(nx);
-    yvar = z(nz);
-elseif strcmp(p.Results.dimen,'Z')	% Z dimen
-    if length(p.Results.axis) == 1		% no axis flag
-        nx = 1:p.Results.xskp:Nx;
-        ny = 1:p.Results.yskp:Ny;
-        primaxis=[xlimits ylimits]; % the plot area
-    else					% with axis flag
-        primaxis = p.Results.axis;
-        if primaxis(2)<= primaxis(1) || primaxis(4)<=primaxis(3)
-            error('Axis must be ordered correctly.')
-        end
-        xvarL = nearestindex(x, primaxis(1));
-        xvarR = nearestindex(x, primaxis(2));
-        yvarB = nearestindex(y, primaxis(3));
-        yvarT = nearestindex(y, primaxis(4));
-        xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
-        yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
-        nx = xvarL2:p.Results.xskp:xvarR2;
-        ny = yvarB2:p.Results.zskp:yvarT2;
-    end
-    if params.ndims == 3
-        nz = nearestindex(z, cross_section);
-    else
-        nz = 1;
-    end
-    xvar = x(nx);
-    yvar = y(ny);
-end
+% get grid points and grid for plotting
+[nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(gd, params, cross_section, opts);

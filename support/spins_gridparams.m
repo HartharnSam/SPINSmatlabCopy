@@ -1,11 +1,17 @@
 function gdpar = spins_gridparams(varargin)
 % SPINS_GRIDPARAMS  Parse spins.conf, read in grid and deduce other grid parameters
 %
-%   gdpar = spins_gridparams()  gives the (vector) grid and parameters in a structure
-%   gdpar = spins_gridparams('Full')  gives the full grid and parameters in a structure
+%   gdpar = spins_gridparams()  gives the grid and parameters in a structure
+%
+%   Optional arguments are:
+%	'Vector'    - (default) gives vector grid in output structure
+%	'Full'      -  gives the entire grid in output structure
 %
 %   David Deepwell, 2015
-global gdpar    
+    global gdpar    
+
+    % Parse spins.conf
+    params = spins_params();
 
     % Read in grid
     if nargin > 1
@@ -17,29 +23,28 @@ global gdpar
             gd = spins_grid(varargin{1});
         end
     elseif nargin == 0
-        gd = spins_grid();
+        gd = spins_grid('Vector');
     end
-    % Parser spins.conf
-    params = spins_params();
 
-    % Add other information into parameter object
-    if strcmpi(params.mapped_grid, 'true')
-        par = add_mapped_params(gd, params);
-    elseif strcmpi(params.mapped_grid, 'false')
-        par = add_unmapped_params(gd, params);
-    end
-    
-    % Place information into a structure
+    % Add other information into params structure
+    par = add_params(gd, params);
+
+    % Place information into output structure
     gdpar.gd = gd;
     gdpar.params = par;
 end
-    
-function par = add_unmapped_params(gd, params)
-    % Number of dimensions
-    params.ndims = length(fieldnames(gd));
 
-    % get vectorized grid
-    gdvec = spins_grid();
+function par = add_params(gd, params)
+    % Number of dimensions
+    gdnames = fieldnames(gd);
+    params.ndims = length(gdnames);
+
+    % check if grid is vectorized
+    if isvector(gd.(gdnames{1}))
+       gdvec = gd;
+    else  % get vectorized grid
+        gdvec = get_vector_grid(gd, params);
+    end
     try 
         x1d = gdvec.x;
     end
@@ -55,7 +60,7 @@ function par = add_unmapped_params(gd, params)
         Nx = length(x1d);
         params.Nx = Nx;
     elseif isfield(params,'Nx') && isfield(gd,'x')
-	Nx = params.Nx;
+	Nx = params.Nx;		% save for use later
     end
     if ~isfield(params,'Ny') && isfield(gd,'y')
         Ny = length(y1d);
@@ -68,6 +73,39 @@ function par = add_unmapped_params(gd, params)
 	params.Nz = Nz;
     elseif isfield(params,'Nz') && isfield(gd,'z')
 	Nz = params.Nz;
+    end
+
+    % check if grid is mapped
+    if isfield(gd,'z')
+        % get vector of depths at bottom of domain
+        if isvector(gd.z)
+            if params.ndims == 3
+                zbottom = zgrid_reader(':',1,Nz);
+            elseif params.ndims == 2
+                zbottom = zgrid_reader(':',Nz);
+            end
+        else
+            if params.ndims == 3
+                zbottom = gd.z(:,1,Nz);
+            elseif params.ndims == 2
+                zbottom = gd.z(:,Nz);
+            end
+        end
+        % grid is mapped if there is variation in the depth
+        zratio =  min(zbottom)/max(zbottom);
+        if zratio ~= 1
+            if isfield(params,'mapped_grid') == false
+                params.mapped_grid = 'true';
+            elseif strcmp(params.mapped_grid, 'false')
+                error('The grid appears to be mapped, but the config file says otherwise. Fix before proceeding.')
+            end
+        else
+            if isfield(params,'mapped_grid') == false
+                params.mapped_grid = 'false';
+            elseif strcmp(params.mapped_grid, 'true')
+                error('The grid appears to be unmapped, but the config file says otherwise. Fix before proceeding.')
+            end
+        end
     end
 
     % Check vertical expansion type
@@ -111,10 +149,10 @@ function par = add_unmapped_params(gd, params)
             dz = z1d(2) - z1d(1);
             params.dz = dz;
         end
-    end    
+    end 
 
-    % Length of domain
-    if ~isfield(params,'Lx') && isfield(gd,'x')
+    % Length of domain (assumes topography only affects the z-coordinate)
+    if ~isfield(params, 'Lx') && isfield(gd, 'x')
         if strcmp(params.type_x,'NO_SLIP') || strcmp(params.type_x,'CHEBY')
             params.Lx = roundn(abs(x1d(end)-x1d(1)), -15);
         else
@@ -130,7 +168,7 @@ function par = add_unmapped_params(gd, params)
     end
     if ~isfield(params,'Lz') && isfield(gd,'z')
         if strcmp(params.type_z,'NO_SLIP') || strcmp(params.type_z,'CHEBY')
-            params.Lz = roundn(abs(z1d(end)-z1d(1)), -15);
+            params.Lz = roundn(max(gd.z(:)) - min(gd.z(:)), -15);
         else
             params.Lz = roundn(Nz*dz, -15);
         end
@@ -163,8 +201,8 @@ function par = add_unmapped_params(gd, params)
     end
     if ~isfield(params,'zlim') && isfield(gd,'z')
         if strcmp(params.type_z,'NO_SLIP') || strcmp(params.type_z,'CHEBY')
-            z1 = min(z1d(1), z1d(end));
-            z2 = max(z1d(1), z1d(end));
+            z1 = min(gd.z(:));
+            z2 = max(gd.z(:));
         else
             z1 = min(z1d(1), z1d(end)) - dz/2;
             z2 = max(z1d(1), z1d(end)) + dz/2;
@@ -173,12 +211,6 @@ function par = add_unmapped_params(gd, params)
         zR = roundn(z2, -15);
         params.zlim = [zL, zR];
     end
-
-    par = params;
-end
-
-function par = add_mapped_params(gd, params)    
-    error('Mapped grid is not supported yet.\n')
 
     par = params;
 end
