@@ -5,13 +5,13 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   pltinfo = spins_plot2d(var, t_i, 'opt1', val1, ...) plots var at t_i with option 'opt1' as val1
 %   
 %    var may be of different forms:
-%        any field in the working directory
-%        'KE' finds the local kinetic energy
-%        'Density' or 'rho' uses the 'rho_reader' file
-%        'Mean ...' takes the spanwise mean of ...
-%        'SD ...' takes the spanwise standard deviation of ...
-%        'Scaled SD ...' scales SD ... by the maximum of ...
-%        'Streamline' plots streamlines in the x-z plane
+%        any field in the working directory ('rho','u',...)
+%        'Density'	   uses the 'rho_reader' file (other labeled fields exist too, ex. Salt, ...)
+%        'KE' 		   finds the local kinetic energy
+%        'Mean ...'	   takes the spanwise mean of ...
+%        'SD ...'	   takes the spanwise standard deviation of ...
+%        'Scaled SD ...'   scales SD ... by the maximum of ...
+%        'Streamline'	   plots streamlines in the x-z plane
 %
 %   Optional arguments:
 %	Name:	Options			- Description
@@ -68,8 +68,13 @@ for ii = t_index
     end
     title(plot_title);
     % axis labels
-    if length(nx)>1, xlabel('x (m)'), else xlabel('y (m)'), end
-    if length(nz)>1, ylabel('z (m)'), else ylabel('y (m)'), end
+    if strcmp(opts.dimen, 'X')
+        xlabel('y (m)'), ylabel('z (m)')
+    elseif strcmp(opts.dimen, 'Y')
+        xlabel('x (m)'), ylabel('z (m)')
+    elseif strcmp(opts.dimen, 'Z')
+        xlabel('x (m)'), ylabel('y (m)')
+    end
 
     % get data to plot
     [data1,primcol,cmap] = spins_readdata(var,ii,nx,ny,nz);
