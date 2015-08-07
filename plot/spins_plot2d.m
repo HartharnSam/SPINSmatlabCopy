@@ -1,39 +1,48 @@
 function pltinfo = spins_plot2d(var, t_index, varargin)
-% SPINS_PLOT2D  Plot cross-sections, averages or standard deviations of variables.
+%  SPINS_PLOT2D  Plot cross-sections, averages or standard deviations of variables.
 %
-%   pltinfo = spins_plot2d(var, t_i) plots var at t_i
-%   pltinfo = spins_plot2d(var, t_i, 'opt1', val1, ...) plots var at t_i with option 'opt1' as val1
+%  Usage:
+%	pltinfo = spins_plot2d(var, t_i) plots var at t_i
+%	pltinfo = spins_plot2d(var, t_i, 'opt1', val1, ...) plots var at t_i with option 'opt1' as val1
 %   
-%    var may be of different forms:
-%        any field in the working directory ('rho','u',...)
-%        'Density'	   uses the 'rho_reader' file (other labeled fields exist too, ex. Salt, ...)
-%        'KE' 		   finds the local kinetic energy
-%        'Mean ...'	   takes the spanwise mean of ...
-%        'SD ...'	   takes the spanwise standard deviation of ...
-%        'Scaled SD ...'   scales SD ... by the maximum of ...
-%        'Streamline'	   plots streamlines in the x-z plane
+%  Inputs:
+%    'var' may be of different forms:
+%	any field in the working directory ('rho','u',...)
+%	'Density'	   uses the 'rho_reader' file (other labeled fields exist too, ex. Salt, ...)
+%	'KE' 		   finds the local kinetic energy
+%	'Mean ...'	   takes the spanwise mean of ...
+%	'SD ...'	   takes the spanwise standard deviation of ...
+%	'Scaled SD ...'    scales SD ... by the maximum of ...
+%	'Streamline'	   plots streamlines in the x-z plane
 %
-%   Optional arguments:
-%	Name:	Options			- Description
-%       ---------------------------------------------------------
-%       dimen:	{'X','Y','Z'}		- dimension to take cross-section
-%       slice:	{double}		- location to take cross-section
-%       style:  {'pcolor','contourf','contour'}
+%    't_index' may be:
+%	an integer for a particular output
+%	a vector of outputs (ie. 0:10) will plot each output successively in the same figure
+%
+%    Optional arguments:
+%	Name:	Options			- Description (defaults are in spins_plotoptions.m)
+%	---------------------------------------------------------
+%	dimen:	{'X','Y','Z'}		- dimension to take cross-section
+%	slice:	{double}		- location to take cross-section
+%	style:  {'pcolor','contourf','contour'}
 %		- type of plot
 %	axis:	{[x1 x2 z1 z2]}		- domain to plot
 %	xskp:	{integer}		- x-grid points to skip in plot
 %	yskp:	{integer}		- y-grid     "
 %	zskp:	{integer}		- z-grid     "
-%       fnum:	{integer}		- figure window to make plot
+%	fnum:	{integer}		- figure window to make plot
 %	colorbar:  {boolean}		- plot colorbar?
 %	savefig:   {boolean}		- save figure in figure file?
 %	visible:   {boolean}		- make figure visible?
-%       ncontourf: {integer}		- contours to use for contourf plot
-%       ncontour:  {integer}		- contours to use for contour plot
+%	ncontourf: {integer}		- contours to use for contourf plot
+%	ncontour:  {integer}		- contours to use for contour plot
 %	cont2:	{field name}		- secondary field to plot as contours
 %	ncont2:	{integer}		- contours to use for secondary field
 %
-%    David Deepwell, 2015
+%  Outputs:
+%    'pltinfo' is a structure containing the plotted fields 
+%
+%  David Deepwell, 2015
 global gdpar
 
 % get grid and parameters
@@ -59,7 +68,7 @@ for ii = t_index
         plot_title = ['Spanwise ', plot_title];
     end
     if params.ndims == 3	% add cross-section information
-        plot_title = [plot_title,', ',opts.dimen,'=',num2str(cross_section),' m'];
+        plot_title = [plot_title,', ',opts.dimen,'=',num2str(opts.slice),' m'];
     end
     if isfield(params, 'plot_interval')	% add time in seconds or output number
         plot_title = [plot_title,', t=',int2str(ii*params.plot_interval),' s'];
@@ -78,9 +87,9 @@ for ii = t_index
 
     % get data to plot
     [data1,primcol,cmap] = spins_readdata(var,ii,nx,ny,nz);
-    % if mapped grid and taking horizontal cross_section, then find interpolation
+    % if mapped grid and taking horizontal opts.slice, then find interpolation
     if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
-        [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, cross_section);
+        [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, opts.slice);
     end
     % transpose unmapped data
     if strcmp(params.mapped_grid, 'false')
@@ -132,7 +141,7 @@ for ii = t_index
         else
             [data2,~,~] = spins_readdata(cont2,ii,nx,ny,nz);
             if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
-                [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, cross_section);
+                [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, opts.slice);
             end
             if strcmp(params.mapped_grid, 'false')
                 data2 = data2';
@@ -187,6 +196,6 @@ for ii = t_index
         pltinfo.var2 = cont2;
     end
     pltinfo.dimen = opts.dimen;
-    pltinfo.slice = cross_section;
+    pltinfo.slice = opts.slice;
 
 end

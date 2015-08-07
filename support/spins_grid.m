@@ -1,13 +1,18 @@
 function gd = spins_grid(varargin)
-% SPINS_GRID  load the grid from SPINS.
+%  SPINS_GRID  load the grid from SPINS.
 %
-%   gd = spins_grid()		gives the grid in a structure
+%  Usage:
+%    gd = spins_grid() gives the vector grid in a structure
 %
-%   Optional arguments are:
+%  Inputs:
+%    Optional arguments:
 %	'Vector'    - (default) gives vector grid in output structure
-%	'Full'      -  gives the entire grid in output structure
+%	'Full'      - gives the entire grid in output structure
 %
-% David Deepwell, 2015.
+%  Outputs:
+%    gd		- structure containing the grid
+%
+%  David Deepwell, 2015
 
 if nargin > 1
     error('Too many input arguments. spins_grid accepts "Vector" or "Full".');

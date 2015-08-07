@@ -1,9 +1,16 @@
 function params = spins_params()
-% SPINS_PARAMS   Parses the spins.conf file into a structure.
+%  SPINS_PARAMS   Parses the spins.conf file into a structure.
 %
+%  Usage:
 %    parms = spins_params()
 %
-%    David Deepwell, 2015.
+%  Inputs:
+%    n/a
+%
+%  Outputs:
+%    params	- a structure containing fields and values from spins.conf
+%
+%  David Deepwell, 2015
 
 try
     fileID = fopen('spins.conf');

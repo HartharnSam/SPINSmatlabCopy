@@ -1,14 +1,23 @@
-function gdvec = get_vector_grid(gd, params)
-% GET_VECTOR_GRID  take a full vector field and give the vectors of each dimension
+function gdvec = get_vector_grid(gd)
+%  GET_VECTOR_GRID  take a full vector field and give the vectors along each dimension
 %
-%   gdvec = get_vector_grid(gd, params) takes grid structure, gd, and parameters structure
+%  Usage:
+%    gdvec = get_vector_grid(gd) takes grid structure, gd, and parameters structure
 %
-%   David Deepwell, 2015
-    if params.ndims == 3
+%  Inputs:
+%    gd		- output from spins_grid (or the grid structure from spins_gridparams)
+%
+%  Outputs:
+%    gdvec	- structure containing the grid vectors
+%
+%  David Deepwell, 2015
+
+    ndims = length(fieldnames(gdpar.gd));
+    if ndims == 3
         gdvec.x = gd.x(:,1,1);
         gdvec.y = gd.y(1,:,1);
         gdvec.z = gd.z(1,1,:);
-    else
+    elseif ndims == 2
         if isfield(gd, 'x')
             gdvec.x = gd.x(:,1);
             try
@@ -20,5 +29,7 @@ function gdvec = get_vector_grid(gd, params)
             gdvec.y = gd.y(:,1);
             gdvec.z = gd.z(1,:);
         end
+    else
+        error('Grid must be either 2 or 3 dimensional.')
     end
 end

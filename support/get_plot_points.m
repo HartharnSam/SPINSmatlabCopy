@@ -1,25 +1,52 @@
-function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(gd, params, cross_section, opts)
-% GET_PLOT_POINTS  get the points to plot given the options (p) and the parameters (params)
+function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(opts)
+%  GET_PLOT_POINTS  get the indices, grid, and axis domain for making
+%                   a 2D cross-section plot given the prescribed options (opts)
 %
-%   used exclusively in spins_plotoptions
+%  Usage:
+%    [nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(opts)
 %
-%   David Deepwell, 2015
+%  Inputs:
+%    opts is a structure with the following fields:
+%       Name:   Options                 - Description (defaults are in spins_plotoptions.m)
+%       ---------------------------------------------------------
+%       dimen:  {'X','Y','Z'}           - dimension to take cross-section
+%       slice:  {double}                - location to take cross-section
+%       axis:   {[x1 x2 z1 z2]}         - domain to plot
+%       xskp:   {integer}               - x-grid points to skip in plot
+%       yskp:   {integer}               - y-grid     "
+%       zskp:   {integer}               - z-grid     "
+%
+%  Outputs:
+%    nx, ny, nz		- indices along each dimension which will be used/read
+%    xvar, yvar		- grid vectors (unmapped), or matrices (mapped) for the 2D plot
+%    zvar		- only used for mapped grids when the plot will be in the x-y plane.
+%			  Interpolation between the changing depth requires this to be read
+%    plotaxis		- domain of the 2D plot
+%
+%  David Deepwell, 2015
+global gdpar
 
-    if strcmp(params.mapped_grid,'false')
-        [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, cross_section, opts);
-    elseif strcmp(params.mapped_grid,'true')
-        [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cross_section, opts);
+    % get grid and parameters
+    gd = gdpar.gd;
+    params = gdpar.params;
+
+    % Get points based upon grid type
+    if strcmp(params.mapped_grid, 'false')
+        [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, opts);
+    elseif strcmp(params.mapped_grid, 'true')
+        [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, opts);
     end
 end
 
-function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, cross_section, opts)
+function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, opts)
+% get points for an unmapped grid
 
     % if full grid, give vector grid
     gdnames = fieldnames(gd);
     if isvector(gd.(gdnames{1}))
         gdvec = gd;
     else
-        gdvec = get_vector_grid(gd, params);
+        gdvec = get_vector_grid(gd);
     end
 
     % shorten some parameters
@@ -42,7 +69,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
     % find grid points to read in
     if strcmp(opts.dimen,'X')		% X dimen
         if params.ndims == 3
-            nx = nearestindex(x, cross_section);
+            nx = nearestindex(x, opts.slice);
         else
             nx = 1;
         end
@@ -68,7 +95,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
         yvar = z(nz);
     elseif strcmp(opts.dimen,'Y')	% Y dimen
         if params.ndims == 3
-            ny = nearestindex(y, cross_section);
+            ny = nearestindex(y, opts.slice);
         else
             ny = 1;
         end
@@ -94,7 +121,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
         yvar = z(nz);
     elseif strcmp(opts.dimen,'Z')      % Z dimen
         if params.ndims == 3
-            nz = nearestindex(z, cross_section);
+            nz = nearestindex(z, opts.slice);
         else
             nz = 1;
         end
@@ -124,7 +151,8 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
 end
 
 
-function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cross_section, opts)
+function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, opts)
+% get points for an unmapped grid
 
     % if vector grid, call for vector grid
     gdnames = fieldnames(gd);
@@ -132,7 +160,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cr
         error('A mapped grid requires full grid to be read in. Use spins_gridparams("Full").')
     end
     % read in vector grid for easiness with other dimensions
-    gdvec = get_vector_grid(gd, params);
+    gdvec = get_vector_grid(gd);
 
     % shorten some parameters
     if isfield(gd, 'x')
@@ -157,7 +185,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cr
     % find grid points to read in
     if strcmp(opts.dimen,'X')		% X dimen
         if params.ndims == 3
-            nx = nearestindex(x1d, cross_section);
+            nx = nearestindex(x1d, opts.slice);
         else
             error('get_plot_points assumes x-z plane for 2D mapped grids.')
         end
@@ -184,7 +212,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, cr
         zvar = [];
     elseif strcmp(opts.dimen,'Y')	% Y dimen
         if params.ndims == 3
-            ny = nearestindex(y1d, cross_section);
+            ny = nearestindex(y1d, opts.slice);
         else
             ny = 1;
         end

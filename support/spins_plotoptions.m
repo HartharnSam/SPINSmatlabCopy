@@ -1,4 +1,6 @@
-% spinsplotoptions.m creates the optional arguments for spins_plot2d
+% spinsplotoptions creates the optional arguments for spins_plot2d
+%
+%  David Deepwell, 2015
 
 % define expected options 
 exp_dimen = {'X','Y','Z'};
@@ -48,17 +50,13 @@ opts = p.Results;
 if params.ndims == 3
     if length(opts.slice) == 2
         if strcmp(opts.dimen, 'X')
-            cross_section = sum(params.xlim)/2;
+            opts.slice = sum(params.xlim)/2;
         elseif strcmp(opts.dimen, 'Y')
-            cross_section = sum(params.ylim)/2;
+            opts.slice = sum(params.ylim)/2;
         elseif strcmp(opts.dimen, 'Z')
-            cross_section = sum(params.zlim)/2;
+            opts.slice = sum(params.zlim)/2;
         end
-    elseif length(opts.slice) == 1
-        cross_section = opts.slice;
     end
-else
-    cross_section = 0;
 end
 
 % make file name more appropriate if not given
@@ -68,5 +66,5 @@ else
     filename = opts.filename;
 end
 
-% get grid points and grid for plotting
-[nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(gd, params, cross_section, opts);
+% get indices and grid for plotting
+[nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(opts);

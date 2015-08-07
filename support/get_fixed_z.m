@@ -1,21 +1,31 @@
-function [xgrid, ygrid, fixedzdata] = get_fixed_z(x,y,z,data,depth)
-% GET_FIXED_Z  read in 3D data and grid, return the 2D data at a constant depth
+function [xgrid, ygrid, fixedzfield] = get_fixed_z(x, y, z, field, depth)
+%  GET_FIXED_Z  read in 3D field and grid, return the 2D field at a constant depth.
 %
-%   used in spins_plot2dmapped
+%  Usage:
+%	[xgrid, ygrid, fixedzfield] = get_fixed_z(x, y, z, field, depth)
 %
-%   David Deepwell, 2015
+%  Inputs:
+%    x, y, z, and 'field'	- three dimensional fields
+%    'depth'			- a real number
+%
+%  Outputs:
+%    xgrid, ygrid	- horizontal cross-sections of the grid
+%    fixedzfield	- interpolated value of 'field' at 'depth'
+%
+%  David Deepwell, 2015
+%  adapted from code by Marek Stastna 
 
     % create empty arrays
     sz = size(x);
-    fixedzdata = zeros(sz(1),sz(2));
-    xgrid = fixedzdata;
+    fixedzfield = zeros(sz(1),sz(2));
+    xgrid = fixedzfield;
     ygrid = xgrid;
 
     % interpolate between neighbours at selected depth
     for xi = 1:sz(1)
         xgrid(xi,:) = squeeze(x(xi,:,1));
         ygrid(xi,:) = squeeze(y(xi,:,1));
-        fixedzdata(xi,:) = interp1(squeeze(z(xi,1,:)), squeeze(data(xi,:,:))',...
+        fixedzfield(xi,:) = interp1(squeeze(z(xi,1,:)), squeeze(field(xi,:,:))',...
                                    depth,'spline',NaN);
     end
 end

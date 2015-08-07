@@ -1,14 +1,20 @@
 function gdpar = spins_gridparams(varargin)
-% SPINS_GRIDPARAMS  Parse spins.conf, read in grid and deduce other grid parameters
+%  SPINS_GRIDPARAMS  Parse spins.conf, read in grid and deduce other grid parameters
 %
-%   gdpar = spins_gridparams()  gives the grid and parameters in a structure
+%  Usage:
+%    gdpar = spins_gridparams()  gives the grid and parameters in a structure
 %
-%   Optional arguments are:
+%  Inputs:
+%
+%    Optional arguments are:
 %	'Vector'    - (default) gives vector grid in output structure
-%	'Full'      -  gives the entire grid in output structure
+%	'Full'      - gives the entire grid in output structure
 %
-%   David Deepwell, 2015
-    global gdpar    
+%  Outputs:
+%    gdpar	- a structure containing two structures: the grid, and parameters
+%
+%  David Deepwell, 2015
+global gdpar    
 
     % Parse spins.conf
     params = spins_params();
@@ -43,7 +49,7 @@ function par = add_params(gd, params)
     if isvector(gd.(gdnames{1}))
        gdvec = gd;
     else  % get vectorized grid
-        gdvec = get_vector_grid(gd, params);
+        gdvec = get_vector_grid(gd);
     end
     try 
         x1d = gdvec.x;

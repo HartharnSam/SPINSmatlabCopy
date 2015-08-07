@@ -1,22 +1,26 @@
-function [data,primcol,cmap] = spins_readdata(var,ii,nx,ny,nz)
-% SPINS_READDATA  read in data for the given variable
+function [data, primcol, cmap] = spins_readdata(var, ii, nx, ny, nz)
+%  SPINS_READDATA  read in data for the given variable
 %
+%  Usage:
 %    [data,primcol,cmap] = spinsread(var, t_i, nx, ny, nz) reads in var at positions (nx,ny,nz) at t_i
 %                          where nx, ny, nz are scalars or 1D vectors
 %
-%    var may be of different forms:
-%        any field in the working directory
-%        'KE' finds the local kinetic energy
-%        'Density' or 'rho' uses the 'rho_reader' file
-%        'Mean ...' takes the spanwise mean of ...
-%        'SD ...' takes the spanwise standard deviation of ...
-%        'Scaled SD ...' scales SD ... by the maximum of ...
+%  Inputs:
+%    'var' may be of different forms:
+%	any field in the working directory ('rho','u',...)
+%	'Density'          uses the 'rho_reader' file (other labeled fields exist too, ex. Salt, ...)
+%	'KE'               finds the local kinetic energy
+%	'Mean ...'         takes the spanwise mean of ...
+%	'SD ...'           takes the spanwise standard deviation of ...
+%	'Scaled SD ...'    scales SD ... by the maximum of ...
+%	'Streamline'       plots streamlines in the x-z plane
 %
-%    Outputs:
-%        data: the field you want
-%        primcol: the default extent of the colorbar
-%        cmap: the default colormap for the given field
-%    David Deepwell, 2015
+%  Outputs:
+%    data	- field you want
+%    primcol	- extent of the colorbar
+%    cmap	- colormap for the given field
+%
+%  David Deepwell, 2015
 global gdpar
 
 % get grid and parameters
@@ -28,7 +32,10 @@ if isfield(gd, 'y')
     Ny = params.Ny;
 end
 
+% default colormap
 cmap = 'darkjet';
+
+% read data
 if params.ndims == 3		% for 3D data
     % find the variable to plot (ie. remove the mean or SD from name)
     if strncmp(var,'Mean',4) || strncmp(var,'SD',2) || strncmp(var,'Scaled SD',9)
