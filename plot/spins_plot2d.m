@@ -40,7 +40,7 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %	ncont2:	{integer}		- contours to use for secondary field
 %
 %  Outputs:
-%    'pltinfo' is a structure containing the plotted fields 
+%    'pltinfo'	- a structure containing the plotted fields 
 %
 %  David Deepwell, 2015
 global gdpar
@@ -71,7 +71,7 @@ for ii = t_index
         plot_title = [plot_title,', ',opts.dimen,'=',num2str(opts.slice),' m'];
     end
     if isfield(params, 'plot_interval')	% add time in seconds or output number
-        plot_title = [plot_title,', t=',int2str(ii*params.plot_interval),' s'];
+        plot_title = [plot_title,', t=',num2str(ii*params.plot_interval),' s'];
     else
         plot_title = [plot_title,', t_n=',int2str(ii)];
     end
