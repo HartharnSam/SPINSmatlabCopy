@@ -2,7 +2,7 @@ function gdvec = get_vector_grid(gd)
 %  GET_VECTOR_GRID  take a full vector field and give the vectors along each dimension
 %
 %  Usage:
-%    gdvec = get_vector_grid(gd) takes grid structure, gd, and parameters structure
+%    gdvec = get_vector_grid(gd)
 %
 %  Inputs:
 %    gd		- output from spins_grid (or the grid structure from spins_gridparams)
@@ -12,7 +12,7 @@ function gdvec = get_vector_grid(gd)
 %
 %  David Deepwell, 2015
 
-    ndims = length(fieldnames(gdpar.gd));
+    ndims = length(fieldnames(gd));
     if ndims == 3
         gdvec.x = gd.x(:,1,1);
         gdvec.y = gd.y(1,:,1);
