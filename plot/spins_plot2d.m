@@ -86,20 +86,20 @@ for ii = t_index
     end
 
     % get data to plot
-    [data1,primcol,cmap] = spins_readdata(var,ii,nx,ny,nz);
+    data1 = spins_readdata(var,ii,nx,ny,nz);
     % if mapped grid and taking horizontal opts.slice, then find interpolation
     if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
         [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, opts.slice);
     end
     % transpose unmapped data
-    if strcmp(params.mapped_grid, 'false')
+    if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
         data1 = data1';
     end
 
     % choose plotting style (contourf may take up less memory,
     % but can be slower than pcolor)
     if strcmpi(var,'Streamline')
-        if strcmp(params.mapped_grid, 'false')
+        if strcmp(params.mapped_grid, 'true')
             warning('Streamline has not been tested for mapped grids.')
         end
         prompt = 'Provide a sensible wave speed in m/s: ';
@@ -120,10 +120,15 @@ for ii = t_index
         cont2col = 'k-';
     end
 
+    % get caxis limits
+    [colaxis, cmap] = choose_caxis(var, data1);
+
     % add extra information
     shading flat	% need to change in version 2015
     colormap(cmap)
-    caxis(primcol);
+    if ~strcmp(colaxis, 'auto')
+        caxis(colaxis);
+    end
     if opts.colorbar == true
         colorbar
     end
@@ -139,7 +144,7 @@ for ii = t_index
         if strcmp(cont2,var)            % read in data only if the field is different
             data2 = data1;
         else
-            [data2,~,~] = spins_readdata(cont2,ii,nx,ny,nz);
+            data2 = spins_readdata(cont2,ii,nx,ny,nz);
             if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
                 [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, opts.slice);
             end
