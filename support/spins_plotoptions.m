@@ -23,11 +23,15 @@ d.visible = true;		% make plot visible or not (bool)
 d.savefig = false;		% save figure? (bool)
 d.filename = 'filename';	% name of file to save
 
+% define validation functions
+validation_fnum = @(x) assert(isnumeric(x) || strcmpi(x, 'New'),...
+                'fnum option was not understood. Provide either an integer or "New".');
+
 % parse options
 p = inputParser;
 addParameter(p,'dimen',d.dimen, @(x) any(validatestring(x,exp_dimen)))
 addParameter(p,'slice',d.slice,@isnumeric)
-addParameter(p,'fnum',d.fnum,@isnumeric)
+addParameter(p,'fnum', d.fnum, validation_fnum)
 addParameter(p,'style',d.style, @(x) any(validatestring(x,exp_style)))
 addParameter(p,'ncontourf',d.ncontourf,@isnumeric)
 addParameter(p,'ncontour',d.ncontour,@isnumeric)

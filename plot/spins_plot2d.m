@@ -52,11 +52,15 @@ params = gdpar.params;
 % set plotting options
 spins_plotoptions
 
+% open new figure
+if strcmpi(opts.fnum, 'New')
+    fighand = figure;
+else
+    fighand = figure(opts.fnum);
+end
 % figure visibility options
 if opts.visible == false
-    figure('Visible','off')
-else
-    figure(opts.fnum)
+    set(fighand, 'Visible', 'off')
 end
 
 for ii = t_index
