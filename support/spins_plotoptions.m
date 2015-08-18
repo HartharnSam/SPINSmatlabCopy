@@ -62,6 +62,28 @@ if params.ndims == 3
         end
     end
 end
+% fix if slice is outside of domain
+if params.ndims == 3
+    if strcmp(opts.dimen, 'X')
+        if opts.slice > params.xlim(2)
+            opts.slice = params.xlim(2)
+        elseif opts.slice < params.xlim(1)
+            opts.slice = params.xlim(1)
+        end
+    elseif strcmp(opts.dimen, 'Y')
+        if opts.slice > params.ylim(2)
+            opts.slice = params.ylim(2)
+        elseif opts.slice < params.ylim(1)
+            opts.slice = params.ylim(1)
+        end
+    elseif strcmp(opts.dimen, 'Z')
+        if opts.slice > params.zlim(2)
+            opts.slice = params.zlim(2)
+        elseif opts.slice < params.zlim(1)
+            opts.slice = params.zlim(1)
+        end
+    end
+end
 
 % make file name more appropriate if not given
 if strcmp(opts.filename,'filename')
