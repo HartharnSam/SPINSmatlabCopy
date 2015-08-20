@@ -61,11 +61,6 @@ function par = add_params(gd, params)
         z1d = gdvec.z;
     end
 
-    % add gravitational constant    
-    if ~isfield(params, 'g')
-        params.g = 9.81;
-    end
-
     % Number of points in each dimension
     if ~isfield(params,'Nx') && isfield(gd,'x')
         Nx = length(x1d);
@@ -84,6 +79,17 @@ function par = add_params(gd, params)
 	params.Nz = Nz;
     elseif isfield(params,'Nz') && isfield(gd,'z')
 	Nz = params.Nz;
+    end
+
+    % add gravitational constant    
+    if ~isfield(params, 'g')
+        params.g = 9.81;
+    end
+
+    % add reference density
+    if ~isfield(params, 'rho_0')
+        params.rho_0 = 1;
+        warning('Reference density is not specified, default is chosen to be 1.')
     end
 
     % check if grid is mapped

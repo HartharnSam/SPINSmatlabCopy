@@ -39,6 +39,8 @@ elseif strcmpi(var, 'U') || strcmpi(var, 'V') || strcmpi(var, 'W')
 elseif strcmp(var, 'KE')
     colaxis = [0 1]*max(data(:));
     cmap = 'hot';
+elseif strcmp(var, 'Ri')
+    colaxis = [0 5];
 else
     colaxis = 'auto';
 end 

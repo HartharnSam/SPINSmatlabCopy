@@ -158,6 +158,9 @@ for ii = t_index
             contour(xvar,yvar,data2,opts.ncont2,cont2col)
         end
     end
+    if strcmp(var, 'Ri')
+        contour(xvar, yvar, data1, [1 1]*0.25, 'r-');
+    end
 
     % add contour of hill if grid is mapped
     if strcmp(params.mapped_grid,'true') && strcmp(opts.style,'contour')

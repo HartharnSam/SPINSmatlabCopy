@@ -66,21 +66,18 @@ if params.ndims == 3		% for 3D data
                 data = tracer_reader(ii,nx,ny,nz);
             end
         end
-    % read in salt field
     elseif strcmp(var,'Salt') || strcmp(var,'S')
         try
             data = s_reader(ii,nx,ny,nz);
         catch    
             data = S_reader(ii,nx,ny,nz);
         end
-    % read in temperature field
     elseif strcmp(var,'Temperature') || strcmp(var,'T')
         try
             data = t_reader(ii,nx,ny,nz);
         catch
             data = T_reader(ii,nx,ny,nz);
         end
-    % read in density field
     elseif strcmp(var,'Density')
         try
             data = rho_reader(ii,nx,ny,nz);
@@ -104,8 +101,32 @@ if params.ndims == 3		% for 3D data
         w = w_reader(ii,nx,ny,nz);
         data = 0.5*(u.^2 + v.^2 + w.^2);
         clearvars u v w
+    % read in vorticity
     elseif strcmp(var,'Vorticity')
         error('Vorticity not written yet.');
+    % read in gradient Richardson number
+    elseif strcmp(var, 'Ri')
+        if strcmp(params.type_z, 'NO_SLIP') || strcmp(params.type_z, 'CHEBY')
+            error('Gradient Richardson number for Chebyshev grids are not possible yet.')
+        elseif length(ny) > 1
+            error('Gradient Richardson number must be plotted in x-z plane.')
+        else
+            % read in data
+            rho = rho_reader(ii,nx,ny,nz)';
+            u   = u_reader(ii,nx,ny,nz)';
+            g = params.g;
+            rho_0 = params.rho_0;
+            % average nearby data
+            navg = 2; %radius to average over
+            filter = fspecial('disk', navg);
+            rho = imfilter(rho, filter, 'replicate');
+            u = imfilter(u, filter, 'replicate');
+            % Diff matrix and derivatives
+            Dz = FiniteDiff(gd.z(nz), 1, 2);
+            Uz_sq = (Dz*u).^2;
+            N_sq  = -g/rho_0*Dz*rho;
+            data = (N_sq./Uz_sq)';
+        end
     % read in data for plotting streamlines
     elseif strcmp(var,'Streamline')
         ny = 1:Ny;
