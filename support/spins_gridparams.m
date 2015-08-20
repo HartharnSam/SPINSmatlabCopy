@@ -61,6 +61,11 @@ function par = add_params(gd, params)
         z1d = gdvec.z;
     end
 
+    % add gravitational constant    
+    if ~isfield(params, 'g')
+        params.g = 9.81;
+    end
+
     % Number of points in each dimension
     if ~isfield(params,'Nx') && isfield(gd,'x')
         Nx = length(x1d);
