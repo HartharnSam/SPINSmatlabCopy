@@ -41,9 +41,8 @@ global gdpar
 end
 
 function par = add_params(gd, params)
-    % Number of dimensions
+    % get list of grid names
     gdnames = fieldnames(gd);
-    params.ndims = length(gdnames);
 
     % check if grid is vectorized
     if isvector(gd.(gdnames{1}))
@@ -79,6 +78,14 @@ function par = add_params(gd, params)
 	params.Nz = Nz;
     elseif isfield(params,'Nz') && isfield(gd,'z')
 	Nz = params.Nz;
+    end
+
+    % Number of dimensions
+    gdnames = fieldnames(gd);
+    params.ndims = length(gdnames);
+    % fix if one dimensions is accidentally written out
+    if Nx == 1 || Ny == 1 || Nz == 1
+        params.ndims = 2;
     end
 
     % add gravitational constant    
