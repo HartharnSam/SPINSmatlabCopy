@@ -170,6 +170,8 @@ function par = add_params(gd, params)
         if ~strcmp(params.type_x,'NO_SLIP') && ~strcmp(params.type_x,'CHEBY')
             dx = x1d(2) - x1d(1);
             params.dx = dx;
+        else
+            params.dx = '-';
         end    
     end
     if isfield(gd, 'y')
@@ -181,6 +183,8 @@ function par = add_params(gd, params)
         if ~strcmp(params.type_y,'NO_SLIP') && ~strcmp(params.type_y,'CHEBY') 
             dy = y1d(2) - y1d(1);
             params.dy = dy;
+        else
+            params.dy = '-';
         end    
     end 
     if isfield(gd, 'z')
@@ -192,6 +196,8 @@ function par = add_params(gd, params)
         if ~strcmp(params.type_z,'NO_SLIP') && ~strcmp(params.type_z,'CHEBY') 
             dz = z1d(2) - z1d(1);
             params.dz = dz;
+        else
+            params.dz = '-';
         end
     end 
 
