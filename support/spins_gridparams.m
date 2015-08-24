@@ -83,9 +83,11 @@ function par = add_params(gd, params)
     % Number of dimensions
     gdnames = fieldnames(gd);
     params.ndims = length(gdnames);
-    % fix if one dimensions is accidentally written out
-    if Nx == 1 || Ny == 1 || Nz == 1
-        params.ndims = 2;
+    % print error if one dimensions is accidentally written out
+    if params.ndims == 3
+        if Nx == 1 || Ny == 1 || Nz == 1
+            error('Grid appears to be 2 dimensional but all 3 grid fields are present. Remove the unnecessary field before proceeding.')
+        end
     end
 
     % add gravitational constant    
@@ -134,21 +136,24 @@ function par = add_params(gd, params)
 
     % Check vertical expansion type
     if ~isfield(params,'type_x') && isfield(gd,'x')
-        if abs((x1d(Nz/2)-x1d(Nz/2-1))/(x1d(2)-x1d(1))) > 2
+        midx = round(Nx/2);
+        if abs((x1d(midx) - x1d(midx-1))/(x1d(2) - x1d(1))) > 2
             params.type_x = 'NO_SLIP';
         else
             params.type_x = 'FREE_SLIP or PERIODIC';
         end
     end
     if ~isfield(params,'type_y') && isfield(gd,'y')
-        if abs((y1d(Ny/2)-y1d(Ny/2-1))/(y1d(2)-y1d(1))) > 2
+        midy = round(Ny/2);
+        if abs((y1d(midy) - y1d(midy-1))/(y1d(2) - y1d(1))) > 2
             params.type_y = 'NO_SLIP';
         else
             params.type_y = 'FREE_SLIP or PERIODIC';
         end
     end
     if ~isfield(params,'type_z') && isfield(gd,'z')
-        if abs((z1d(Nz/2)-z1d(Nz/2-1))/(z1d(2)-z1d(1))) > 2
+        midz = round(Nz/2);
+        if abs((z1d(midz) - z1d(midz-1))/(z1d(2) - z1d(1))) > 2
             params.type_z = 'NO_SLIP';
         else
             params.type_z = 'FREE_SLIP or PERIODIC';
@@ -156,19 +161,34 @@ function par = add_params(gd, params)
     end
 
     % Grid spacing for linear grids
-    if ~isfield(params,'dx') && isfield(gd,'x')
+    if isfield(gd, 'x')
+        if isfield(params, 'dx')
+            warning(['Use of dx is reserved for grid spacing. ',...
+                     'dx from spins.conf has been renamed as dx_conf.'])
+            params.dx_conf = params.dx;
+        end
         if ~strcmp(params.type_x,'NO_SLIP') && ~strcmp(params.type_x,'CHEBY')
             dx = x1d(2) - x1d(1);
             params.dx = dx;
         end    
-    end 
-    if ~isfield(params,'dy') && isfield(gd,'y')
+    end
+    if isfield(gd, 'y')
+        if isfield(params, 'dy')
+            warning(['Use of dy is reserved for grid spacing. ',...
+                     'dy from spins.conf has been renamed as dy_conf.'])
+            params.dy_conf = params.dy;
+        end
         if ~strcmp(params.type_y,'NO_SLIP') && ~strcmp(params.type_y,'CHEBY') 
             dy = y1d(2) - y1d(1);
             params.dy = dy;
         end    
     end 
-    if ~isfield(params,'dz') && isfield(gd,'z')
+    if isfield(gd, 'z')
+        if isfield(params, 'dz')
+            warning(['Use of dz is reserved for grid spacing. ',...
+                     'dz from spins.conf has been renamed as dz_conf.'])
+            params.dz_conf = params.dz;
+        end
         if ~strcmp(params.type_z,'NO_SLIP') && ~strcmp(params.type_z,'CHEBY') 
             dz = z1d(2) - z1d(1);
             params.dz = dz;
