@@ -32,7 +32,7 @@ if exist('SD', 'var')
     cmap = 'hot';
 elseif ~isempty(strfind(var, 'Dye')) || strcmpi(var, 'Tracer')
     colaxis = [-1 1];
-elseif strcmp(var, 'Density') && mean(data(:))/max(data(:)) > 1e-2
+elseif strcmp(var, 'Density') && mean(data(:))/max(data(:)) < 1e-2
     colaxis = [-1 1]*max(abs(data(:)));
 elseif strcmpi(var, 'U') || strcmpi(var, 'V') || strcmpi(var, 'W')
     colaxis = [-1 1]*max(abs(data(:)));
