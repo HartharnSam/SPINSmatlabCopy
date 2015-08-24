@@ -82,9 +82,17 @@ if params.ndims == 3		% for 3D data
         try
             data = rho_reader(ii,nx,ny,nz);
         catch
-            s = s_reader(ii,nx,ny,nz);
-            t = t_reader(ii,nx,ny,nz);
-            data = eqn_of_state(t,s);
+            try
+                s = s_reader(ii,nx,ny,nz);
+            catch
+                s = S_reader(ii,nx,ny,nz);
+            end
+            try
+                t = t_reader(ii,nx,ny,nz);
+            catch
+                t = T_reader(ii,nx,ny,nz);
+            end
+            data = eqn_of_state(t, s);
         end
     elseif strcmp(var,'Pressure') || strcmp(var,'P')
         data = p_reader(ii,nx,ny,nz);
@@ -195,8 +203,16 @@ elseif params.ndims == 2
         try
             data = rho_reader(ii,nx,nz);
         catch
-            s = s_reader(ii,nx,nz);
-            t = t_reader(ii,nx,nz);
+            try
+                s = s_reader(ii,nx,nz);
+            catch
+                s = S_reader(ii,nx,nz);
+            end
+            try
+                t = t_reader(ii,nx,nz);
+            catch
+                t = T_reader(ii,nx,nz);
+            end
             data = eqn_of_state(t,s);
         end
     elseif strcmp(var,'U')
