@@ -134,6 +134,9 @@ if params.ndims == 3		% for 3D data
             Uz_sq = (Dz*u).^2;
             N_sq  = -g/rho_0*Dz*rho;
             data = (N_sq./Uz_sq)';
+            % remove data that is too large
+            data(data>5) = 5;
+            warning('Ri>5 has been set to 5. This enables contour and contourf to make meaningful plots.')
         end
     % read in data for plotting streamlines
     elseif strcmp(var,'Streamline')
