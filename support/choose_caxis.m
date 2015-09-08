@@ -25,10 +25,6 @@ elseif strncmp(var, 'Scaled SD', 9)
     var = var{end};
 end
 
-% find value of data that is closest to zero
-climits = [min(data(:)) max(data(:))];
-c0 = min(abs(climits));
-
 % choose color axis limits and colormap based on the field name
 cmap = 'darkjet';    % the default colormap
 if exist('SD', 'var')
@@ -36,7 +32,7 @@ if exist('SD', 'var')
     cmap = 'hot';
 elseif ~isempty(strfind(var, 'Dye')) || strcmpi(var, 'Tracer')
     colaxis = [-1 1];
-elseif strcmp(var, 'Density') && c0 < 0
+elseif strcmp(var, 'Density') && mean(data(:)) < 1e-5
     colaxis = [-1 1]*max(abs(data(:)));
 elseif strcmpi(var, 'U') || strcmpi(var, 'V') || strcmpi(var, 'W')
     colaxis = [-1 1]*max(abs(data(:)));
