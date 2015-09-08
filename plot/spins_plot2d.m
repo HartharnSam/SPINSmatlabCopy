@@ -125,7 +125,7 @@ for ii = t_index
     end
 
     % get caxis limits
-    [colaxis, cmap] = choose_caxis(var, data1);
+    [colaxis, cmap] = choose_caxis(var, data1, opts.ncmap);
 
     % add extra information
     shading flat	% need to change in version 2015
