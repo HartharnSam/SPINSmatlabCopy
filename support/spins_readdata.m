@@ -85,12 +85,20 @@ if params.ndims == 3		% for 3D data
             try
                 s = s_reader(ii,nx,ny,nz);
             catch
-                s = S_reader(ii,nx,ny,nz);
+                try
+                    s = S_reader(ii,nx,ny,nz);
+                catch
+                    error('Variable not understood or output does not exist.');
+                end
             end
             try
                 t = t_reader(ii,nx,ny,nz);
             catch
-                t = T_reader(ii,nx,ny,nz);
+                try
+                    t = T_reader(ii,nx,ny,nz);
+                catch
+                    error('Variable not understood or output does not exist.');
+                end
             end
             data = eqn_of_state(t, s);
         end
@@ -211,12 +219,20 @@ elseif params.ndims == 2
             try
                 s = s_reader(ii,nx,nz);
             catch
-                s = S_reader(ii,nx,nz);
+                try
+                    s = S_reader(ii,nx,nz);
+                catch
+                    error('Variable not understood or output does not exist.');
+                end
             end
             try
                 t = t_reader(ii,nx,nz);
             catch
-                t = T_reader(ii,nx,nz);
+                try
+                    t = T_reader(ii,nx,nz);
+                catch
+                    error('Variable not understood or output does not exist.');
+                end
             end
             data = eqn_of_state(t,s);
         end
