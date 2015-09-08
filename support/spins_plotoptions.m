@@ -18,7 +18,7 @@ d.xskp = 1;	    		% x-grid points to skip
 d.yskp = 1;	    		% y	"
 d.zskp = 1;		    	% z	"
 d.axis = 0;			    % axis to plot. 0 denotes use of full domain
-d.ncmap = 64;           % length of colormap
+d.ncmap = 128;          % length of colormap
 d.colorbar = true;      % colorbar? (bool)
 d.visible = true;		% make plot visible or not (bool)
 d.savefig = false;		% save figure? (bool)
@@ -92,6 +92,13 @@ if strcmp(opts.filename,'filename')
     filename = [var,int2str(t_index)];
 else
     filename = opts.filename;
+end
+
+% change default colormap length depending on plotting style
+if strcmp(opts.style, 'contourf')
+    opts.ncmap = opts.ncontourf;
+elseif strcmp(opts.style, 'contour')
+    opts.ncmap = opts.ncontour;
 end
 
 % get indices and grid for plotting
