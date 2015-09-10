@@ -18,8 +18,10 @@ d.xskp = 1;	    		% x-grid points to skip
 d.yskp = 1;	    		% y	"
 d.zskp = 1;		    	% z	"
 d.axis = 0;			    % axis to plot. 0 denotes use of full domain
-d.ncmap = 128;          % length of colormap
-d.colaxis = 0;          % colour axis to use. 0 uses default in choose_caxis function
+d.ncmap = 128;          % length of colormap (only for pcolor)
+d.colaxis = 0;          % colour axis limits to use -
+                        % 0 uses default in choose_caxis function
+                        % also forces values outside this range to be within it
 d.colorbar = true;      % colorbar? (bool)
 d.visible = true;		% make plot visible or not (bool)
 d.savefig = false;		% save figure? (bool)
@@ -90,8 +92,8 @@ if params.ndims == 3
 end
 
 % make file name more appropriate if not given
-if strcmp(opts.filename,'filename')
-    filename = [var,int2str(t_index)];
+if strcmp(opts.filename, 'filename')
+    filename = var;
 else
     filename = opts.filename;
 end

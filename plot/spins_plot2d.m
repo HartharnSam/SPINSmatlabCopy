@@ -99,6 +99,11 @@ for ii = t_index
     if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
         data1 = data1';
     end
+    % remove points outside of desirable plotting range (typically from spectral aliasing)
+    if length(opts.colaxis) ~= 1
+        data1(data1>opts.colaxis(2)) = opts.colaxis(2);
+        data1(data1<opts.colaxis(1)) = opts.colaxis(1);
+    end
 
     % choose plotting style (contourf may take up less memory,
     % but can be slower than pcolor)
@@ -127,7 +132,7 @@ for ii = t_index
     % get caxis limits
     [colaxis, cmap] = choose_caxis(var, data1, opts.ncmap);
     % use user defined caxis if specified
-    if length(opts.colaxis) == 1
+    if length(opts.colaxis) ~= 1
         colaxis = opts.colaxis;
     end
 
@@ -197,7 +202,7 @@ for ii = t_index
             mkdir figures
         end
         cd figures
-        saveas(gcf,[filename,'.fig'],'fig');
+        saveas(gcf,[filename,'_',int2str(ii),'.fig'],'fig');
         cd('..')
     end
     hold off
