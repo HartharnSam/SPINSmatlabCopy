@@ -126,6 +126,10 @@ for ii = t_index
 
     % get caxis limits
     [colaxis, cmap] = choose_caxis(var, data1, opts.ncmap);
+    % use user defined caxis if specified
+    if length(opts.colaxis) == 1
+        colaxis = opts.colaxis;
+    end
 
     % add extra information
     shading flat	% need to change in version 2015

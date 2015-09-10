@@ -19,6 +19,7 @@ d.yskp = 1;	    		% y	"
 d.zskp = 1;		    	% z	"
 d.axis = 0;			    % axis to plot. 0 denotes use of full domain
 d.ncmap = 128;          % length of colormap
+d.colaxis = 0;          % colour axis to use. 0 uses default in choose_caxis function
 d.colorbar = true;      % colorbar? (bool)
 d.visible = true;		% make plot visible or not (bool)
 d.savefig = false;		% save figure? (bool)
@@ -43,6 +44,7 @@ addParameter(p,'yskp', d.yskp, @isnumeric)
 addParameter(p,'zskp', d.zskp, @isnumeric)
 addParameter(p,'axis', d.axis, @isnumeric)
 addParameter(p,'ncmap', d.ncmap, @isnumeric)
+addParameter(p,'colaxis', d.colaxis, @isnumeric)
 addParameter(p,'colorbar', d.colorbar, @islogical)
 addParameter(p,'visible', d.visible, @islogical)
 addParameter(p,'savefig', d.savefig, @islogical)
