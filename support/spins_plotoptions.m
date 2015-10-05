@@ -10,7 +10,7 @@ d.dimen = 'Y';			% dimension
 d.slice = [0 0];		% cross-section. opt. arg. must be single number
 d.fnum = 1;		    	% figure window number to use
 d.style = 'contourf';	% plotting style
-d.ncontourf = 30;		% plotting regions in contourf style
+d.ncontourf = 40;		% plotting regions in contourf style
 d.ncontour = 10;		% contours in contour style
 d.cont2 = 'Density';	% secondary field to plot
 d.ncont2 = 6;			% contours of secondary field
@@ -100,7 +100,7 @@ end
 
 % change default colormap length depending on plotting style
 if strcmp(opts.style, 'contourf')
-    opts.ncmap = opts.ncontourf;
+    opts.ncmap = opts.ncontourf+1;
 elseif strcmp(opts.style, 'contour')
     opts.ncmap = opts.ncontour;
 end
