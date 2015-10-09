@@ -65,19 +65,19 @@ function par = add_params(gd, params)
         Nx = length(x1d);
         params.Nx = Nx;
     elseif isfield(params,'Nx') && isfield(gd,'x')
-	Nx = params.Nx;		% save for use later
+	    Nx = params.Nx;		% save for use later
     end
     if ~isfield(params,'Ny') && isfield(gd,'y')
         Ny = length(y1d);
         params.Ny = Ny;
     elseif isfield(params,'Ny') && isfield(gd,'y')
-	Ny = params.Ny;
+	    Ny = params.Ny;
     end
     if ~isfield(params,'Nz') && isfield(gd,'z')
         Nz = length(z1d);
 	params.Nz = Nz;
     elseif isfield(params,'Nz') && isfield(gd,'z')
-	Nz = params.Nz;
+	    Nz = params.Nz;
     end
 
     % Number of dimensions
@@ -103,22 +103,22 @@ function par = add_params(gd, params)
 
     % check if grid is mapped
     if isfield(gd,'z')
-        % get vector of depths at bottom of domain
+        % get vector of depths at mid-depth of domain
         if isvector(gd.z)
             if params.ndims == 3
-                zbottom = zgrid_reader(':',1,Nz);
+                middepth = zgrid_reader(':',1,round(Nz/2));
             elseif params.ndims == 2
-                zbottom = zgrid_reader(':',Nz);
+                middepth = zgrid_reader(':',round(Nz/2));
             end
         else
             if params.ndims == 3
-                zbottom = gd.z(:,1,Nz);
+                middepth = gd.z(:,1,round(Nz/2));
             elseif params.ndims == 2
-                zbottom = gd.z(:,Nz);
+                middepth = gd.z(:,round(Nz/2));
             end
         end
         % grid is mapped if there is variation in the depth
-        zratio =  min(zbottom)/max(zbottom);
+        zratio =  min(middepth)/max(middepth);
         if zratio ~= 1
             if isfield(params,'mapped_grid') == false
                 params.mapped_grid = 'true';
