@@ -1,10 +1,10 @@
-function [colaxis, cmap] = choose_caxis(var, data, ncmap)
+function [colaxis, cmap] = choose_caxis(var, data, opts)
 %  CHOOSE_CAXIS  choose the colorbar limits and colormap of data based on the field 'var'
 %
 %  Inputs:
-%    var   - field name
-%    data  - field data
-%    ncmap - length of colormap
+%    var  - field name
+%    data - field data
+%    opts - plotting options
 %
 %  Outputs:
 %    colaxis   - 2 element vector of colorbar limits
@@ -27,7 +27,12 @@ elseif strncmp(var, 'Scaled SD', 9)
 end
 
 % choose color axis limits and colormap based on the field name
-cmap = darkjet(ncmap);    % the default colormap
+ncmap = opts.ncmap;
+if strcmp(opts.style,'contour')
+    cmap = darkjet(ncmap);    % the default colormap
+else
+    cmap = temperature(ncmap);    % the default colormap
+end
 if exist('SD', 'var')
     colaxis = [0 1]*max(data(:));
     cmap = hot(ncmap);

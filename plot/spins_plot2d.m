@@ -120,17 +120,17 @@ for ii = t_index
         cont2col = 'r-';
     elseif strcmp(opts.style,'pcolor')
         pcolor(xvar,yvar,data1)
-        cont2col = 'w-';
+        cont2col = 'k-';
     elseif strcmp(opts.style,'contourf')
         contourf(xvar,yvar,data1,opts.ncontourf)
-        cont2col = 'w-';
+        cont2col = 'k-';
     elseif strcmp(opts.style,'contour')
         contour(xvar,yvar,data1,opts.ncontour)
         cont2col = 'k-';
     end
 
     % get caxis limits
-    [colaxis, cmap] = choose_caxis(var, data1, opts.ncmap);
+    [colaxis, cmap] = choose_caxis(var, data1, opts);
     % use user defined caxis if specified
     if length(opts.colaxis) ~= 1
         colaxis = opts.colaxis;
