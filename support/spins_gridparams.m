@@ -101,6 +101,15 @@ function par = add_params(gd, params)
         warning('Reference density is not specified, default is chosen to be 1.')
     end
 
+    % add number of outputs
+    if ~isfield(params, 'noutputs')
+        noutputs = length(dir('u.*'));
+        if exist('u.dump','file')
+            noutputs = noutputs - 1;
+        end
+        params.noutputs = noutputs;
+    end
+
     % check if grid is mapped
     if isfield(gd,'z')
         % get vector of depths at mid-depth of domain
