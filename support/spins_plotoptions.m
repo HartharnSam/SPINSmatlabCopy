@@ -21,7 +21,7 @@ d.axis = 0;			    % axis to plot. 0 denotes use of full domain
 d.ncmap = 128;          % length of colormap (only for pcolor)
 d.colaxis = 0;          % colour axis limits to use -
                         % 0 uses default in choose_caxis function
-d.trim = true;          % trims values outside colaxis range to be within it
+d.trim = false;          % trims values outside colaxis range to be within it
 d.colorbar = true;      % colorbar? (bool)
 d.visible = true;		% make plot visible or not (bool)
 d.savefig = false;		% save figure? (bool)
