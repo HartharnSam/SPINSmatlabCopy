@@ -28,7 +28,7 @@ d.savefig = false;		% save figure? (bool)
 d.filename = 'filename';	% name of file to save
 
 % define validation functions
-validation_fnum = @(x) assert(isnumeric(x) || strcmpi(x, 'New'),...
+validation_fnum = @(x) assert(isnumeric(x) || strcmp(x, 'New'),...
                 'fnum option was not understood. Provide either an integer or "New".');
 
 % parse options
