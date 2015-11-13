@@ -100,9 +100,14 @@ for ii = t_index
         data1 = data1';
     end
     % remove points outside of desirable plotting range (typically from spectral aliasing)
-    if length(opts.colaxis) ~= 1
-        data1(data1>opts.colaxis(2)) = opts.colaxis(2);
-        data1(data1<opts.colaxis(1)) = opts.colaxis(1);
+    % this sets more contour levels into region that matters
+    if opts.trim == true
+        if opts.colaxis == 0
+            error('Trim requires an axis range to trim into.')
+        else
+            data1(data1>opts.colaxis(2)) = opts.colaxis(2);
+            data1(data1<opts.colaxis(1)) = opts.colaxis(1);
+        end
     end
 
     % choose plotting style (contourf may take up less memory,

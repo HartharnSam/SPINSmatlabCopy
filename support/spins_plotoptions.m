@@ -21,7 +21,7 @@ d.axis = 0;			    % axis to plot. 0 denotes use of full domain
 d.ncmap = 128;          % length of colormap (only for pcolor)
 d.colaxis = 0;          % colour axis limits to use -
                         % 0 uses default in choose_caxis function
-                        % also forces values outside this range to be within it
+d.time = true;          % trims values outside colaxis range to be within it
 d.colorbar = true;      % colorbar? (bool)
 d.visible = true;		% make plot visible or not (bool)
 d.savefig = false;		% save figure? (bool)
@@ -47,6 +47,7 @@ addParameter(p,'zskp', d.zskp, @isnumeric)
 addParameter(p,'axis', d.axis, @isnumeric)
 addParameter(p,'ncmap', d.ncmap, @isnumeric)
 addParameter(p,'colaxis', d.colaxis, @isnumeric)
+addParameter(p,'trim', d.trim, @islogical)
 addParameter(p,'colorbar', d.colorbar, @islogical)
 addParameter(p,'visible', d.visible, @islogical)
 addParameter(p,'savefig', d.savefig, @islogical)
