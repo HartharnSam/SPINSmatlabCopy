@@ -14,9 +14,9 @@ function gdvec = get_vector_grid(gd)
 
     ndims = length(fieldnames(gd));
     if ndims == 3
-        gdvec.x = gd.x(:,1,1);
-        gdvec.y = gd.y(1,:,1);
-        gdvec.z = gd.z(1,1,:);
+        gdvec.x = squeeze(gd.x(:,1,1));
+        gdvec.y = squeeze(gd.y(1,:,1));
+        gdvec.z = squeeze(gd.z(1,1,:));
     elseif ndims == 2
         if isfield(gd, 'x')
             gdvec.x = gd.x(:,1);

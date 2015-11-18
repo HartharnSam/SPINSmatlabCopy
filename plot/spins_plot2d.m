@@ -48,6 +48,9 @@ global gdpar
 % get grid and parameters
 gd = gdpar.gd;
 params = gdpar.params;
+if ~strcmp(params.mapped_grid,'true') && ~isvector(gd.x)
+    gd = get_vector_grid(gd);
+end
 
 % set plotting options
 spins_plotoptions
