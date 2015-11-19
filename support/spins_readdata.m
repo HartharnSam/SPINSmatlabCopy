@@ -1,4 +1,4 @@
-function data = spins_readdata(var, ii, nx, ny, nz)
+function data = spins_readdata(var, ii, nx, ny, nz, dimen)
 %  SPINS_READDATA  read in data for the given variable
 %
 %  Usage:
@@ -119,7 +119,15 @@ if params.ndims == 3		% for 3D data
         clearvars u v w
     % read in vorticity
     elseif strcmp(var,'Vorticity')
-        error('Vorticity not written yet.');
+        if strcmp(params.type_z, 'NO_SLIP') || strcmp(params.type_z, 'CHEBY')
+            error('Vorticity not written for no slip yet.')
+        else
+            if length(nx)>1 && length(ny)>1 && length(nz)>1
+                data = vort_umap_many(ii,gd,nx,ny,nz,dimen);
+            else
+                data = vort_umap_slice(ii,gd,nx,ny,nz);
+            end
+        end
     % read in gradient Richardson number
     elseif strcmp(var, 'Ri')
         if strcmp(params.type_z, 'NO_SLIP') || strcmp(params.type_z, 'CHEBY')
@@ -243,7 +251,11 @@ elseif params.ndims == 2
     elseif strcmp(var,'KE');
         data = u_reader(ii,nx,nz).^2 + w_reader(ii,nx,nz).^2;
     elseif strcmp(var,'Vorticity')
-        error('Vorticity not written yet.');
+        if strcmp(params.type_z, 'NO_SLIP') || strcmp(params.type_z, 'CHEBY')
+            error('Vorticity not written for no slip yet.')
+        else
+            data = vort_umap_slice(ii,gd,nx,ny,nz);
+        end
     elseif strcmp(var,'Streamline')
         u = u_reader(ii,nx,nz);
         w = w_reader(ii,nx,nz);
@@ -257,5 +269,83 @@ elseif params.ndims == 2
         catch
             error('Variable not understood or output does not exist.');
         end
+    end
+end
+end
+
+function data = vort_umap_slice(ii,gd,nx,ny,nz)
+    if length(nx) == 1
+        Dy = FiniteDiff(gd.y(ny),1,2,false,true);
+        Dz = FiniteDiff(gd.z(nz),1,2,false,true);
+        try 
+            v = v_reader(ii,nx,ny,nz);
+            w = w_reader(ii,nx,ny,nz);
+        catch
+            v = v_reader(ii,nx,nz);
+            w = w_reader(ii,nx,nz);
+        end
+        wy = Dy*w;
+        vz = v*Dz';
+        data = wy - vz;
+    elseif length(ny) == 1
+        Dx = FiniteDiff(gd.x(nx),1,2,false,true);
+        Dz = FiniteDiff(gd.z(nz),1,2,false,true);
+        try
+            u = u_reader(ii,nx,ny,nz);
+            w = w_reader(ii,nx,ny,nz);
+        catch
+            u = u_reader(ii,nx,nz);
+            w = w_reader(ii,nx,nz);
+        end
+        uz = u*Dz';
+        wx = Dx*w;
+        data = uz - wx;
+    elseif length(nz) == 1
+        Dx = FiniteDiff(gd.x(nx),1,2,false,true);
+        Dy = FiniteDiff(gd.y(ny),1,2,false,true);
+        try
+            u = u_reader(ii,nx,ny,nz);
+            v = v_reader(ii,nx,ny,nz);
+        catch
+            u = u_reader(ii,nx,nz);
+            v = v_reader(ii,nx,nz);
+        end
+        vx = Dx*v;
+        uy = u*Dy';
+        data = vx - uy;
+    end
+end
+
+function data = vort_umap_many(ii,gd,nx,ny,nz,dimen)
+    if strcmp(dimen, 'X')
+        Dy = FiniteDiff(gd.y(ny),1,2,false,true);
+        Dz = FiniteDiff(gd.z(nz),1,2,false,true);
+        v = v_reader(ii,nx,ny,nz);
+        w = w_reader(ii,nx,ny,nz);
+        for jj = 1:length(nx)
+            wy(jj,:,:) = Dy*squeeze(w(jj,:,:));
+            vz(jj,:,:) = squeeze(v(jj,:,:))*Dz';
+        end
+        data = wy - vz;
+    elseif strcmp(dimen, 'Y')
+        Dx = FiniteDiff(gd.x(nx),1,2,false,true);
+        Dz = FiniteDiff(gd.z(nz),1,2,false,true);
+        u = u_reader(ii,nx,ny,nz);
+        w = w_reader(ii,nx,ny,nz);
+        for jj = 1:length(ny)
+            uz(:,jj,:) = squeeze(u(:,jj,:))*Dz';
+            wx(:,jj,:) = Dx*squeeze(w(:,jj,:));
+        end
+        data = uz - wx;
+    elseif strcmp(dimen, 'Z')
+        Dx = FiniteDiff(gd.x(nx),1,2,false,true);
+        Dy = FiniteDiff(gd.y(ny),1,2,false,true);
+        u = u_reader(ii,nx,ny,nz);
+        v = v_reader(ii,nx,ny,nz);
+        for jj = 1:length(nz)
+            vx(:,:,jj) = Dx*squeeze(v(:,:,jj));
+            uy(:,:,jj) = Dy*squeeze(u(:,:,jj))';
+        end
+        data = vx - uy';
     end
 end
