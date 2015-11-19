@@ -48,6 +48,9 @@ global gdpar
 % get grid and parameters
 gd = gdpar.gd;
 params = gdpar.params;
+if ~strcmp(params.mapped_grid,'true') && ~isvector(gd.x)
+    gd = get_vector_grid(gd);
+end
 
 % set plotting options
 spins_plotoptions
@@ -90,7 +93,7 @@ for ii = t_index
     end
 
     % get data to plot
-    data1 = spins_readdata(var,ii,nx,ny,nz);
+    data1 = spins_readdata(var,ii,nx,ny,nz,opts.dimen);
     % if mapped grid and taking horizontal opts.slice, then find interpolation
     if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
         [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, opts.slice);
@@ -162,7 +165,7 @@ for ii = t_index
         if strcmp(cont2,var)            % read in data only if the field is different
             data2 = data1;
         else
-            data2 = spins_readdata(cont2,ii,nx,ny,nz);
+            data2 = spins_readdata(cont2,ii,nx,ny,nz,opts.dimen);
             if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
                 [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, opts.slice);
             end
