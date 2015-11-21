@@ -88,7 +88,7 @@ if params.ndims == 3		% for 3D data
                 try
                     s = S_reader(ii,nx,ny,nz);
                 catch
-                    error('Variable not understood or output does not exist.');
+                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
                 end
             end
             try
@@ -97,7 +97,7 @@ if params.ndims == 3		% for 3D data
                 try
                     t = T_reader(ii,nx,ny,nz);
                 catch
-                    error('Variable not understood or output does not exist.');
+                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
                 end
             end
             data = eqn_of_state(t, s);
@@ -230,7 +230,7 @@ elseif params.ndims == 2
                 try
                     s = S_reader(ii,nx,nz);
                 catch
-                    error('Variable not understood or output does not exist.');
+                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
                 end
             end
             try
@@ -239,7 +239,7 @@ elseif params.ndims == 2
                 try
                     t = T_reader(ii,nx,nz);
                 catch
-                    error('Variable not understood or output does not exist.');
+                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
                 end
             end
             data = eqn_of_state(t,s);

@@ -14,6 +14,7 @@ d.ncontourf = 50;		% plotting regions in contourf style
 d.ncontour = 20;		% contours in contour style
 d.cont2 = 'Density';	% secondary field to plot
 d.ncont2 = 6;			% contours of secondary field
+d.speed = -1;			% wave speed for streamlines
 d.xskp = 1;	    		% x-grid points to skip
 d.yskp = 1;	    		% y	"
 d.zskp = 1;		    	% z	"
@@ -26,6 +27,7 @@ d.colorbar = true;      % colorbar? (bool)
 d.visible = true;		% make plot visible or not (bool)
 d.savefig = false;		% save figure? (bool)
 d.filename = 'filename';	% name of file to save
+d.dir = 'figures';      % name of file to save
 
 % define validation functions
 validation_fnum = @(x) assert(isnumeric(x) || strcmpi(x, 'New'),...
@@ -41,6 +43,7 @@ addParameter(p,'ncontourf', d.ncontourf, @isnumeric)
 addParameter(p,'ncontour', d.ncontour, @isnumeric)
 addParameter(p,'cont2', d.cont2, @ischar)
 addParameter(p,'ncont2', d.ncont2, @isnumeric)
+addParameter(p,'speed', d.speed, @isnumeric)
 addParameter(p,'xskp', d.xskp, @isnumeric)
 addParameter(p,'yskp', d.yskp, @isnumeric)
 addParameter(p,'zskp', d.zskp, @isnumeric)
@@ -52,6 +55,7 @@ addParameter(p,'colorbar', d.colorbar, @islogical)
 addParameter(p,'visible', d.visible, @islogical)
 addParameter(p,'savefig', d.savefig, @islogical)
 addParameter(p,'filename', d.filename, @ischar)
+addParameter(p,'dir', d.dir, @ischar)
 parse(p,varargin{:})
 
 % put options into a shorter structure
