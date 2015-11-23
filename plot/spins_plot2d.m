@@ -214,7 +214,7 @@ for ii = t_index
         strt_dir  = pwd;
         for jj = 1:length(direcs)
             if ~(exist(direcs{jj},'dir') == 7)
-                mkdir direcs{jj}
+                mkdir(direcs{jj})
             end
             cd(direcs{jj})
         end
