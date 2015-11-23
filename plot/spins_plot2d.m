@@ -120,11 +120,15 @@ for ii = t_index
             warning('Streamline has not been tested for mapped grids.')
         end
         prompt = 'Provide a sensible wave speed in m/s: ';
-        uwave = input(prompt);
+        if opts.speed == -1
+            uwave = input(prompt);
+        else
+            uwave = opts.speed;
+        end
         disp(['background speed = ',num2str(uwave),' m/s'])
         u1 = data1(:,:,1) - uwave;
         u2 = data1(:,:,2);
-        streamslice(xvar,yvar,u1',u2',0.75)
+        streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic')
         cont2col = 'r-';
     elseif strcmp(opts.style,'pcolor')
         pcolor(xvar,yvar,data1)
@@ -150,7 +154,7 @@ for ii = t_index
     if ~strcmp(colaxis, 'auto')
         caxis(colaxis);
     end
-    if opts.colorbar == true
+    if opts.colorbar == true && ~strcmp(var, 'Streamline')
         colorbar
     end
 
@@ -206,12 +210,16 @@ for ii = t_index
 
     % save figure
     if opts.savefig == true
-        if ~(exist('figures','dir') == 7)
-            mkdir figures
+        direcs = strsplit(opts.dir, '/');
+        strt_dir  = pwd;
+        for jj = 1:length(direcs)
+            if ~(exist(direcs{jj},'dir') == 7)
+                mkdir(direcs{jj})
+            end
+            cd(direcs{jj})
         end
-        cd figures
-        saveas(gcf,[filename,'_',int2str(ii),'.fig'],'fig');
-        cd('..')
+        savefig(gcf,[filename,'_',int2str(ii)]);
+        cd(strt_dir)
     end
     hold off
 
