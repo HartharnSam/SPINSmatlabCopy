@@ -204,6 +204,7 @@ for ii = t_index
     end
     axis(plotaxis)
     set(gca,'layer','top')
+    box on
 
     % drawnow if plotting multiple outputs
     if length(t_index) > 1, drawnow, end
