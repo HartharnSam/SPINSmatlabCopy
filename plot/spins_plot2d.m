@@ -119,8 +119,8 @@ for ii = t_index
         if strcmp(params.mapped_grid, 'true')
             warning('Streamline has not been tested for mapped grids.')
         end
-        prompt = 'Provide a sensible wave speed in m/s: ';
         if opts.speed == -1
+            prompt = 'Provide a sensible wave speed in m/s: ';
             uwave = input(prompt);
         else
             uwave = opts.speed;
@@ -128,6 +128,7 @@ for ii = t_index
         disp(['background speed = ',num2str(uwave),' m/s'])
         u1 = data1(:,:,1) - uwave;
         u2 = data1(:,:,2);
+        data1(:,:,1) = u1;
         streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic')
         cont2col = 'r-';
     elseif strcmp(opts.style,'pcolor')
@@ -160,7 +161,7 @@ for ii = t_index
 
     % add contours of another field
     if ~strcmpi(opts.cont2,'None')
-        if strncmp(var,'Mean',4) || strncmp(var,'SD',2)
+        if (strncmp(var,'Mean',4) || strncmp(var,'SD',2)) && ~strcmp(opts.cont2,'Streamline')
             % choose Mean of field if primary field is Mean or SD
             cont2 = ['Mean ',opts.cont2];
         else
@@ -173,10 +174,27 @@ for ii = t_index
             if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
                 [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, opts.slice);
             end
-            if strcmp(params.mapped_grid, 'false')
+            if strcmp(params.mapped_grid, 'false') && ~strcmp(opts.cont2, 'Streamline')
                 data2 = data2';
             end
-            contour(xvar,yvar,data2,opts.ncont2,cont2col)
+            if strcmp(opts.cont2, 'Streamline')
+                if strcmp(params.mapped_grid, 'true')
+                    warning('Streamline has not been tested for mapped grids.')
+                end
+                if opts.speed == -1
+                    prompt = 'Provide a sensible wave speed in m/s: ';
+                    uwave = input(prompt);
+                else
+                    uwave = opts.speed;
+                end
+                disp(['background speed = ',num2str(uwave),' m/s'])
+                u1 = data2(:,:,1) - uwave;
+                u2 = data2(:,:,2);
+                data2(:,:,1) = u1;
+                streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic')
+            else
+                contour(xvar,yvar,data2,opts.ncont2,cont2col)
+            end
         end
     end
     if strcmp(var, 'Ri')
