@@ -105,7 +105,7 @@ end
 
 % change default colormap length depending on plotting style
 if strcmp(opts.style, 'contourf')
-    opts.ncmap = opts.ncontourf+1;
+    opts.ncmap = opts.ncontourf;
 elseif strcmp(opts.style, 'contour')
     opts.ncmap = opts.ncontour;
 end

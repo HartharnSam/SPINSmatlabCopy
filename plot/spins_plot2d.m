@@ -202,7 +202,7 @@ for ii = t_index
     end
 
     % add contour of hill if grid is mapped
-    if strcmp(params.mapped_grid,'true') && strcmp(opts.style,'contour')
+    if strcmp(params.mapped_grid,'true')
         hill_nx = nx(1):nx(end);
         if params.ndims == 3
             hill   = squeeze(gd.z(hill_nx,1,params.Nz));
