@@ -150,7 +150,7 @@ for ii = t_index
     end
 
     % add extra information
-    shading flat	% need to change in version 2015
+    shading flat
     if strcmp(opts.style,'contourf')
         set(p_hand,'LineColor','none')
     end
