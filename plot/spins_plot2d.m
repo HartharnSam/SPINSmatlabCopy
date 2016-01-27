@@ -129,16 +129,16 @@ for ii = t_index
         u1 = data1(:,:,1) - uwave;
         u2 = data1(:,:,2);
         data1(:,:,1) = u1;
-        streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic')
+        p_hand = streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic');
         cont2col = 'r-';
     elseif strcmp(opts.style,'pcolor')
-        pcolor(xvar,yvar,data1)
+        p_hand = pcolor(xvar,yvar,data1);
         cont2col = 'k-';
     elseif strcmp(opts.style,'contourf')
-        contourf(xvar,yvar,data1,opts.ncontourf)
+        [~,p_hand] = contourf(xvar,yvar,data1,opts.ncontourf);
         cont2col = 'k-';
     elseif strcmp(opts.style,'contour')
-        contour(xvar,yvar,data1,opts.ncontour)
+        [~,p_hand] = contour(xvar,yvar,data1,opts.ncontour);
         cont2col = 'k-';
     end
 
@@ -151,6 +151,9 @@ for ii = t_index
 
     % add extra information
     shading flat	% need to change in version 2015
+    if strcmp(opts.style,'contourf')
+        set(p_hand,'LineColor','none')
+    end
     colormap(cmap)
     if ~strcmp(colaxis, 'auto')
         caxis(colaxis);
