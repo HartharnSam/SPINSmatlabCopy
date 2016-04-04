@@ -33,14 +33,14 @@ global gdpar
     end
 
     % Add other information into params structure
-    par = add_params(gd, params);
+    par = add_params(gd, params,varargin{1});
 
     % Place information into output structure
     gdpar.gd = gd;
     gdpar.params = par;
 end
 
-function par = add_params(gd, params)
+function par = add_params(gd, params,varargin)
     % get list of grid names
     gdnames = fieldnames(gd);
 
@@ -86,7 +86,7 @@ function par = add_params(gd, params)
     % print error if one dimensions is accidentally written out
     if params.ndims == 3
         if Nx == 1 || Ny == 1 || Nz == 1
-            error('Grid appears to be 2 dimensional but all 3 grid fields are present. Remove the unnecessary field before proceeding.')
+            %error('Grid appears to be 2 dimensional but all 3 grid fields are present. Remove the unnecessary field before proceeding.')
         end
     end
 
@@ -129,6 +129,9 @@ function par = add_params(gd, params)
         % grid is mapped if there is variation in the depth
         zratio =  min(middepth)/max(middepth);
         if zratio ~= 1
+            if nargin==0 || strcmpi(varargin,'Vector')
+                error('The grid appears to be mapped. Use the "Full" option rather than "Vector".')
+            end
             if isfield(params,'mapped_grid') == false
                 params.mapped_grid = 'true';
             elseif strcmp(params.mapped_grid, 'false')

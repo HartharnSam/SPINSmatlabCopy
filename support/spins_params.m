@@ -16,7 +16,7 @@ try
     fileID = fopen('spins.conf');
     tline = fgetl(fileID);
     while ischar(tline)
-        if ~isempty(tline)
+        if ~isempty(tline) && ~strcmp(tline(1),'#')
             lin = strtrim(strsplit(tline,'='));
             nam = lin{1};
             val = lin{2};
