@@ -33,14 +33,25 @@ global gdpar
     end
 
     % Add other information into params structure
-    par = add_params(gd, params,varargin{1});
+    par = add_params(gd, params,varargin);
 
     % Place information into output structure
     gdpar.gd = gd;
     gdpar.params = par;
 end
 
-function par = add_params(gd, params,varargin)
+function par = add_params(gd, params, varargin)
+    % parse varargin
+    if nargin == 0
+       vectorized = true;
+    else
+        if strcmpi(varargin{1},'Vector')
+            vectorized = true;
+        else
+            vectorized = false;
+        end
+    end
+
     % get list of grid names
     gdnames = fieldnames(gd);
 
@@ -115,21 +126,21 @@ function par = add_params(gd, params,varargin)
         % get vector of depths at mid-depth of domain
         if isvector(gd.z)
             if params.ndims == 3
-                middepth = zgrid_reader(':',1,round(Nz/2));
+                middepth = zgrid_reader(1:10:Nx,1,round(Nz/2));
             elseif params.ndims == 2
-                middepth = zgrid_reader(':',round(Nz/2));
+                middepth = zgrid_reader(1:10:Nx,round(Nz/2));
             end
         else
             if params.ndims == 3
-                middepth = gd.z(:,1,round(Nz/2));
+                middepth = gd.z(1:10:Nx,1,round(Nz/2));
             elseif params.ndims == 2
-                middepth = gd.z(:,round(Nz/2));
+                middepth = gd.z(1:10:end,round(Nz/2));
             end
         end
         % grid is mapped if there is variation in the depth
         zratio =  min(middepth)/max(middepth);
         if zratio ~= 1
-            if nargin==0 || strcmpi(varargin,'Vector')
+            if vectorized
                 error('The grid appears to be mapped. Use the "Full" option rather than "Vector".')
             end
             if isfield(params,'mapped_grid') == false
