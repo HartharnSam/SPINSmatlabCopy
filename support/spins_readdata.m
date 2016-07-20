@@ -172,7 +172,11 @@ if params.ndims == 3		% for 3D data
             var_reader = str2func([var,'_reader']);
             data = var_reader(ii,nx,ny,nz);
         catch
-            error('Variable not understood or output does not exist.');
+            try
+                data = spins_reader(var, ii, nx, ny, nz);
+            catch
+                error('Variable not understood or output does not exist.');
+            end
         end
     end
     % take mean or standard deviation if asked
@@ -267,7 +271,11 @@ elseif params.ndims == 2
             var_reader = str2func([var,'_reader']);
             data = var_reader(ii,nx,nz);
         catch
-            error('Variable not understood or output does not exist.');
+            try
+                data = spins_reader(var, ii, nx, 1, nz);
+            catch
+                error('Variable not understood or output does not exist.');
+            end
         end
     end
 end
