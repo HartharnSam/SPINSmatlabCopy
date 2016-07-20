@@ -97,7 +97,7 @@ function par = add_params(gd, params, varargin)
     % print error if one dimensions is accidentally written out
     if params.ndims == 3
         if Nx == 1 || Ny == 1 || Nz == 1
-            %error('Grid appears to be 2 dimensional but all 3 grid fields are present. Remove the unnecessary field before proceeding.')
+            warning('Grid appears to be 2 dimensional but all 3 grid fields are present. Remove the unnecessary field before proceeding.')
         end
     end
 
