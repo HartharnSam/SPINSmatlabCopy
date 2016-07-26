@@ -50,71 +50,24 @@ if params.ndims == 3		% for 3D data
         end
     end
     % choose which dye field to read
-    if ~isempty(strfind(var,'Dye'));
-        if ~isempty(strfind(var,'1b'))
-            data = dye1b_reader(ii,nx,ny,nz);
-        elseif ~isempty(strfind(var,'1'))
-            data = dye1_reader(ii,nx,ny,nz);
-        elseif ~isempty(strfind(var,'2'))
-            data = dye2_reader(ii,nx,ny,nz);
-        elseif ~isempty(strfind(var,'3'))
-            data = dye3_reader(ii,nx,ny,nz);
+    if strcmp(var,'Density')
+        rhofiles = dir('rho.*');
+        if ~isempty(rhofiles)
+            data = spins_reader('rho',ii,nx,ny,nz);
         else
             try
-                data = dye_reader(ii,nx,ny,nz);
+                s = spins_reader('s',ii,nx,ny,nz);
+                t = spins_reader('t',ii,nx,nz,nz);
+                data = eqn_of_state(t,s);
             catch
-                data = tracer_reader(ii,nx,ny,nz);
+                error('Variable not understood, output does not exist, or you are in the wrong directory.');
             end
         end
-    elseif strcmp(var,'Salt') || strcmp(var,'S')
-        try
-            data = s_reader(ii,nx,ny,nz);
-        catch    
-            data = S_reader(ii,nx,ny,nz);
-        end
-    elseif strcmp(var,'Temperature') || strcmp(var,'T')
-        try
-            data = t_reader(ii,nx,ny,nz);
-        catch
-            data = T_reader(ii,nx,ny,nz);
-        end
-    elseif strcmp(var,'Density')
-        try
-            data = rho_reader(ii,nx,ny,nz);
-        catch
-            try
-                s = s_reader(ii,nx,ny,nz);
-            catch
-                try
-                    s = S_reader(ii,nx,ny,nz);
-                catch
-                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
-                end
-            end
-            try
-                t = t_reader(ii,nx,ny,nz);
-            catch
-                try
-                    t = T_reader(ii,nx,ny,nz);
-                catch
-                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
-                end
-            end
-            data = eqn_of_state(t, s);
-        end
-    elseif strcmp(var,'Pressure') || strcmp(var,'P')
-        data = p_reader(ii,nx,ny,nz);
-    elseif strcmp(var,'U')
-        data = u_reader(ii,nx,ny,nz);
-    elseif strcmp(var,'V')
-        data = v_reader(ii,nx,ny,nz);
-    elseif strcmp(var,'W')
-        data = w_reader(ii,nx,ny,nz);
     % read in kinetic energy
     elseif strcmp(var,'KE')
-        u = u_reader(ii,nx,ny,nz);
-        v = v_reader(ii,nx,ny,nz);
-        w = w_reader(ii,nx,ny,nz);
+        u = spins_reader('u',ii,nx,ny,nz);
+        v = spins_reader('v',ii,nx,ny,nz);
+        w = spins_reader('w',ii,nx,ny,nz);
         data = 0.5*(u.^2 + v.^2 + w.^2);
         clearvars u v w
     % read in vorticity
@@ -136,8 +89,8 @@ if params.ndims == 3		% for 3D data
             error('Gradient Richardson number must be plotted in x-z plane.')
         else
             % read in data
-            rho = rho_reader(ii,nx,ny,nz)';
-            u   = u_reader(ii,nx,ny,nz)';
+            rho = spins_reader('rho',ii,nx,ny,nz)';
+            u   = spins_reader('u',ii,nx,ny,nz)';
             g = params.g;
             rho_0 = params.rho_0;
             % average nearby data
@@ -159,8 +112,8 @@ if params.ndims == 3		% for 3D data
     % read in data for plotting streamlines
     elseif strcmp(var,'Streamline')
         ny = 1:Ny;
-        u = squeeze(mean(u_reader(ii,nx,ny,nz),2));
-        w = squeeze(mean(w_reader(ii,nx,ny,nz),2));
+        u = squeeze(mean(spins_reader('u',ii,nx,ny,nz),2));
+        w = squeeze(mean(spins_reader('w',ii,nx,ny,nz),2));
         %u = u_reader(ii,nx,ny,nz);
         %w = w_reader(ii,nx,ny,nz);
         data = ones([size(u) 2]);
@@ -196,64 +149,21 @@ elseif params.ndims == 2
         error('Mean, SD, and Scaled SD are not supported on 2D data.');
     end
     % choose which dye field to read
-    if ~isempty(strfind(var,'Dye'));
-        if ~isempty(strfind(var,'1b'))
-            data = dye1b_reader(ii,nx,nz);
-        elseif ~isempty(strfind(var,'1'))
-            data = dye1_reader(ii,nx,nz);
-        elseif ~isempty(strfind(var,'2'))
-            data = dye2_reader(ii,nx,nz);
-        elseif ~isempty(strfind(var,'3'))
-            data = dye3_reader(ii,nx,nz);
+    if strcmp(var,'Density')
+        rhofiles = dir('rho.*');
+        if ~isempty(rhofiles)
+            data = spins_reader('rho',ii,nx,[],nz);
         else
             try
-                data = dye_reader(ii,nx,nz);
+                s = spins_reader('s',ii,nx,[],nz);
+                t = spins_reader('t',ii,nx,[],nz);
+                data = eqn_of_state(t,s);
             catch
-                data = tracer_reader(ii,nx,nz);
+                error('Variable not understood, output does not exist, or you are in the wrong directory.');
             end
         end
-    elseif strcmp(var,'Salt') || strcmp(var,'S')
-        try
-            data = s_reader(ii,nx,nz);
-        catch
-            data = S_reader(ii,nx,nz);
-        end
-    elseif strcmp(var,'Temperature') || strcmp(var,'T')
-        try
-            data = t_reader(ii,nx,nz);
-        catch
-            data = T_reader(ii,nx,nz);
-        end
-    elseif strcmp(var,'Density')
-        try
-            data = rho_reader(ii,nx,nz);
-        catch
-            try
-                s = s_reader(ii,nx,nz);
-            catch
-                try
-                    s = S_reader(ii,nx,nz);
-                catch
-                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
-                end
-            end
-            try
-                t = t_reader(ii,nx,nz);
-            catch
-                try
-                    t = T_reader(ii,nx,nz);
-                catch
-                    error('Variable not understood, output does not exist, or you are in the wrong directory.');
-                end
-            end
-            data = eqn_of_state(t,s);
-        end
-    elseif strcmp(var,'U')
-        data = u_reader(ii,nx,nz);
-    elseif strcmp(var,'W')
-        data = w_reader(ii,nx,nz);
     elseif strcmp(var,'KE');
-        data = u_reader(ii,nx,nz).^2 + w_reader(ii,nx,nz).^2;
+        data = spins_reader('u',ii,nx,[],nz).^2 + spins_reader('w',ii,nx,[],nz).^2;
     elseif strcmp(var,'Vorticity')
         if strcmp(params.type_z, 'NO_SLIP') || strcmp(params.type_z, 'CHEBY')
             error('Vorticity not written for no slip yet.')
@@ -261,8 +171,8 @@ elseif params.ndims == 2
             data = vort_umap_slice(ii,gd,nx,ny,nz);
         end
     elseif strcmp(var,'Streamline')
-        u = u_reader(ii,nx,nz);
-        w = w_reader(ii,nx,nz);
+        u = spins_reader('u',ii,nx,[],nz);
+        w = spins_reader('w',ii,nx,[],nz);
         data = ones([size(u) 2]);
         data(:,:,1) = u;
         data(:,:,2) = w;
@@ -272,7 +182,7 @@ elseif params.ndims == 2
             data = var_reader(ii,nx,nz);
         catch
             try
-                data = spins_reader(var, ii, nx, 1, nz);
+                data = spins_reader(var, ii, nx, [], nz);
             catch
                 error('Variable not understood or output does not exist.');
             end
@@ -282,6 +192,7 @@ end
 end
 
 function data = vort_umap_slice(ii,gd,nx,ny,nz)
+    % keep for legacy, derivative can now be calculated in spins
     if length(nx) == 1
         Dy = FiniteDiff(gd.y(ny),1,2,false,true);
         Dz = FiniteDiff(gd.z(nz),1,2,false,true);
