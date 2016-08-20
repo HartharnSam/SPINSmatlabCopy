@@ -246,6 +246,12 @@ for ii = t_index
     hold off
 
     % output plotted data
+    if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
+        data1 = data1';
+        try
+            data2 = data2';
+        end
+    end
     pltinfo.xvar = xvar;
     pltinfo.yvar = yvar;
     pltinfo.data1 = data1;
