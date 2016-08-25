@@ -18,10 +18,10 @@ function ar = spins_reader(varname, seq, xrange, yrange, zrange)
 % MATLAB code provided courtesy of Michael Dunphy
 % (mdunphy@uwaterloo.ca), adapted for SPINS by 
 % Christopher Subich (csubich@uwaterloo.ca).
-global gdpar
-Nx = gdpar.params.Nx;
-Ny = gdpar.params.Ny;
-Nz = gdpar.params.Nz;
+params = spins_params();
+Nx = params.Nx;
+Ny = params.Ny;
+Nz = params.Nz;
 
 % Sanitize the ranges:
 if (~exist('xrange') || isempty(xrange) || strcmp(xrange,':')) xrange = [1:Nx]; end;
