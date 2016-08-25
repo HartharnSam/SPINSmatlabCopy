@@ -42,7 +42,7 @@ elseif strcmp(var, 'Density') && mean(data(:)) < 1e-5
     colaxis = [-1 1]*max(abs(data(:)));
 elseif strcmpi(var, 'U') || strcmpi(var, 'V') || strcmpi(var, 'W')
     colaxis = [-1 1]*max(abs(data(:)));
-elseif strcmp(var, 'Vorticity') || strcmp(var, 'vort')
+elseif strcmp(var, 'Vorticity') || strncmp(var, 'vort',4)
     colaxis = [-1 1]*max(abs(data(:)));
 elseif strcmp(var, 'KE') || strcmp(var, 'diss')
     colaxis = [0 1]*max(data(:));
