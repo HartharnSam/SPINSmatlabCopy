@@ -54,7 +54,7 @@ elseif nargin == 0 || strcmpi(varargin,'Vector')
         end
     end
 
-    % create or write grid
+    % create grid if everything is in spins.conf
     if e3D == 1 || e2D == 1
         Lx = params.Lx;
         Lz = params.Lz;
@@ -85,7 +85,7 @@ elseif nargin == 0 || strcmpi(varargin,'Vector')
                 gd.y = min_y + Ly*0.5*(1 - cos(pi*[0:(Ny-1)]/(Ny-1)));
             end
         end
-    else
+    else % read grid
         if (exist('xgrid_reader.m', 'file') == 2) && (exist('xgrid', 'file') == 2)
             try
                 gd.x = xgrid_reader(':',1,1);
@@ -108,7 +108,7 @@ elseif nargin == 0 || strcmpi(varargin,'Vector')
             end
         end
     end
-% make Full grid
+% raed full grid
 elseif strcmpi(varargin,'Full') && nargin == 1
     if (exist('xgrid_reader.m', 'file') == 2) && (exist('xgrid', 'file') == 2)
         gd.x = xgrid_reader();

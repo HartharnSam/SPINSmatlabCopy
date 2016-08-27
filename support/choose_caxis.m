@@ -33,22 +33,22 @@ if strcmp(opts.style,'contour')
 else
     cmap = temperature(ncmap);    % the default colormap
 end
-if exist('SD', 'var')
+if exist('SD', 'var') ||...
+    strcmp(var, 'KE') ||...
+    strcmp(var, 'diss')
     colaxis = [0 1]*max(data(:));
     cmap = flipud(bone(ncmap));
-elseif ~isempty(strfind(var, 'Dye')) || strcmpi(var, 'Tracer')
+elseif ~isempty(strfind(var, 'Dye')) ||...
+    strcmpi(var, 'Tracer')
     colaxis = [-1 1];
-elseif strcmp(var, 'Density') && mean(data(:)) < 1e-5
+elseif (strcmp(var, 'Density') && mean(data(:)) < 1e-5) ||...
+    strcmpi(var, 'U') || ...
+    strcmpi(var, 'V') || ...
+    strcmpi(var, 'W') ||...
+    strncmp(var, 'vort', 4)
     colaxis = [-1 1]*max(abs(data(:)));
-elseif strcmpi(var, 'U') || strcmpi(var, 'V') || strcmpi(var, 'W')
-    colaxis = [-1 1]*max(abs(data(:)));
-elseif strcmp(var, 'Vorticity') || strncmp(var, 'vort',4)
-    colaxis = [-1 1]*max(abs(data(:)));
-elseif strcmp(var, 'KE') || strcmp(var, 'diss')
-    colaxis = [0 1]*max(data(:));
-    cmap = flipud(bone(ncmap));
 elseif strcmp(var, 'Ri')
     colaxis = [0 5];
 else
     colaxis = 'auto';
-end 
+end
