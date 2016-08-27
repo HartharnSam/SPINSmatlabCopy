@@ -3,7 +3,7 @@
 %  David Deepwell, 2015
 
 % define expected options 
-exp_dimen = {'X','Y','Z'};
+exp_dimen = {'X','x','Y','y','Z','z'};
 exp_style = {'pcolor','contourf','contour'};
 % define defaults 
 d.dimen = 'Y';			% dimension
@@ -30,7 +30,7 @@ d.filename = 'filename';	% name of file to save
 d.dir = 'figures';      % name of file to save
 
 % define validation functions
-validation_fnum = @(x) assert(isnumeric(x) || strcmp(x, 'New'),...
+validation_fnum = @(x) assert(isnumeric(x) || strcmpi(x, 'New'),...
                 'fnum option was not understood. Provide either an integer or "New".');
 
 % parse options
@@ -64,30 +64,30 @@ opts = p.Results;
 % choose default cross-section slice based on which dimension is plotted
 if params.ndims == 3
     if length(opts.slice) == 2
-        if strcmp(opts.dimen, 'X')
+        if strcmpi(opts.dimen, 'X')
             opts.slice = sum(params.xlim)/2;
-        elseif strcmp(opts.dimen, 'Y')
+        elseif strcmpi(opts.dimen, 'Y')
             opts.slice = sum(params.ylim)/2;
-        elseif strcmp(opts.dimen, 'Z')
+        elseif strcmpi(opts.dimen, 'Z')
             opts.slice = sum(params.zlim)/2;
         end
     end
 end
 % fix if slice is outside of domain
 if params.ndims == 3
-    if strcmp(opts.dimen, 'X')
+    if strcmpi(opts.dimen, 'X')
         if opts.slice > params.xlim(2)
             opts.slice = params.xlim(2)
         elseif opts.slice < params.xlim(1)
             opts.slice = params.xlim(1)
         end
-    elseif strcmp(opts.dimen, 'Y')
+    elseif strcmpi(opts.dimen, 'Y')
         if opts.slice > params.ylim(2)
             opts.slice = params.ylim(2)
         elseif opts.slice < params.ylim(1)
             opts.slice = params.ylim(1)
         end
-    elseif strcmp(opts.dimen, 'Z')
+    elseif strcmpi(opts.dimen, 'Z')
         if opts.slice > params.zlim(2)
             opts.slice = params.zlim(2)
         elseif opts.slice < params.zlim(1)

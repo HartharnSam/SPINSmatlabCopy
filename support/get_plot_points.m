@@ -67,7 +67,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
     end
 
     % find grid points to read in
-    if strcmp(opts.dimen,'X')		% X dimen
+    if strcmpi(opts.dimen,'X')		% X dimen
         if params.ndims == 3
             nx = nearestindex(x, opts.slice);
         else
@@ -93,7 +93,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
         end
         xvar = y(ny);
         yvar = z(nz);
-    elseif strcmp(opts.dimen,'Y')	% Y dimen
+    elseif strcmpi(opts.dimen,'Y')	% Y dimen
         if params.ndims == 3
             ny = nearestindex(y, opts.slice);
         else
@@ -119,7 +119,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
         end
         xvar = x(nx);
         yvar = z(nz);
-    elseif strcmp(opts.dimen,'Z')      % Z dimen
+    elseif strcmpi(opts.dimen,'Z')      % Z dimen
         if params.ndims == 3
             nz = nearestindex(z, opts.slice);
         else
@@ -183,7 +183,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
     end
 
     % find grid points to read in
-    if strcmp(opts.dimen,'X')		% X dimen
+    if strcmpi(opts.dimen,'X')		% X dimen
         if params.ndims == 3
             nx = nearestindex(x1d, opts.slice);
         else
@@ -210,7 +210,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
         xvar = squeeze(y(nx,ny,nz));
         yvar = squeeze(z(nx,ny,nz));
         zvar = [];
-    elseif strcmp(opts.dimen,'Y')	% Y dimen
+    elseif strcmpi(opts.dimen,'Y')	% Y dimen
         if params.ndims == 3
             ny = nearestindex(y1d, opts.slice);
         else
@@ -247,7 +247,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             yvar = z(nx,nz);
         end
         zvar = [];
-    elseif strcmp(opts.dimen,'Z')      % Z dimen
+    elseif strcmpi(opts.dimen,'Z')      % Z dimen
         if params.ndims == 3
             nz = 1:Nz;
         else
