@@ -26,29 +26,34 @@ elseif strncmp(var, 'Scaled SD', 9)
     var = var{end};
 end
 
-% choose color axis limits and colormap based on the field name
+% default maps
 ncmap = opts.ncmap;
 if strcmp(opts.style,'contour')
-    cmap = darkjet(ncmap);    % the default colormap
+    cmap = darkjet(ncmap);
 else
-    cmap = temperature(ncmap);    % the default colormap
+    cmap = temperature(ncmap);
 end
-if exist('SD', 'var') ||...
-    strcmpi(var, 'KE') ||...
-    strcmpi(var, 'diss')
+% choose color axis limits and colormap based on the field name
+if exist('SD', 'var') ...
+    || strcmpi(var, 'KE') ...
+    || strcmpi(var, 'diss')
     colaxis = [0 1]*max(data(:));
     cmap = flipud(bone(ncmap));
-elseif ~isempty(strfind(var, 'Dye')) ||...
-    strcmpi(var, 'Tracer')
+elseif ~isempty(strfind(var, 'Dye')) ...
+    || strcmpi(var, 'Tracer')
     colaxis = [-1 1];
-elseif (strcmp(var, 'Density') && mean(data(:)) < 1e-5) ||...
-    strcmpi(var, 'U') || ...
-    strcmpi(var, 'V') || ...
-    strcmpi(var, 'W') ||...
-    strncmp(var, 'vort', 4)
+elseif ((strcmpi(var, 'Density') || strcmp(var, 'rho')) ...
+    && mean(data(:)) < 1)
+    colaxis = [-1 1]*max(abs(data(:)));
+    cmap = flipud(temperature(ncmap));
+elseif strcmpi(var, 'U') ...
+    || strcmpi(var, 'V') ...
+    || strcmpi(var, 'W') ...
+    || strncmp(var, 'vort', 4)
     colaxis = [-1 1]*max(abs(data(:)));
 elseif strcmp(var, 'Ri')
     colaxis = [0 5];
+    cmap = bone(ncmap);
 else
     colaxis = 'auto';
 end
