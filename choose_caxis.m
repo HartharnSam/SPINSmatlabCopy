@@ -38,14 +38,16 @@ if exist('SD', 'var') ...
     || strcmpi(var, 'KE') ...
     || strcmpi(var, 'diss')
     colaxis = [0 1]*max(data(:));
-    cmap = flipud(bone(ncmap));
+    if ~strcmp(opts.style,'contour')
+        cmap = flipud(bone(ncmap));
+    end
 elseif ~isempty(strfind(var, 'Dye')) ...
     || strcmpi(var, 'Tracer')
     colaxis = [-1 1];
 elseif ((strcmpi(var, 'Density') || strcmp(var, 'rho')) ...
     && mean(data(:)) < 1)
     colaxis = [-1 1]*max(abs(data(:)));
-    cmap = flipud(temperature(ncmap));
+    cmap = flipud(cmap);
 elseif strcmpi(var, 'U') ...
     || strcmpi(var, 'V') ...
     || strcmpi(var, 'W') ...
@@ -53,7 +55,9 @@ elseif strcmpi(var, 'U') ...
     colaxis = [-1 1]*max(abs(data(:)));
 elseif strcmp(var, 'Ri')
     colaxis = [0 5];
-    cmap = bone(ncmap);
+    if ~strcmp(opts.style,'contour')
+        cmap = bone(ncmap);
+    end
 else
     colaxis = 'auto';
 end
