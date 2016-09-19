@@ -77,21 +77,21 @@ end
 if params.ndims == 3
     if strcmpi(opts.dimen, 'X')
         if opts.slice > params.xlim(2)
-            opts.slice = params.xlim(2)
+            opts.slice = params.xlim(2);
         elseif opts.slice < params.xlim(1)
-            opts.slice = params.xlim(1)
+            opts.slice = params.xlim(1);
         end
     elseif strcmpi(opts.dimen, 'Y')
         if opts.slice > params.ylim(2)
-            opts.slice = params.ylim(2)
+            opts.slice = params.ylim(2);
         elseif opts.slice < params.ylim(1)
-            opts.slice = params.ylim(1)
+            opts.slice = params.ylim(1);
         end
     elseif strcmpi(opts.dimen, 'Z')
         if opts.slice > params.zlim(2)
-            opts.slice = params.zlim(2)
+            opts.slice = params.zlim(2);
         elseif opts.slice < params.zlim(1)
-            opts.slice = params.zlim(1)
+            opts.slice = params.zlim(1);
         end
     end
 end
