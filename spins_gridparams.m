@@ -21,13 +21,9 @@ global gdpar
 
     % Read in grid
     if nargin > 1
-        error('Too many inputs. spins_gridparams accepts either "Full" or "Vector".')
+        error('Too many inputs. spins_gridparams accepts either "Full", "FastFull", or "Vector".')
     elseif nargin == 1
-        if ~strcmpi(varargin,'Full') && ~strcmpi(varargin,'Vector')
-            error('Unacceptable grid type. Must be either "Full" or "Vector".')
-        else
-            gd = spins_grid(varargin{1});
-        end
+        gd = spins_grid(varargin{1});
     elseif nargin == 0
         gd = spins_grid('Vector');
     end
