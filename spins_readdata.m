@@ -10,6 +10,7 @@ function data = spins_readdata(var, ii, nx, ny, nz, dimen)
 %	any field in the working directory ('rho','u',...)
 %	'Density'          searches for rho otherwise searches for t and s
 %	'KE'               finds the local kinetic energy
+%	'speed'            finds the magnitude of the local velocity vector 
 %   'Ri'               gradient Richardson number
 %	'Streamline'       plots streamlines in the x-z plane
 %	'Mean ...'         takes the spanwise mean of ...
@@ -83,6 +84,17 @@ elseif strcmpi(var,'KE')
     w = spins_reader('w',ii,nx,ny,nz);
     data = 0.5*(u.^2 + v.^2 + w.^2);
     clearvars u v w
+% plot speed (magnitude of velocity vector)
+elseif strcmpi(var,'speed')
+    u = spins_reader('u',ii,nx,ny,nz);
+    if params.ndims == 3
+        v = spins_reader('v',ii,nx,ny,nz);
+    else
+        v = 0;
+    end
+    w = spins_reader('w',ii,nx,ny,nz);
+    data = sqrt(u.^2 + v.^2 + w.^2);
+    clearvars u  v w
 % read in gradient Richardson number
 elseif strcmp(var, 'Ri')
     if length(ny) > 1
