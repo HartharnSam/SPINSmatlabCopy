@@ -1,4 +1,4 @@
-% spinsplotoptions creates the optional arguments for spins_plot2d
+% spins_plotoptions parses and creates the optional arguments for spins_plot2d
 %
 %  David Deepwell, 2015
 
@@ -8,32 +8,50 @@ exp_style = {'pcolor','contourf','contour'};
 % define defaults 
 d.dimen = 'Y';			% dimension
 d.slice = [0 0];		% cross-section. opt. arg. must be single number
-d.fnum = 1;		    	% figure window number to use
+d.axis = 0;			    % axis to plot. 0 denotes use of full domain
 d.style = 'contourf';	% plotting style
-d.ncontourf = 50;		% plotting regions in contourf style
-d.ncontour = 20;		% contours in contour style
-d.cont2 = 'Density';	% secondary field to plot
-d.ncont2 = 6;			% contours of secondary field
-d.speed = -1;			% wave speed for streamlines
 d.xskp = 1;	    		% x-grid points to skip
 d.yskp = 1;	    		% y	"
 d.zskp = 1;		    	% z	"
-d.axis = 0;			    % axis to plot. 0 denotes use of full domain
+d.fnum = 1;		    	% figure window number to use
+d.cont2 = 'Density';	% secondary field to plot
+d.ncont2 = 6;			% contours of secondary field
+d.ncontourf = 50;		% plotting regions in contourf style
+d.ncontour = 20;		% contours in contour style
 d.ncmap = 128;          % length of colormap (only for pcolor)
 d.colaxis = 0;          % colour axis limits to use -
                         % 0 uses default in choose_caxis function
-d.trim = false;         % trims values outside colaxis range to be within it
 d.colorbar = true;      % colorbar? (bool)
+d.trim = false;         % trims values outside colaxis range to be within it
 d.visible = true;		% make plot visible or not (bool)
+d.speed = -1;			% wave speed for streamlines
 d.savefig = false;		% save figure? (bool)
 d.filename = 'filename';	% name of file to save
 d.dir = 'figures';      % name of file to save
 
 % define validation functions
-validation_fnum = @(x) assert(isnumeric(x) || strcmpi(x, 'New'),...
-                'fnum option was not understood. Provide either an integer or "New".');
+fnum_error_msg = 'fnum option was not understood. Provide either an integer or "New".';
+time_error_msg = sprintf(['Time option was not understood.\n Provide either an integer ',...
+    '(for output number)\n or a string with time (ex. "5")']);
+validation_fnum = @(x) assert(isnumeric(x) || strcmpi(x, 'New'), fnum_error_msg);
+validation_time = @(x) assert(isnumeric(x) || ischar(x), time_error_msg);
 
-% parse options
+% parse time input type
+validation_time(t_index)
+% if it's a character, then it's passing a time in seconds
+if ischar(t_index)
+    dt = params.plot_interval;
+    time = str2num(t_index);
+    % find nearest output time
+    if round(mod(time, dt)/dt, 10, 'significant') < 0.5
+        time = time - mod(time, dt);
+    else
+        time = time - mod(time, dt) + dt;
+    end
+    t_index = time/dt;
+end
+
+% parse optional arguments
 p = inputParser;
 addParameter(p,'dimen', d.dimen, @(x) any(validatestring(x,exp_dimen)))
 addParameter(p,'slice', d.slice, @isnumeric)

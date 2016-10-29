@@ -3,41 +3,50 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %
 %  Usage:
 %	pltinfo = spins_plot2d(var, t_i) plots var at t_i
+%	pltinfo = spins_plot2d(var, 't') plots var at nearest output to time t (in seconds)
 %	pltinfo = spins_plot2d(var, t_i, 'opt1', val1, ...) plots var at t_i with option 'opt1' as val1
 %   
 %  Inputs:
 %    'var' may be of different forms:
 %	any field in the working directory ('rho','u',...)
-%	'Density'	   uses the 'rho_reader' file (other labeled fields exist too, ex. Salt, ...)
-%	'KE' 		   finds the local kinetic energy
-%	'Mean ...'	   takes the spanwise mean of ...
-%	'SD ...'	   takes the spanwise standard deviation of ...
-%	'Scaled SD ...'    scales SD ... by the maximum of ...
-%	'Streamline'	   plots streamlines in the x-z plane
+%   'Density'       reads rho or calculates it from Salt and Temp
+%   'KE'            local kinetic energy
+%   'speed'         magnitude of the local velocity
+%   'Ri'            gradient Richardson number
+%   'Streamline'    streamlines in the x-z plane
+%   'Mean ...'      takes the spanwise mean of ...
+%   'SD ...'        takes the spanwise standard deviation of ...
+%   'Scaled SD ...' scales SD ... by the maximum of ...
 %
 %    't_index' may be:
-%	an integer for a particular output
-%	a vector of outputs (ie. 0:10) will plot each output successively in the same figure
+%   an integer for a particular output
+%   a vector of outputs (ie. 0:10) will plot each output successively in the same figure
+%   a string containing the time (ex. '15')
 %
 %    Optional arguments:
 %	Name:	Options			- Description (defaults are in spins_plotoptions.m)
 %	---------------------------------------------------------
-%	dimen:	{'X','Y','Z'}		- dimension to take cross-section
-%	slice:	{double}		- location to take cross-section
-%	style:  {'pcolor','contourf','contour'}
-%		- type of plot
-%	axis:	{[x1 x2 z1 z2]}		- domain to plot
-%	xskp:	{integer}		- x-grid points to skip in plot
-%	yskp:	{integer}		- y-grid     "
-%	zskp:	{integer}		- z-grid     "
-%	fnum:	{integer}		- figure window to make plot
-%	colorbar:  {boolean}		- plot colorbar?
-%	savefig:   {boolean}		- save figure in figure file?
-%	visible:   {boolean}		- make figure visible?
-%	ncontourf: {integer}		- contours to use for contourf plot
-%	ncontour:  {integer}		- contours to use for contour plot
-%	cont2:	{field name}		- secondary field to plot as contours
-%	ncont2:	{integer}		- contours to use for secondary field
+%   dimen:  {'X','Y','Z'}       - dimension to take cross-section
+%   slice:  {double}            - location to take cross-section
+%   axis:   {[x1 x2 z1 z2]}     - domain to plot
+%   style:  {'pcolor','contourf','contour'}     - type of plot
+%   xskp:   {integer}           - x-grid points to skip in plot
+%   yskp:   {integer}           - y-grid     "
+%   zskp:   {integer}           - z-grid     "
+%   fnum:   {integer}           - figure window to make plot
+%   cont2:  {field name}        - secondary field to plot as contours
+%   ncont2:    {integer}        - contours to use for secondary field
+%   ncontourf: {integer}        - contours to use for contourf plot
+%   ncontour:  {integer}        - contours to use for contour plot
+%   ncmap:     {double}         - number of levels in pcolor colormap
+%   colaxis:   {[c1 c2]}        - color axis limits to use
+%   colorbar:  {boolean}        - plot colorbar?
+%   trim:      {boolean}        - trims values outside colaxis range
+%   visible:   {boolean}        - make figure visible?
+%   speed:     {double}         - wave speed to subtract from flow in streamline plot
+%   savefig:   {boolean}        - save figure in figure file?
+%   filename:  {string}         - name of file of saved figure
+%   dir:       {string}         - name of relative directory to save figure
 %
 %  Outputs:
 %    'pltinfo'	- a structure containing the plotted fields 
