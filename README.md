@@ -9,12 +9,12 @@ Usage:
 | ---                                   | --- |
 | gdpar = spins_gridparams();           | unmapped |  
 | gdpar = spins_gridparams('Vector');   | unmapped (default) |  
-| gdpar = spins_gridparams('Full');		  | mapped |  
+| gdpar = spins_gridparams('Full');		| mapped |  
 | gdpar = spins_gridparams('FastFull');	| mapped |  
 
 Passing no argument will default to type 'Vector'. This is useful for unmapped grids which only require 1D vectors.  
 Mapped grids require the full grid to be loaded. 'Full' reads the entire grids.  
-2D plotting only requires cross sections, so 'FastFull' searches the spins.conf for parameters for the x-y slices. The x-z and y-z slices are read from the grids. Unless you require the full field, 'FastFull' will be sufficient.
+'FastFull' also creates a full grid by creating the grid from the parameters in spins.conf rather than reading the grids. This works for the x and y grids which are topography invariant. The z grid is still created by reading an x-z slice and using repmat to fill out the 3rd dimension.
 
     2. Make plot:  
 | Command                     | Purpose |
