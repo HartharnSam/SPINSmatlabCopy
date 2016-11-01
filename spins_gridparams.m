@@ -7,11 +7,15 @@ function gdpar = spins_gridparams(varargin)
 %  Inputs:
 %
 %    Optional arguments are:
+%   First argument:
 %	'Vector'    - (default) gives vector grid in output structure
 %	'Full'      - gives the entire grid in output structure
+%	'FastFull'  - creates the entire grid from parameters in spins.conf (equivalent to 'Full')
+%   Second argument:
+%   {boolean}   - check if grid is mapped or not?
 %
 %  Outputs:
-%    gdpar	- a structure containing two structures: the grid, and parameters
+%    gdpar	- a structure containing two structures: the grid (gd), and parameters (params)
 %
 %  David Deepwell, 2015
 global gdpar    
@@ -20,23 +24,32 @@ global gdpar
     params = spins_params();
 
     % Read in grid
-    if nargin > 1
+    if nargin > 2
         error('Too many inputs. spins_gridparams accepts either "Full", "FastFull", or "Vector".')
+    elseif nargin == 2
+        if islogical(varargin{2})
+            check_grid = varargin{2};
+        else
+            error('The second argument was not a boolean. Use false or true.')
+        end
+        gd = spins_grid(varargin{1});
     elseif nargin == 1
+        check_grid = true;
         gd = spins_grid(varargin{1});
     elseif nargin == 0
+        check_grid = true;
         gd = spins_grid('Vector');
     end
 
     % Add other information into params structure
-    par = add_params(gd, params,varargin);
+    par = add_params(gd, params, varargin, check_grid);
 
     % Place information into output structure
     gdpar.gd = gd;
     gdpar.params = par;
 end
 
-function par = add_params(gd, params, varargin)
+function par = add_params(gd, params, varargin, check_grid)
     % parse varargin
     if nargin == 0
        vectorized = true;
@@ -118,7 +131,7 @@ function par = add_params(gd, params, varargin)
     end
 
     % check if grid is mapped
-    if isfield(gd,'z')
+    if isfield(gd,'z') && check_grid
         % get vector of depths at mid-depth of domain
         if isvector(gd.z)
             if params.ndims == 3
