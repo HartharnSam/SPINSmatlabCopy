@@ -42,14 +42,14 @@ global gdpar
     end
 
     % Add other information into params structure
-    par = add_params(gd, params, varargin, check_grid);
+    par = add_params(gd, params, check_grid, varargin);
 
     % Place information into output structure
     gdpar.gd = gd;
     gdpar.params = par;
 end
 
-function par = add_params(gd, params, varargin, check_grid)
+function par = add_params(gd, params, check_grid, varargin)
     % parse varargin
     if nargin == 0
        vectorized = true;
