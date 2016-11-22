@@ -37,10 +37,11 @@ end
 if exist('SD', 'var') ...
     || strcmpi(var, 'KE') ...
     || strcmpi(var, 'speed') ...
-    || strcmpi(var, 'diss')
+    || strcmpi(var, 'diss') ...
+    || strcmpi(var, 'enst')
     colaxis = [0 1]*max(data(:));
     if ~strcmp(opts.style,'contour')
-        cmap = flipud(bone(ncmap));
+        cmap = cmocean('-grey',ncmap);
     end
 elseif ~isempty(strfind(var, 'Dye')) ...
     || strcmpi(var, 'Tracer')
@@ -57,7 +58,7 @@ elseif strcmpi(var, 'U') ...
 elseif strcmp(var, 'Ri')
     colaxis = [0 5];
     if ~strcmp(opts.style,'contour')
-        cmap = bone(ncmap);
+        cmap = cmocean('grey',ncmap);
     end
 else
     colaxis = 'auto';
