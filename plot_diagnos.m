@@ -352,12 +352,12 @@ if length(diagnos.Total_dissipation) > enst_start && ...
     title('Total Dissipation')
 
 %%%% Enstrophy-Dissipation ratio %%%%
-% from Mike's Turbulence class: total diss. = 2*mu*(total enstrophy)
+% from Mike Waite's Turbulence class: total diss. = 2*mu*(total enstrophy)
 % check how close the ratio is to 1
     len_diss = length(diagnos.Total_dissipation);
     len_enst = length(enst.enst_tot);
     len_d_e = min(len_diss, len_enst);
-    enst_diss = diagnos.Total_dissipation(1:len_d_e)./enst.enst_tot(1:len_d_e)/(2*visco*rho_0);
+    enst_diss = diagnos.Total_dissipation(1:len_d_e)./(enst.enst_tot(1:len_d_e)*(2*visco*rho_0));
     n = n+1;
     figure(n)
     plot(diagnos.Sim_time(1:len_d_e), enst_diss-1,'.')
