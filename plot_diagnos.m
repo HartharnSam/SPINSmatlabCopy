@@ -305,7 +305,7 @@ else
     set(gca,'yscale','linear');
 end
 xlabel('time (s)')
-ylabel('KE_{tot} / V (J/m^3)')
+ylabel('KE$_\mathrm{tot}$ / V (J/m$^3$)','Interpreter','Latex')
 legend('KE_x', 'KE_y', 'KE_z', 'KE_{tot}')
 legend('location','best')
 legend('boxoff')
@@ -315,7 +315,7 @@ n = n+1;
 figure(n)
 plot(diagnos.Sim_time, diagnos.Total_PE/Vol)
 xlabel('time (s)')
-ylabel('PE_{tot} / V (J/m^3)')
+ylabel('PE$_\mathrm{tot} / V$ (J/m$^3$)','Interpreter','Latex')
 
 %%%% Enstrophy components %%%%
 n = n+1;
@@ -334,7 +334,7 @@ if is_enst && length(enst_x) > enst_start
     legend('location','best')
     legend('boxoff')
     xlabel('time (s)')
-    ylabel('\Omega_{tot} / V (1/s^2)')
+    ylabel('$\Omega_\mathrm{tot}$ / V (1/s$^2$)','Interpreter','Latex')
     title('Total Enstrophy')
 else
     clf
@@ -348,7 +348,7 @@ if length(diagnos.Total_dissipation) > enst_start && ...
     max(diagnos.Total_dissipation) > 0
     plot(diagnos.Sim_time(enst_start:end), diagnos.Total_dissipation(enst_start:end))
     xlabel('time (s)')
-    ylabel('\epsilon_{tot} / V  (J/s /m^3)') 
+    ylabel('$\epsilon_\mathrm{tot} / V$  (J/s /m$^3$)','Interpreter','Latex') 
     title('Total Dissipation')
 
 %%%% Enstrophy-Dissipation ratio %%%%
