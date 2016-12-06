@@ -2,42 +2,54 @@
 %% and gives timing information from plot_times.txt
 
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
-% read analysis file
-try
-    diag_file = 'diagnostics.txt';
+% .mat is a cleaned version of .txt (could have doubled times)
+% read diagnostic file
+diag_file_name = 'diagnostics';
+if exist([diag_file_name,'.mat'], 'file') == 2
+    diag_file = [diag_file_name,'.mat'];
+    diagnos = load(diag_file);
+elseif exist([diag_file_name,'.txt'], 'file') == 2
+    diag_file = [diag_file_name,'.txt'];
     diagnos = readtable(diag_file);
-catch
-    error('diagnostics.txt not found, or incorrectly configured.')
+else
+    error('Diagnostics file not found.')
 end
-% try reading enstrophy
-try
-    enst_file = 'enstrophy.txt';
+% read enstrophy file
+enst_file_name = 'enstrophy';
+if exist([enst_file_name,'.mat'], 'file') == 2
+    enst_file = [enst_file_name,'.mat'];
+    enst = load(enst_file);
+    is_enst = true;
+elseif exist([enst_file_name,'.txt'], 'file') == 2
+    enst_file = [enst_file_name,'.txt'];
     enst = readtable(enst_file);
+    is_enst = true;
+else
+    error('Enstrophy file not found.')
+    is_enst = false;
+end
+
+% read spins.conf
+gdpar = spins_gridparams('Vector',false);
+params = gdpar.params;
+clear gdpar
+
+%%%%%%%%%%% Parse Data %%%%%%%%%%%%%%%
+%  shorten enstrophy components
+try
     enst_x = enst.enst_x;
     enst_y = enst.enst_y;
     enst_z = enst.enst_z;
     enst_tot = enst.enst_tot;
-    is_enst = true;
 catch
-    disp('enstrophy.txt not found, or incorrectly configured.')
-    is_enst = false;
+    disp('Enstrophy file incorrectly configured.')
 end
-% read spins.conf
-try
-    gdpar = spins_gridparams('Vector',false);
-    params = gdpar.params;
-    clear gdpar
-catch
-    disp('spins.conf was not read.')
-end
-
-%%%%%%%%%%% Parse Data %%%%%%%%%%%%%%%
-% shorten some parameters
+% shorten other parameters
 try
     clk_time = diagnos.Clock_time;
     sim_time = diagnos.Sim_time;
 catch
-    error('diagnostics.txt not configured properly.')
+    error('Diagnostics file incorrectly configured.')
 end
 if params.ndims == 2
     Vol = params.Lx*params.Lz;
@@ -46,6 +58,7 @@ else
 end
 rho_0 = params.rho_0;
 visco = params.visco;
+% find all diffusivity values
 diffu_types = {'kappa','kappa_rho','kappa_tracer','kappa_dye','kappa_dye1','kappa_dye2',...
                'kappa_T','kappa_S'};
 for ii = 1:length(diffu_types)

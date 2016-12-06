@@ -2,42 +2,54 @@
 %% and gives timing information from plot_times.txt
 
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
-% read analysis file
-try
-    diag_file = 'diagnostics.txt';
+% .mat is a cleaned version of .txt (could have doubled times)
+% read diagnostic file
+diag_file_name = 'diagnostics';
+if exist([diag_file_name,'.mat'], 'file') == 2
+    diag_file = [diag_file_name,'.mat'];
+    diagnos = load(diag_file);
+elseif exist([diag_file_name,'.txt'], 'file') == 2
+    diag_file = [diag_file_name,'.txt'];
     diagnos = readtable(diag_file);
-catch
-    error('diagnostics.txt not found, or incorrectly configured.')
+else
+    error('Diagnostics file not found.')
 end
-% try reading enstrophy
-try
-    enst_file = 'enstrophy.txt';
+% read enstrophy file
+enst_file_name = 'enstrophy';
+if exist([enst_file_name,'.mat'], 'file') == 2
+    enst_file = [enst_file_name,'.mat'];
+    enst = load(enst_file);
+    is_enst = true;
+elseif exist([enst_file_name,'.txt'], 'file') == 2
+    enst_file = [enst_file_name,'.txt'];
     enst = readtable(enst_file);
+    is_enst = true;
+else
+    error('Enstrophy file not found.')
+    is_enst = false;
+end
+
+% read spins.conf
+gdpar = spins_gridparams('Vector',false);
+params = gdpar.params;
+clear gdpar
+
+%%%%%%%%%%% Parse Data %%%%%%%%%%%%%%%
+%  shorten enstrophy components
+try
     enst_x = enst.enst_x;
     enst_y = enst.enst_y;
     enst_z = enst.enst_z;
     enst_tot = enst.enst_tot;
-    is_enst = true;
 catch
-    disp('enstrophy.txt not found, or incorrectly configured.')
-    is_enst = false;
+    disp('Enstrophy file incorrectly configured.')
 end
-% read spins.conf
-try
-    gdpar = spins_gridparams('Vector',false);
-    params = gdpar.params;
-    clear gdpar
-catch
-    disp('spins.conf was not read.')
-end
-
-%%%%%%%%%%% Parse Data %%%%%%%%%%%%%%%
-% shorten some parameters
+% shorten other parameters
 try
     clk_time = diagnos.Clock_time;
     sim_time = diagnos.Sim_time;
 catch
-    error('diagnostics.txt not configured properly.')
+    error('Diagnostics file incorrectly configured.')
 end
 if params.ndims == 2
     Vol = params.Lx*params.Lz;
@@ -46,8 +58,9 @@ else
 end
 rho_0 = params.rho_0;
 visco = params.visco;
-diffu_types = {'kappa','kappa_rho','kappa_tracer',...
-               'kappa_dye','kappa_dye1','kappa_dye2','kappa_T','kappa_S'};
+% find all diffusivity values
+diffu_types = {'kappa','kappa_rho','kappa_tracer','kappa_dye','kappa_dye1','kappa_dye2',...
+               'kappa_T','kappa_S'};
 for ii = 1:length(diffu_types)
     if isfield(params, diffu_types{ii})
         kappa(ii) = params.(diffu_types{ii});
@@ -81,9 +94,9 @@ s2hms  = @(sec) datestr(datenum(0,0,0,0,0,sec),'HH:MM:SS');
 s2dhm  = @(sec) datestr(datenum(0,0,0,0,0,sec),'DD:HH:MM');
 s2dhms = @(sec) datestr(datenum(0,0,0,0,0,sec),'DD:HH:MM:SS');
 % print info
-disp(['Total simulation time: ',num2str(tot_sim_time),' s'])
+disp(['Total simulated time:  ',num2str(tot_sim_time),' s'])
 disp(['Most recent sim. time: ',num2str(sim_time(end)),' s'])
-disp(['Total clock time:      ',num2str(s2dhm(tot_clk_time)),' (D:H:M)'])
+disp(['Total physical time:   ',num2str(s2dhm(tot_clk_time)),' (D:H:M)'])
 % print out average write time
 warning('off','MATLAB:table:ModifiedVarnames'); % suppress warning for this only
 try
@@ -95,45 +108,53 @@ try
     avg_sim_step = tot_sim_time/n_steps;
     clk_per_sim = avg_clk_step/avg_sim_step;
     if avg_write < 1
-        disp(['Average write time:      ',num2str(avg_write),' s'])
+        disp(['Average write time:    ',num2str(avg_write),' s'])
     else
-        disp(['Average write time:      ',num2str(s2ms(avg_write)),' (M:S)'])
+        disp(['Average write time:    ',num2str(s2ms(avg_write)),' (M:S)'])
     end
+    disp(['Avg. sim. step time:     ',num2str(avg_sim_step),' s'])
     if avg_clk_step < 1
-        disp(['Average clock step time: ',num2str(avg_clk_step),' s'])
+        disp(['Avg. physical step time: ',num2str(avg_clk_step),' s'])
     else
-        disp(['Average clock step time: ',num2str(s2ms(avg_clk_step)),' (M:S)'])
+        disp(['Avg. physical step time: ',num2str(s2ms(avg_clk_step)),' (M:S)'])
     end
-    disp(['Average sim step time:   ',num2str(avg_sim_step),' s'])
-    disp(['Avg. clock time per sim. sec.: ',num2str(s2dhms(clk_per_sim)),' (D:H:M:S)'])
+    disp(['Avg. phys. time per sim. sec.: ',num2str(s2dhms(clk_per_sim)),' (D:H:M:S)'])
 catch
     clk_per_sim = tot_clk_time/tot_sim_time;
-    disp(['Avg. clock time per sim. sec.: ',num2str(s2dhms(clk_per_sim)),' (D:H:M:S)'])
+    disp(['Avg. phys. time per sim. sec.: ',num2str(s2dhms(clk_per_sim)),' (D:H:M:S)'])
     disp('plot_times.txt file not found, or incorrectly configured.');
 end
 warning('on','MATLAB:table:ModifiedVarnames');
-% print Kolmogorov scale info eta = (rho_0 nu^3/epsilon)^(1/4).
+
+%% print Kolmogorov and Batchelor scales
+% eta = (rho_0 nu^3/epsilon)^(1/4)
 % rho_0 is included to make epsilon the dissipation per unit mass (makes dimensions work)
-max_diss = max(diagnos.Total_dissipation);
+% find max diss. ignoring the first 100 points containing the random perturbations
+if length(diagnos.Total_dissipation) >= 100
+    max_diss = max(diagnos.Total_dissipation(100:end));
+else
+    max_diss = max(diagnos.Total_dissipation);
+end
+% if the dissipation was calculated, print info
 if max_diss > 0
     Kolm = (rho_0*visco^3/max_diss)^(1/4);
     Batch = Kolm*sqrt(kappa_min/visco);
     if strcmp(params.mapped_grid, 'true')
         if params.ndims == 3
-            min_dxyz = min([params.dx,params.dy]);
+            max_dxyz = max([params.dx,params.dy]);
         else
-            min_dxyz = min([params.dx]);
+            max_dxyz = max([params.dx]);
         end
     elseif strcmp(params.mapped_grid, 'false')
         if params.ndims == 3
-            min_dxyz = min([params.dx,params.dy, params.dz]);
+            max_dxyz = max([params.dx,params.dy, params.dz]);
         else
-            min_dxyz = min([params.dx,params.dz]);
+            max_dxyz = max([params.dx,params.dz]);
         end
     end
-    dx_Kolm = min_dxyz/Kolm;
-    dx_Batch = min_dxyz/Batch;
-    disp(['dx/eta = ',num2str(dx_Kolm)])
+    dx_Kolm = max_dxyz/Kolm;
+    dx_Batch = max_dxyz/Batch;
+    disp(['dx/eta =      ',num2str(dx_Kolm)])
     disp(['dx/lambda_B = ',num2str(dx_Batch)])
 end
 
@@ -261,6 +282,11 @@ hold off
 n = n+1;
 figure(n)
 plot(diagnos.Sim_time, [diagnos.Max_U, diagnos.Max_V, diagnos.Max_W])
+if params.ndims == 3
+    set(gca,'yscale','log');
+else
+    set(gca,'yscale','linear');
+end
 xlabel('time (s)')
 ylabel('Maximum velocity (m/s)')
 legend('u','v','w')
@@ -285,10 +311,15 @@ xlabel('time (s)')
 %%%% KE components %%%%
 n = n+1;
 figure(n)
-plot(diagnos.Sim_time, diagnos.Total_KE)
+plot(diagnos.Sim_time, diagnos.Total_KE/Vol)
+if params.ndims == 3
+    set(gca,'yscale','log');
+else
+    set(gca,'yscale','linear');
+end
 xlabel('time (s)')
-ylabel('KE_{tot} / V (J/m^3)')
-legend('KE_{tot}')
+ylabel('KE$_\mathrm{tot}$ / V (J/m$^3$)','Interpreter','Latex')
+%legend('KE_x', 'KE_y', 'KE_z', 'KE_{tot}')
 legend('location','best')
 legend('boxoff')
 
@@ -297,7 +328,7 @@ n = n+1;
 figure(n)
 plot(diagnos.Sim_time, diagnos.Total_PE/Vol)
 xlabel('time (s)')
-ylabel('PE_{tot} / V (J/m^3)')
+ylabel('PE$_\mathrm{tot} / V$ (J/m$^3$)','Interpreter','Latex')
 
 %%%% Enstrophy components %%%%
 n = n+1;
@@ -307,11 +338,16 @@ if is_enst && length(enst_x) > enst_start
     enst_inds = enst_start:length(enst_x);
     plot(enst.Time(enst_inds),...
     [enst_x(enst_inds), enst_y(enst_inds), enst_z(enst_inds), enst_tot(enst_inds)]/Vol)
+    if params.ndims == 3
+        set(gca,'yscale','log');
+    else
+        set(gca,'yscale','linear');
+    end
     legend({'Enst_x','Enst_y','Enst_z','Enst_{tot}'})
     legend('location','best')
     legend('boxoff')
     xlabel('time (s)')
-    ylabel('\Omega_{tot} / V (1/s^2)')
+    ylabel('$\Omega_\mathrm{tot}$ / V (1/s$^2$)','Interpreter','Latex')
     title('Total Enstrophy')
 else
     clf
@@ -325,16 +361,16 @@ if length(diagnos.Total_dissipation) > enst_start && ...
     max(diagnos.Total_dissipation) > 0
     plot(diagnos.Sim_time(enst_start:end), diagnos.Total_dissipation(enst_start:end))
     xlabel('time (s)')
-    ylabel('\epsilon_{tot} / V  (J/s /m^3)') 
+    ylabel('$\epsilon_\mathrm{tot} / V$  (J/s /m$^3$)','Interpreter','Latex') 
     title('Total Dissipation')
 
 %%%% Enstrophy-Dissipation ratio %%%%
-% from Mike's Turbulence class: total diss. = 2*mu*(total enstrophy)
+% from Mike Waite's Turbulence class: total diss. = 2*mu*(total enstrophy)
 % check how close the ratio is to 1
     len_diss = length(diagnos.Total_dissipation);
     len_enst = length(enst.enst_tot);
     len_d_e = min(len_diss, len_enst);
-    enst_diss = diagnos.Total_dissipation(1:len_d_e)./enst.enst_tot(1:len_d_e)/(2*visco*rho_0);
+    enst_diss = diagnos.Total_dissipation(1:len_d_e)./(enst.enst_tot(1:len_d_e)*(2*visco*rho_0));
     n = n+1;
     figure(n)
     plot(diagnos.Sim_time(1:len_d_e), enst_diss-1,'.')
