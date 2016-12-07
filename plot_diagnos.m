@@ -183,7 +183,11 @@ n = 20;    % first figure number
 figure(n), clf
 hold on
 for ii = 1:N_start
-    its = strt_ind(ii):strt_ind(ii+1)-1;
+    if ii == 1
+        its = (strt_ind(ii)+1):strt_ind(ii+1)-1;
+    else
+        its = strt_ind(ii):strt_ind(ii+1)-1;
+    end
     plot(diagnos.Iter(its) + strt_ind(ii)-1, clk_step_time(its), '.')
 end
 xlabel('Iteration')
