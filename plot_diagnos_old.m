@@ -1,5 +1,5 @@
 %% plot quantities from diagnostic files (analysis.txt and enstrophy.txt) 
-%% and gives timing information from plot_times.txt
+%% and prints timing information from plot_times.txt
 
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
 % .mat is a cleaned version of .txt (could have doubled times)
@@ -183,7 +183,11 @@ n = 20;    % first figure number
 figure(n), clf
 hold on
 for ii = 1:N_start
-    its = strt_ind(ii):strt_ind(ii+1)-1;
+    if ii == 1
+        its = (strt_ind(ii)+1):strt_ind(ii+1)-1;
+    else
+        its = strt_ind(ii):strt_ind(ii+1)-1;
+    end
     plot(diagnos.Iter(its) + strt_ind(ii)-1, clk_step_time(its), '.')
 end
 xlabel('Iteration')
@@ -205,18 +209,8 @@ line(diagnos.Iter, clk_step_time,'Parent',ax2, 'LineStyle', 'none')
 % get matching ticks
 ax2.XLim = ax1.XLim;
 xticks = ax2.XTick(1:end-1); % drop last one
-breaks = strt_ind(2:end-1)'; % where are the restarts
-xticks = sort([xticks, breaks]);
 ax2.XTick = xticks;         % make new ticks
-% make labels for the locations of restarting
-break_times = [sim_time(breaks-1), sim_time(breaks)];
-break_lab = cell(1,N_restart);
-break_ind = zeros(1,N_restart);
-for ii = 1:N_restart
-    break_lab{ii} = sprintf('%.3g/%.3g',break_times(ii,1),break_times(ii,2));
-    break_ind(ii) = nearestindex(xticks,breaks(ii));
-end
-% make new tick labels
+%% make new tick labels
 xticks(1) = 1;
 xticks = sim_time(xticks);
 if xticks(1) < 0.01
@@ -226,9 +220,6 @@ xlab = cell(1,length(xticks));
 for ii = 1:length(xticks);
     xlab{ii} = num2str(xticks(ii),'%.3g');
 end
-for ii = 1:N_restart
-    xlab{break_ind(ii)} = break_lab{ii};
-end
 % place on axis
 ax2.XTickLabel = xlab;
 ax2.YTick = [];
@@ -237,7 +228,7 @@ xlabel('Sim time (s)')
 axes(ax1)
 box on
 hold off
-pause(0.25) % graphic errors occur if not paused
+pause(0.25) % graphic errors occur if not paused - not sure why
 
 %%%% Simulation Time per Step %%%%
 n = n+1;
@@ -266,8 +257,6 @@ line(diagnos.Iter, sim_step_time,'Parent',ax2, 'LineStyle', 'none')
 % get matching ticks
 ax2.XLim = ax1.XLim;
 xticks = ax2.XTick(1:end-1); % drop last one
-breaks = strt_ind(2:end-1)'; % where are the restarts
-xticks = sort([xticks, breaks]);
 ax2.XTick = xticks;         % make new ticks
 % place on axis
 ax2.XTickLabel = xlab;
@@ -319,9 +308,6 @@ else
 end
 xlabel('time (s)')
 ylabel('KE$_\mathrm{tot}$ / V (J/m$^3$)','Interpreter','Latex')
-%legend('KE_x', 'KE_y', 'KE_z', 'KE_{tot}')
-legend('location','best')
-legend('boxoff')
 
 %%%% Total PE %%%%
 n = n+1;
