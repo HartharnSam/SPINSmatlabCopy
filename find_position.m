@@ -16,9 +16,7 @@ function [pos, ind] = find_position(x, y, val)
 %  David Deepwell, 2016
 
     ind = nearestindex(y, val);
-    if ind == length(x)
-        pos = x(ind);
-    elseif ind == 1
+    if val < min(y) || val > max(y)
         pos = x(ind);
     else
         % find points for interpolation
