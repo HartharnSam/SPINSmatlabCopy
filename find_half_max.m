@@ -23,8 +23,8 @@ function [pos, ind] = find_half_max(x, y)
 
     % loop from right to left
     while val > max_val/2 && ii>1
-        ii = ii-1
-        val = y(ii)
+        ii = ii-1;
+        val = y(ii);
     end
 
     if ii == 1
