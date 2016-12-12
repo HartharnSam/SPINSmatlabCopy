@@ -69,7 +69,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
     % find grid points to read in
     if strcmpi(opts.dimen,'X')		% X dimen
         if params.ndims == 3
-            nx = nearestindex(x, opts.slice);
+            nx = nearest_index(x, opts.slice);
         else
             nx = 1;
         end
@@ -82,10 +82,10 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(y, plotaxis(1));
-            xvarR = nearestindex(y, plotaxis(2));
-            yvarB = nearestindex(z, plotaxis(3));
-            yvarT = nearestindex(z, plotaxis(4));
+            xvarL = nearest_index(y, plotaxis(1));
+            xvarR = nearest_index(y, plotaxis(2));
+            yvarB = nearest_index(z, plotaxis(3));
+            yvarT = nearest_index(z, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             ny = xvarL2:opts.xskp:xvarR2;
@@ -95,7 +95,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
         yvar = z(nz);
     elseif strcmpi(opts.dimen,'Y')	% Y dimen
         if params.ndims == 3
-            ny = nearestindex(y, opts.slice);
+            ny = nearest_index(y, opts.slice);
         else
             ny = 1;
         end
@@ -108,10 +108,10 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(x, plotaxis(1));
-            xvarR = nearestindex(x, plotaxis(2));
-            yvarB = nearestindex(z, plotaxis(3));
-            yvarT = nearestindex(z, plotaxis(4));
+            xvarL = nearest_index(x, plotaxis(1));
+            xvarR = nearest_index(x, plotaxis(2));
+            yvarB = nearest_index(z, plotaxis(3));
+            yvarT = nearest_index(z, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:opts.xskp:xvarR2;
@@ -121,7 +121,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
         yvar = z(nz);
     elseif strcmpi(opts.dimen,'Z')      % Z dimen
         if params.ndims == 3
-            nz = nearestindex(z, opts.slice);
+            nz = nearest_index(z, opts.slice);
         else
             nz = 1;
         end
@@ -134,10 +134,10 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(x, plotaxis(1));
-            xvarR = nearestindex(x, plotaxis(2));
-            yvarB = nearestindex(y, plotaxis(3));
-            yvarT = nearestindex(y, plotaxis(4));
+            xvarL = nearest_index(x, plotaxis(1));
+            xvarR = nearest_index(x, plotaxis(2));
+            yvarB = nearest_index(y, plotaxis(3));
+            yvarT = nearest_index(y, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:opts.xskp:xvarR2;
@@ -185,7 +185,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
     % find grid points to read in
     if strcmpi(opts.dimen,'X')		% X dimen
         if params.ndims == 3
-            nx = nearestindex(x1d, opts.slice);
+            nx = nearest_index(x1d, opts.slice);
         else
             error('get_plot_points assumes x-z plane for 2D mapped grids.')
         end
@@ -198,10 +198,10 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(y1d, plotaxis(1));
-            xvarR = nearestindex(y1d, plotaxis(2));
-            yvarB = nearestindex(z(nx,1,:), plotaxis(3));
-            yvarT = nearestindex(z(nx,1,:), plotaxis(4));
+            xvarL = nearest_index(y1d, plotaxis(1));
+            xvarR = nearest_index(y1d, plotaxis(2));
+            yvarB = nearest_index(z(nx,1,:), plotaxis(3));
+            yvarT = nearest_index(z(nx,1,:), plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             ny = xvarL2:opts.xskp:xvarR2;
@@ -212,7 +212,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
         zvar = [];
     elseif strcmpi(opts.dimen,'Y')	% Y dimen
         if params.ndims == 3
-            ny = nearestindex(y1d, opts.slice);
+            ny = nearest_index(y1d, opts.slice);
         else
             ny = 1;
         end
@@ -225,15 +225,15 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(x1d, plotaxis(1));
-            xvarR = nearestindex(x1d, plotaxis(2));
+            xvarL = nearest_index(x1d, plotaxis(1));
+            xvarR = nearest_index(x1d, plotaxis(2));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             if params.ndims == 3
-                yvarB = max(nearestindex(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(3)));
-                yvarT = min(nearestindex(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(4)));
+                yvarB = max(nearest_index(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(3)));
+                yvarT = min(nearest_index(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(4)));
             elseif params.ndims == 2
-                yvarB = max(nearestindex(z(xvarL2:xvarR2,:)', plotaxis(3)));
-                yvarT = min(nearestindex(z(xvarL2:xvarR2,:)', plotaxis(4)));
+                yvarB = max(nearest_index(z(xvarL2:xvarR2,:)', plotaxis(3)));
+                yvarT = min(nearest_index(z(xvarL2:xvarR2,:)', plotaxis(4)));
             end
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:opts.xskp:xvarR2;
@@ -262,10 +262,10 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
             end
-            xvarL = nearestindex(x1d, plotaxis(1));
-            xvarR = nearestindex(x1d, plotaxis(2));
-            yvarB = nearestindex(y1d, plotaxis(3));
-            yvarT = nearestindex(y1d, plotaxis(4));
+            xvarL = nearest_index(x1d, plotaxis(1));
+            xvarR = nearest_index(x1d, plotaxis(2));
+            yvarB = nearest_index(y1d, plotaxis(3));
+            yvarT = nearest_index(y1d, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:opts.xskp:xvarR2;
