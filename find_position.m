@@ -15,7 +15,7 @@ function [pos, ind] = find_position(x, y, val)
 %
 %  David Deepwell, 2016
 
-    ind = nearestindex(y, val);
+    ind = nearest_index(y, val);
     if val < min(y) || val > max(y)
         pos = x(ind);
     else

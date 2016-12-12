@@ -37,13 +37,13 @@ function [max_val, pos, ind] = find_wave_max(x, y)
     if isempty(pks)
         % if not using findpeaks, just take the absolute maxima
         max_val = y_max;
-        ind = nearestindex(y, y_max);
+        ind = nearest_index(y, y_max);
         pos = x(ind);
     else
         % improve location and max given by pks 
         % by fitting three points near peak with a quadratic (y = ax^2 + bx + c)
         for ii = 1:length(pks)
-            loc_ind = nearestindex(x, locs(ii));
+            loc_ind = nearest_index(x, locs(ii));
             if loc_ind > 1 && loc_ind < length(x)
                 x1 = loc_ind - 1;
                 x2 = loc_ind;
