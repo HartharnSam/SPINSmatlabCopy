@@ -22,7 +22,11 @@ function num = first_output()
     for ii = 1:nfiles
         filename = table{ii,1};
         [~, dot_num] = strtok(filename, '.');
-        outputs(ii) = str2num(dot_num(2:end));
+        if strcmp(dot_num, '.dump')
+            continue
+        else
+            outputs(ii) = str2num(dot_num(2:end));
+        end
     end
     num = min(outputs);
 end
