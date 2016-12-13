@@ -22,6 +22,9 @@ params = spins_params();
 Nx = params.Nx;
 Ny = params.Ny;
 Nz = params.Nz;
+if Ny == 1
+    yrange = 1;
+end
 
 % Sanitize the ranges:
 if (~exist('xrange') || isempty(xrange) || strcmp(xrange,':')) xrange = [1:Nx]; end;
