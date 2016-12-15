@@ -19,12 +19,11 @@ function [max_val, pos, ind] = find_wave_max(x, y)
     [y_max, max_ind] = max(y);
     min_height = 0.1*y_max;
     [y_sep, ~] = find_position(x(max_ind:end), y(max_ind:end), 0.5*y_max);
-    min_pk_dist = y_sep - x(max_ind);
+    min_pk_dist = (y_sep - x(max_ind))/3;
     % find peaks if x is monotonic
     if all(diff(x)>0)
         [pks, locs, width, prom] = findpeaks(y, x, 'MinPeakHeight', min_height,...
-                                'SortStr', 'descend', 'NPeaks', 5,...
-                                'MinPeakDistance', min_pk_dist);
+                                'NPeaks', 5, 'MinPeakDistance', min_pk_dist);
         %findpeaks(y, x, 'MinPeakHeight', min_height,...
         %                        'SortStr', 'descend', 'NPeaks', 5,...
         %                        'MinPeakDistance',min_pk_dist,...
@@ -66,4 +65,13 @@ function [max_val, pos, ind] = find_wave_max(x, y)
             ind(ii) = loc_ind;
         end
     end
+
+    % sort peaks to be from right to left 
+    if length(pks) > 1
+        [pos, order] = sort(pos, 'descend');
+        max_val = max_val(order);
+        ind = ind(order);
+    end
+    keyboard
+
 end
