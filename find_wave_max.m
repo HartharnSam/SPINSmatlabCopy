@@ -72,6 +72,5 @@ function [max_val, pos, ind] = find_wave_max(x, y)
         max_val = max_val(order);
         ind = ind(order);
     end
-    keyboard
 
 end
