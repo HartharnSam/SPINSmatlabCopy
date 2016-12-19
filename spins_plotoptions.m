@@ -121,6 +121,11 @@ else
     filename = opts.filename;
 end
 
+% don't plot secondary field if primary is rho or Density
+if strcmp(var,'Density') || strcmp(var,'rho')
+    opts.cont2 = 'none';
+end
+
 % change default colormap length depending on plotting style
 if strcmp(opts.style, 'contourf')
     opts.ncmap = opts.ncontourf;
