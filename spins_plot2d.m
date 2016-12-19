@@ -39,9 +39,9 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   ncontourf: {integer}        - contours to use for contourf plot
 %   ncontour:  {integer}        - contours to use for contour plot
 %   ncmap:     {double}         - number of levels in pcolor colormap
-%   colaxis:   {[c1 c2]}        - color axis limits to use
+%   clim:   {[c1 c2]}        - color axis limits to use
 %   colorbar:  {boolean}        - plot colorbar?
-%   trim:      {boolean}        - trims values outside colaxis range
+%   trim:      {boolean}        - trims values outside clim range
 %   visible:   {boolean}        - make figure visible?
 %   speed:     {double}         - wave speed to subtract from flow in streamline plot
 %   savefig:   {boolean}        - save figure in figure file?
@@ -114,11 +114,11 @@ for ii = t_index
     % remove points outside of desirable plotting range (typically from spectral aliasing)
     % this sets more contour levels into region that matters
     if opts.trim == true
-        if opts.colaxis == 0
+        if opts.clim == 0
             error('Trim requires an axis range to trim into.')
         else
-            data1(data1>opts.colaxis(2)) = opts.colaxis(2);
-            data1(data1<opts.colaxis(1)) = opts.colaxis(1);
+            data1(data1>opts.clim(2)) = opts.clim(2);
+            data1(data1<opts.clim(1)) = opts.clim(1);
         end
     end
 
@@ -152,10 +152,10 @@ for ii = t_index
     end
 
     % get caxis limits
-    [colaxis, cmap] = choose_caxis(var, data1, opts);
+    [clim, cmap] = choose_caxis(var, data1, opts);
     % use user defined caxis if specified
-    if length(opts.colaxis) ~= 1
-        colaxis = opts.colaxis;
+    if length(opts.clim) ~= 1
+        clim = opts.clim;
     end
 
     % add extra information
@@ -164,8 +164,8 @@ for ii = t_index
         set(p_hand,'LineColor','none')
     end
     colormap(cmap)
-    if ~strcmp(colaxis, 'auto')
-        caxis(colaxis);
+    if ~strcmp(clim, 'auto')
+        caxis(clim);
     end
     if opts.colorbar == true && ~strcmp(var, 'Streamline')
         colorbar

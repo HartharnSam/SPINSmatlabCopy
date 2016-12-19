@@ -1,4 +1,4 @@
-function [colaxis, cmap] = choose_caxis(var, data, opts)
+function [clim, cmap] = choose_caxis(var, data, opts)
 %  CHOOSE_CAXIS  choose the colorbar limits and colormap of data based on the field 'var'
 %
 %  Inputs:
@@ -7,7 +7,7 @@ function [colaxis, cmap] = choose_caxis(var, data, opts)
 %    opts - plotting options
 %
 %  Outputs:
-%    colaxis   - 2 element vector of colorbar limits
+%    clim   - 2 element vector of colorbar limits
 %    cmap      - colormap
 %
 %  David Deepwell, 2015
@@ -39,27 +39,27 @@ if exist('SD', 'var') ...
     || strcmpi(var, 'speed') ...
     || strcmpi(var, 'diss') ...
     || strcmpi(var, 'enst')
-    colaxis = [0 1]*max(data(:));
+    clim = [0 1]*max(data(:));
     if ~strcmp(opts.style,'contour')
         cmap = cmocean('-grey',ncmap);
     end
 elseif ~isempty(strfind(var, 'Dye')) ...
     || strcmpi(var, 'Tracer')
-    colaxis = [-1 1];
+    clim = [-1 1];
 elseif ((strcmpi(var, 'Density') || strcmp(var, 'rho')) ...
     && mean(data(:)) < 1)
-    colaxis = [-1 1]*max(abs(data(:)));
+    clim = [-1 1]*max(abs(data(:)));
     cmap = flipud(cmap);
 elseif strcmpi(var, 'U') ...
     || strcmpi(var, 'V') ...
     || strcmpi(var, 'W') ...
     || strncmp(var, 'vort', 4)
-    colaxis = [-1 1]*max(abs(data(:)));
+    clim = [-1 1]*max(abs(data(:)));
 elseif strcmp(var, 'Ri')
-    colaxis = [0 5];
+    clim = [0 5];
     if ~strcmp(opts.style,'contour')
         cmap = cmocean('grey',ncmap);
     end
 else
-    colaxis = 'auto';
+    clim = 'auto';
 end

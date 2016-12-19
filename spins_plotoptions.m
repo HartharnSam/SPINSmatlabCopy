@@ -19,10 +19,10 @@ d.ncont2 = 6;			% contours of secondary field
 d.ncontourf = 50;		% plotting regions in contourf style
 d.ncontour = 20;		% contours in contour style
 d.ncmap = 128;          % length of colormap (only for pcolor)
-d.colaxis = 0;          % colour axis limits to use -
+d.clim = 0;          % colour axis limits to use -
                         % 0 uses default in choose_caxis function
 d.colorbar = true;      % colorbar? (bool)
-d.trim = false;         % trims values outside colaxis range to be within it
+d.trim = false;         % trims values outside clim range to be within it
 d.visible = true;		% make plot visible or not (bool)
 d.speed = -1;			% wave speed for streamlines
 d.savefig = false;		% save figure? (bool)
@@ -67,7 +67,7 @@ addParameter(p,'yskp', d.yskp, @isnumeric)
 addParameter(p,'zskp', d.zskp, @isnumeric)
 addParameter(p,'axis', d.axis, @isnumeric)
 addParameter(p,'ncmap', d.ncmap, @isnumeric)
-addParameter(p,'colaxis', d.colaxis, @isnumeric)
+addParameter(p,'clim', d.clim, @isnumeric)
 addParameter(p,'trim', d.trim, @islogical)
 addParameter(p,'colorbar', d.colorbar, @islogical)
 addParameter(p,'visible', d.visible, @islogical)
