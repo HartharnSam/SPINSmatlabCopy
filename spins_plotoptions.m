@@ -35,6 +35,7 @@ time_error_msg = sprintf(['Time option was not understood.\n Provide either an i
     '(for output number)\n or a string with time (ex. "5")']);
 validation_fnum = @(x) assert(isnumeric(x) || strcmpi(x, 'New'), fnum_error_msg);
 validation_time = @(x) assert(isnumeric(x) || ischar(x), time_error_msg);
+validation_clim = @(x) assert(isnumeric(x) || strcmpi(x, 'auto'));
 
 % parse time input type
 validation_time(t_index)
@@ -67,7 +68,7 @@ addParameter(p,'yskp', d.yskp, @isnumeric)
 addParameter(p,'zskp', d.zskp, @isnumeric)
 addParameter(p,'axis', d.axis, @isnumeric)
 addParameter(p,'ncmap', d.ncmap, @isnumeric)
-addParameter(p,'clim', d.clim, @isnumeric)
+addParameter(p,'clim', d.clim, validation_clim)
 addParameter(p,'trim', d.trim, @islogical)
 addParameter(p,'colorbar', d.colorbar, @islogical)
 addParameter(p,'visible', d.visible, @islogical)
