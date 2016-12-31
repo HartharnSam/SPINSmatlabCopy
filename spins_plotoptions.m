@@ -123,7 +123,8 @@ else
 end
 
 % don't plot secondary field if primary is rho or Density
-if strcmp(var,'Density') || strcmp(var,'rho')
+if (length(strfind(var,'Density')) > 0 || length(strfind(var,'rho')) > 0) && ...
+    length(strfind(var, 'SD')) == 0
     opts.cont2 = 'none';
 end
 
