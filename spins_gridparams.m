@@ -164,6 +164,12 @@ function par = add_params(gd, params, check_grid, varargin)
                 error('The grid appears to be unmapped, but the config file says otherwise. Fix before proceeding.')
             end
         end
+    else
+        % if not checking grid, assume that grid is unmapped if field doesn't exist
+        if isfield(params,'mapped_grid') == false
+            params.mapped_grid = 'false';
+            disp('mapped_grid not found in spins.conf. Assuming it is false.')
+        end
     end
 
     % Check vertical expansion type
