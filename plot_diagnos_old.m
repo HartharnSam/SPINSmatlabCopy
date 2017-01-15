@@ -25,7 +25,7 @@ elseif exist([enst_file_name,'.txt'], 'file') == 2
     enst = readtable(enst_file);
     is_enst = true;
 else
-    error('Enstrophy file not found.')
+    warning('Enstrophy file not found.')
     is_enst = false;
 end
 
