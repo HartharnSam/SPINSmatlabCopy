@@ -39,7 +39,7 @@ d.z = [z_bot z_top];    % horizontal boundary locations
 
 % parse optional arguments
 p = inputParser;
-addParameter(p,'file', d.file, @char)
+addParameter(p,'file', d.file, @ischar)
 addParameter(p,'type', d.type, @(x) any(validatestring(x,exp_type)))
 addParameter(p,'x', d.x, @isnumeric)
 addParameter(p,'z', d.z, @isnumeric)
