@@ -1,11 +1,12 @@
-function num = first_output()
+function num = first_output(varargin)
 % FIRST_OUTPUT     Find the first SPINS output in the working directory
 %
 %  Usage:
 %    num = first_output()
+%    num = first_output('rho')
 %
 %  Inputs:
-%    -none
+%    - one optional argument. A string of the field name to use
 %
 %  Outputs:
 %    'num' - the number of the first output
@@ -13,7 +14,11 @@ function num = first_output()
 %  David Deepwell, 2016
 
     % use the u field to find the smallest output number
-    files = dir('u.*');
+    if nargin == 1
+        files = dir([varargin{1},'.*']);
+    else
+        files = dir('u.*');
+    end
     nfiles = length(files);
     table = struct2dataset(files);
 
