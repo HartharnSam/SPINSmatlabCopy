@@ -58,7 +58,7 @@ for ii = outputs
     if strcmp(clim, 'auto')
         spins_plot2d(var,ii,'axis',ax);
     else
-        spins_plot2d(var,ii,'axis',ax,'clim',clim);
+        spins_plot2d(var,ii,'axis',ax,'clim',clim,'trim',true);
     end
     % adjust to defaults
     figure_defaults(fig_hand)
