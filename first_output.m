@@ -1,4 +1,4 @@
-function num = first_output(varargin)
+function num = first_output(var)
 % FIRST_OUTPUT     Find the first SPINS output in the working directory
 %
 %  Usage:
@@ -14,8 +14,8 @@ function num = first_output(varargin)
 %  David Deepwell, 2016
 
     % use the u field to find the smallest output number
-    if nargin == 1
-        files = dir([varargin{1},'.*']);
+    if exist('var','var')
+        files = dir([var,'.*']);
     else
         files = dir('u.*');
     end
