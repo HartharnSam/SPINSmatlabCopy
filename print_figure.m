@@ -1,4 +1,4 @@
-function [] = print_figure(fig_hand,filename) 
+function [] = print_figure(fig_hand, filename, type) 
 % PRINT_FIGURE    Prints the figure (given by fig_hand) 
 %
 %  Usage:
@@ -7,6 +7,7 @@ function [] = print_figure(fig_hand,filename)
 %  Inputs:
 %    'fig_hand' - a figure handle
 %    'filename' - the name of the file
+%    'type'     - the file type
 %
 %  Outputs:
 %    - none
@@ -14,8 +15,10 @@ function [] = print_figure(fig_hand,filename)
 % David Deepwepll, 2016
 
     % default file name
-    if nargin<2
-        filename = 'test';
+    if ~exist('type', 'var')
+        type = 'png';
+    if ~exist('filename', 'var')
+        filename = 'fig';
     end
 
     % set-up figure size
@@ -25,5 +28,5 @@ function [] = print_figure(fig_hand,filename)
                   'PaperUnits', 'Inches',...
                   'PaperSize', [pos(3) pos(4)]);
     % save figure
-    print(fig_hand, filename, '-dpdf', '-r500')
+    print(fig_hand, filename, ['-d',type], '-r500')
 end
