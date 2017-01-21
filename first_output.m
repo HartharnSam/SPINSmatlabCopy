@@ -28,7 +28,7 @@ function num = first_output(var)
         filename = table{ii,1};
         [~, dot_num] = strtok(filename, '.');
         if strcmp(dot_num, '.dump')
-            continue
+            outputs(ii) = NaN;
         else
             outputs(ii) = str2num(dot_num(2:end));
         end
