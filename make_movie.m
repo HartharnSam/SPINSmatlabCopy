@@ -33,7 +33,9 @@ width = xR - xL;
 framerate = 3;  % frame rate lower than 3 does not work with quicktime
 
 % set-up directory and figure
-mkdir('tmp_figs')
+if exist('tmp_figs','dir')
+    rmdir('tmp_figs','s') % wipe directory clear before populating
+end
 fig_hand = figure(1);
 set(fig_hand, 'Units', 'Inches')
 pos = get(fig_hand, 'Position');
