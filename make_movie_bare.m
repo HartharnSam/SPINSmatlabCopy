@@ -1,5 +1,7 @@
 function [] = make_movie_bare()
 % MAKE_MOVIE_BARE     Make a movie tracking the wave in the current directory.
+%   make_movie uses ffmpeg to stitch frames together, so a working copy 
+%   of that is necessary.
 %
 %  Usage:
 %    make_movie()

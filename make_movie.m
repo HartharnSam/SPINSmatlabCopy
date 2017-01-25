@@ -1,5 +1,7 @@
 function [] = make_movie(var)
 % MAKE_MOVIE     Make a movie tracking the wave in the current directory.
+%   make_movie uses ffmpeg to stitch frames together, so a working copy 
+%   of that is necessary.
 %
 %  Usage:
 %    make_movie('rho')
@@ -44,7 +46,7 @@ set(fig_hand, 'PaperPositionMode','Auto',...
               'PaperSize', [pos(3) pos(4)]);
 
 % outputs to use in movie (default here is all of them)
-first_out = first_output();
+first_out = first_output(var);
 last_out = first_out + params.noutputs - 1;
 outputs = first_out:last_out;
 
