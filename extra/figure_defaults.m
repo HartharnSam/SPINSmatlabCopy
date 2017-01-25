@@ -12,6 +12,11 @@ function [] = figure_defaults(fig_hand)
 %
 % David Deepwell, 2016
 
+    % default figure
+    if ~exist(fig_hand,'var')
+        fig_hand = gcf;
+    end
+
     % settings
     fontsize = 10;
 
