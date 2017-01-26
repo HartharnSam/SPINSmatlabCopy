@@ -27,11 +27,11 @@ function num = first_output(var)
     for ii = 1:nfiles
         filename = table{ii,1};
         [~, dot_num] = strtok(filename, '.');
-        num_str = str2num(dot_num(2:end));
-        if isempty(num_str)
+        ext_num = str2num(dot_num(2:end));
+        if isempty(ext_num)
             outputs(ii) = NaN;
         else
-            outputs(ii) = str2num(num_str);
+            outputs(ii) = ext_num;
         end
     end
     num = min(outputs);
