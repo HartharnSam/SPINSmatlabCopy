@@ -13,7 +13,7 @@ function [] = figure_defaults(fig_hand)
 % David Deepwell, 2016
 
     % default figure
-    if ~exist(fig_hand,'var')
+    if nargin == 0
         fig_hand = gcf;
     end
 

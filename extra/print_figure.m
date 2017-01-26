@@ -15,14 +15,14 @@ function [] = print_figure(fig_hand, filename, type)
 % David Deepwepll, 2016
 
     % default inputs
-    if ~exist('fig_hand','var')
+    if nargin == 0
         fig_hand = gcf;
-    end
-    if ~exist('type', 'var')
-        type = 'png';
     end
     if ~exist('filename', 'var')
         filename = 'fig';
+    end
+    if ~exist('type', 'var')
+        type = 'png';
     end
 
     % set-up figure size
