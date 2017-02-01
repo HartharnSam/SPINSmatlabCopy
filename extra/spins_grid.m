@@ -8,6 +8,7 @@ function gd = spins_grid(varargin)
 %    Optional arguments:
 %	'Vector'    - (default) gives vector grid in output structure
 %	'Full'      - gives the entire grid in output structure
+%	'FastFull'  - gives the entire grid, as calculated from parameters in spins.conf
 %
 %  Outputs:
 %    gd		- structure containing the grid
