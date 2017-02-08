@@ -47,7 +47,7 @@ set(fig_hand, 'PaperPositionMode','Auto',...
 
 % outputs to use in movie (default here is all of them)
 first_out = first_output(var);
-last_out = first_out + params.noutputs - 1;
+last_out = last_output(var);
 outputs = first_out:last_out;
 
 % do loop

@@ -84,9 +84,17 @@ end
 % adjust if values are outside of domain
 if xL < params.min_x
     xL = params.min_x;
+    if strcmp(opts.type, 'fixed')
+        width = opts.x(2) - opts.x(1);
+        xR = xL + width;
+    end
 end
 if xR > params.min_x + params.Lx
     xR = params.min_x + params.Lx;
+    if strcmp(opts.type, 'fixed')
+        width = opts.x(2) - opts.x(1);
+        xL = xR - width;
+    end
 end
 if zB < params.min_z
     zB = params.min_z;
