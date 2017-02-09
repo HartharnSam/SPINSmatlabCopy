@@ -40,6 +40,7 @@ validation_clim = @(x) assert(isnumeric(x) || strcmpi(x, 'auto'));
 % parse time input type
 validation_time(t_index)
 % if it's a character, then it's passing a time in seconds
+% need to convert to output number
 if ischar(t_index)
     dt = params.plot_interval;
     time = str2num(t_index);
@@ -50,6 +51,14 @@ if ischar(t_index)
         time = time - mod(time, dt) + dt;
     end
     t_index = time/dt;
+
+    % check if index is in bounds of simulation outputs
+    if t_index > last_output()
+        t_index = last_output();
+    end
+    if t_index < first_output()
+        t_index = first_output();
+    end
 end
 
 % parse optional arguments
