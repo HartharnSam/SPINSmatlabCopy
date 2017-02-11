@@ -134,11 +134,7 @@ function par = add_params(gd, params, check_grid, varargin)
     if isfield(gd,'z') && check_grid
         % get vector of depths at mid-depth of domain
         if isvector(gd.z)
-            if params.ndims == 3
-                middepth = zgrid_reader(1:10:Nx,1,round(Nz/2));
-            elseif params.ndims == 2
-                middepth = zgrid_reader(1:10:Nx,round(Nz/2));
-            end
+            middepth = spins_reader('zgrid',1:10:Nx,1,round(Nz/2));
         else
             if params.ndims == 3
                 middepth = gd.z(1:10:Nx,1,round(Nz/2));

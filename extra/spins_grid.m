@@ -64,26 +64,18 @@ if nargin == 0 || strcmpi(varargin,'Vector')
     if e3D == 1 || e2D == 1
         gd = make_vector(params,e3D);
     else % read grid
-        if (exist('xgrid_reader.m', 'file') == 2) && (exist('xgrid', 'file') == 2)
-            try
-                gd.x = xgrid_reader([],1,1);
-            catch
-                gd.x = xgrid_reader([],1);
-            end
+        if exist('xgrid', 'file')
+            gd.x = spins_reader('xgrid',[],1,1);
+        else
+            warning('xgrid not found.')
         end
-        if (exist('ygrid_reader.m', 'file') == 2) && (exist('ygrid', 'file') == 2)
-            try
-                gd.y = ygrid_reader(1,[],1);
-            catch
-                gd.y = ygrid_reader(1,[]);	% assumes 2D is never y-z plane
-            end
+        if exist('ygrid', 'file')
+            gd.y = spins_reader('ygrid',1,[],1);
         end
-        if (exist('zgrid_reader.m', 'file') == 2) && (exist('zgrid', 'file') == 2)
-            try
-                gd.z = zgrid_reader(1,1,[]);
-            catch
-                gd.z = zgrid_reader(1,[]);
-            end
+        if exist('zgrid', 'file')
+            gd.z = spins_reader('zgrid',1,1,[]);
+        else
+            warning('zgrid not found.')
         end
     end
 % read full grid 'fast'
@@ -95,28 +87,32 @@ elseif strcmpi(varargin,'FastFull') && nargin == 1
         if e3D
             gd.x = repmat(gd_vec.x',1,Ny,Nz);
             gd.y = repmat(gd_vec.y,Nx,1,Nz);
-            z_s = zgrid_reader([],1,[]);
+            z_s = spins_reader('zgrid',[],1,[]);
             z_s = reshape(z_s,[Nx, 1, Nz]);
             gd.z = repmat(z_s,1,Ny,1);
         elseif e2D
             gd.x = repmat(gd_vec.x',1,Nz);
-            gd.z = zgrid_reader();
+            gd.z = spins_reader('zgrid');
         end
     end
 % read full grid
 elseif strcmpi(varargin,'Full') && nargin == 1
-    if (exist('xgrid_reader.m', 'file') == 2) && (exist('xgrid', 'file') == 2)
-        gd.x = xgrid_reader();
+    if exist('xgrid', 'file')
+        gd.x = spins_reader('xgrid');
+    else
+        warning('xgrid not found.')
     end
-    if (exist('ygrid_reader.m', 'file') == 2) && (exist('ygrid', 'file') == 2)
-        gd.y = ygrid_reader();
+    if exist('ygrid', 'file')
+        gd.y = spins_reader('ygrid');
     end
-    if (exist('zgrid_reader.m', 'file') == 2) && (exist('zgrid', 'file') == 2)
-        gd.z = zgrid_reader();
+    if exist('zgrid', 'file')
+        gd.z = spins_reader('zgrid');
+    else
+        warning('zgrid not found.')
     end
 end
 
-% error message if no grid_readers are in directory
+% error message if no grid files are in directory
 if ~exist('gd','var')
     error('The grid was not found in the working directory. Do you know where you are?')
 end
