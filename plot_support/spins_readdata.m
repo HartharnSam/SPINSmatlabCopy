@@ -33,31 +33,18 @@ if isfield(gd, 'y')
 end
 
 % parse the variable
-if params.ndims == 3
-    % Remove prefix from var (ie. remove the mean or SD from name)
-    if strncmp(var,'Mean',4) || strncmp(var,'SD',2) || strncmp(var,'Scaled SD',9)
+if strncmp(var,'Mean',4) || strncmp(var,'SD',2) || strncmp(var,'Scaled SD',9)
+    % Remove prefix from var (ie. remove Mean, SD, or Scaled SD)
+    if params.ndims == 3
         ny = 1:Ny;
-        if strncmp(var,'Mean',4)
-            varorig = var;
-            var = strsplit(var,'Mean ');
-            var = var{end};
-        elseif strncmp(var,'SD',2)
-            varorig = var;
-            var = strsplit(var,'SD ');
-            var = var{end};
-        elseif strncmp(var,'Scaled SD',9)
-            varorig = var;
-            var = strsplit(var,'Scaled SD ');
-            var = var{end};
-        end
-    end
-elseif params.ndims == 2
-    % can't accept Mean or SD
-    if strncmp(var,'Mean',4) || strncmp(var,'SD',2) || strncmp(var,'Scaled SD',9)
+        varorig = var;
+        var = strrep(var, 'Mean ', '');
+        var = strrep(var, 'Scaled SD ', '');
+        var = strrep(var, 'SD ', '');
+    else
         error('Mean, SD, and Scaled SD are not supported on 2D data.');
     end
 end
-
 
 % try different densities
 if strcmpi(var,'Density')
