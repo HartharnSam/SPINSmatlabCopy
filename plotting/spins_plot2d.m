@@ -36,10 +36,8 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   fnum:   {integer}           - figure window to make plot
 %   cont2:  {field name}        - secondary field to plot as contours
 %   ncont2:    {integer}        - contours to use for secondary field
-%   ncontourf: {integer}        - contours to use for contourf plot
-%   ncontour:  {integer}        - contours to use for contour plot
-%   ncmap:     {double}         - number of levels in pcolor colormap
-%   clim:   {[c1 c2]}        - color axis limits to use
+%   nlevels:   {integer}        - number of levels in plot
+%   clim:      {[c1 c2]}        - color axis limits to use
 %   colorbar:  {boolean}        - plot colorbar?
 %   trim:      {boolean}        - trims values outside clim range
 %   visible:   {boolean}        - make figure visible?
@@ -144,10 +142,10 @@ for ii = t_index
         p_hand = pcolor(xvar,yvar,data1);
         cont2col = 'k-';
     elseif strcmp(opts.style,'contourf')
-        [~,p_hand] = contourf(xvar,yvar,data1,opts.ncontourf);
+        [~,p_hand] = contourf(xvar,yvar,data1,opts.nlevels);
         cont2col = 'k-';
     elseif strcmp(opts.style,'contour')
-        [~,p_hand] = contour(xvar,yvar,data1,opts.ncontour);
+        [~,p_hand] = contour(xvar,yvar,data1,opts.nlevels);
         cont2col = 'k-';
     end
 

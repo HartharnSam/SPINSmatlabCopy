@@ -27,11 +27,11 @@ elseif strncmp(var, 'Scaled SD', 9)
 end
 
 % default maps
-ncmap = opts.ncmap;
+nlevels = opts.nlevels;
 if strcmp(opts.style,'contour')
-    cmap = darkjet(ncmap);
+    cmap = darkjet(nlevels);
 else
-    cmap = temperature(ncmap);
+    cmap = temperature(nlevels);
 end
 % choose color axis limits and colormap based on the field name
 if exist('SD', 'var') ...
@@ -41,7 +41,7 @@ if exist('SD', 'var') ...
     || strcmpi(var, 'enst')
     clim = [0 1]*max(data(:));
     if ~strcmp(opts.style,'contour')
-        cmap = cmocean('-grey',ncmap);
+        cmap = cmocean('-grey',nlevels);
     end
 elseif ~isempty(strfind(var, 'Dye')) ...
     || strcmpi(var, 'Tracer')
@@ -58,7 +58,7 @@ elseif strcmpi(var, 'U') ...
 elseif strcmp(var, 'Ri')
     clim = [0 5];
     if ~strcmp(opts.style,'contour')
-        cmap = cmocean('grey',ncmap);
+        cmap = cmocean('grey',nlevels);
     end
 else
     clim = 'auto';

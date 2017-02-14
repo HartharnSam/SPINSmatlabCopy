@@ -6,26 +6,26 @@
 exp_dimen = {'X','x','Y','y','Z','z'};
 exp_style = {'pcolor','contourf','contour'};
 % define defaults 
-d.dimen = 'Y';			% dimension
-d.slice = [0 0];		% cross-section. opt. arg. must be single number
-d.axis = 0;			    % axis to plot. 0 denotes use of full domain
-d.style = 'contourf';	% plotting style
-d.xskp = 1;	    		% x-grid points to skip
-d.yskp = 1;	    		% y	"
-d.zskp = 1;		    	% z	"
-d.fnum = 1;		    	% figure window number to use
-d.cont2 = 'Density';	% secondary field to plot
-d.ncont2 = 6;			% contours of secondary field
-d.ncontourf = 50;		% plotting regions in contourf style
-d.ncontour = 20;		% contours in contour style
-d.ncmap = 128;          % length of colormap (only for pcolor)
-d.clim = 0;          % colour axis limits to use -
+d.dimen = 'Y';          % dimension
+d.slice = [0 0];        % cross-section. opt. arg. must be single number
+d.axis = 0;             % axis to plot. 0 denotes use of full domain
+d.style = 'contourf';   % plotting style
+d.xskp = 1;             % x-grid points to skip
+d.yskp = 1;             % y	"
+d.zskp = 1;             % z	"
+d.fnum = 1;             % figure window number to use
+d.cont2 = 'Density';    % secondary field to plot
+d.ncont2 = 6;           % contours of secondary field
+ncontourf = 51;         % plotting regions in contourf style
+ncontour = 20;          % contours in contour style
+d.nlevels = 0;          % levels of colormap (0 is placeholder, value set below)
+d.clim = 0;             % colour axis limits to use -
                         % 0 uses default in choose_caxis function
 d.colorbar = true;      % colorbar? (bool)
 d.trim = false;         % trims values outside clim range to be within it
-d.visible = true;		% make plot visible or not (bool)
-d.speed = -1;			% wave speed for streamlines
-d.savefig = false;		% save figure? (bool)
+d.visible = true;       % make plot visible or not (bool)
+d.speed = -1;           % wave speed for streamlines
+d.savefig = false;      % save figure? (bool)
 d.filename = 'filename';	% name of file to save
 d.dir = 'figures';      % name of file to save
 
@@ -67,8 +67,6 @@ addParameter(p,'dimen', d.dimen, @(x) any(validatestring(x,exp_dimen)))
 addParameter(p,'slice', d.slice, @isnumeric)
 addParameter(p,'fnum', d.fnum, validation_fnum)
 addParameter(p,'style', d.style, @(x) any(validatestring(x,exp_style)))
-addParameter(p,'ncontourf', d.ncontourf, @isnumeric)
-addParameter(p,'ncontour', d.ncontour, @isnumeric)
 addParameter(p,'cont2', d.cont2, @ischar)
 addParameter(p,'ncont2', d.ncont2, @isnumeric)
 addParameter(p,'speed', d.speed, @isnumeric)
@@ -76,7 +74,7 @@ addParameter(p,'xskp', d.xskp, @isnumeric)
 addParameter(p,'yskp', d.yskp, @isnumeric)
 addParameter(p,'zskp', d.zskp, @isnumeric)
 addParameter(p,'axis', d.axis, @isnumeric)
-addParameter(p,'ncmap', d.ncmap, @isnumeric)
+addParameter(p,'nlevels', d.nlevels, @isnumeric)
 addParameter(p,'clim', d.clim, validation_clim)
 addParameter(p,'trim', d.trim, @islogical)
 addParameter(p,'colorbar', d.colorbar, @islogical)
@@ -138,10 +136,10 @@ if (length(strfind(var,'Density')) > 0 || length(strfind(var,'rho')) > 0) && ...
 end
 
 % change default colormap length depending on plotting style
-if strcmp(opts.style, 'contourf')
-    opts.ncmap = opts.ncontourf;
-elseif strcmp(opts.style, 'contour')
-    opts.ncmap = opts.ncontour;
+if strcmp(opts.style, 'contourf') && opts.nlevels == 0
+    opts.nlevels = ncontourf;
+elseif strcmp(opts.style, 'contour') && opts.nlevels == 0
+    opts.nlevels = ncontour;
 end
 
 % get indices and grid for plotting
