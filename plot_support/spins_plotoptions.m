@@ -140,6 +140,8 @@ if strcmp(opts.style, 'contourf') && opts.nlevels == 0
     opts.nlevels = ncontourf;
 elseif strcmp(opts.style, 'contour') && opts.nlevels == 0
     opts.nlevels = ncontour;
+else
+    opts.nlevels = 128;     % for colorbar in pcolor
 end
 
 % get indices and grid for plotting
