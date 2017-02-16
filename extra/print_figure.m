@@ -1,36 +1,70 @@
-function [] = print_figure(fig_hand, filename, type) 
+function [] = print_figure(filename, varargin) 
 % PRINT_FIGURE    Prints the figure (given by fig_hand) 
 %
 %  Usage:
-%    print_figure(gcf,'filename')
+%    print_figure()
+%    print_figure('rho')
+%    print_figure('rho', 'opt1', val1, 'opt2', val2, ...)
 %
 %  Inputs:
-%    'fig_hand' - a figure handle
-%    'filename' - the name of the file
-%    'type'     - the file type
+%    'filename' - the name of the file (is optional)
+%
+%    Optional arguments:
+%   Name:       Options                    - Description
+%   ----------------------------------------------------
+%   fig_hand:   {integer or figure handle} - figure to use
+%   format:     {pdf, png, eps, ...}       - file format
+%   units:      {Inches, cm, ...}          - paper units
+%   size:       {[width height]}           - vector of dimensions
+%   res:        {integer}                  - image resolution
 %
 %  Outputs:
 %    - none
 %
 % David Deepwepll, 2016
 
-    % default inputs
-    if nargin == 0
-        fig_hand = gcf;
-    end
-    if ~exist('filename', 'var')
-        filename = 'fig';
-    end
-    if ~exist('type', 'var')
-        type = 'png';
-    end
-
-    % set-up figure size
-    set(fig_hand, 'Units', 'Inches')
-    pos = get(fig_hand, 'Position');
-    set(fig_hand, 'PaperPositionMode','Auto',...
-                  'PaperUnits', 'Inches',...
-                  'PaperSize', [pos(3) pos(4)]);
-    % save figure
-    print(fig_hand, filename, ['-d',type], '-r500')
+%% Manage inputs
+% set default inputs
+if ~exist('filename', 'var')
+    filename = 'fig';
 end
+d.fig_hand = 0;     % figure handle, 0 is placeholder
+d.format = 'png';   % file format
+d.units = 'Inches'; % figure and paper units
+d.size = 0;         % size of figure, 0 is placeholder
+d.res = 500;        % image resolution
+
+% parse optional arguments
+p = inputParser;
+addParameter(p, 'fig_hand', d.fig_hand);
+addParameter(p, 'format', d.format);
+addParameter(p, 'units', d.units);
+addParameter(p, 'size', d.size, @isvector);
+addParameter(p, 'res', d.res, @isnumeric);
+parse(p, varargin{:})
+% put options into a shorter structure
+opts = p.Results;
+fig_hand = opts.fig_hand;
+
+%% Adjust based on given options
+if fig_hand == 0
+    fig_hand = gcf;
+elseif isnumeric(fig_hand)
+    fig_hand = figure(fig_hand);
+end
+% set units
+set(fig_hand, 'Units', opts.units,...
+              'PaperUnits', opts.units);
+% set size
+if opts.size == 0
+    pos = get(fig_hand, 'Position');
+    opts.size = pos(3:4);
+end
+fig_hand.PaperSize = opts.size;
+% set position
+fig_hand.PaperPosition = [0 0 opts.size];
+
+% save figure
+print(fig_hand, filename,...
+      ['-d',opts.format],...
+      ['-r',num2str(opts.res)])
