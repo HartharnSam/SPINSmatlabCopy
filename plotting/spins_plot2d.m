@@ -34,8 +34,8 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   yskp:   {integer}           - y-grid     "
 %   zskp:   {integer}           - z-grid     "
 %   fnum:   {integer}           - figure window to make plot
-%   cont2:  {field name}        - secondary field to plot as contours
-%   ncont2:    {integer}        - contours to use for secondary field
+%   var2:   {field name}        - secondary field to plot as contours
+%   nlevels2:  {integer}        - number of contours to use for secondary field
 %   nlevels:   {integer}        - number of levels in plot
 %   clim:      {[c1 c2]}        - color axis limits to use
 %   colorbar:  {boolean}        - plot colorbar?
@@ -137,16 +137,16 @@ for ii = t_index
         u2 = data1(:,:,2);
         data1(:,:,1) = u1;
         p_hand = streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic');
-        cont2col = 'r-';
+        var2col = 'r-';
     elseif strcmp(opts.style,'pcolor')
         p_hand = pcolor(xvar,yvar,data1);
-        cont2col = 'k-';
+        var2col = 'k-';
     elseif strcmp(opts.style,'contourf')
         [~,p_hand] = contourf(xvar,yvar,data1,opts.nlevels);
-        cont2col = 'k-';
+        var2col = 'k-';
     elseif strcmp(opts.style,'contour')
         [~,p_hand] = contour(xvar,yvar,data1,opts.nlevels);
-        cont2col = 'k-';
+        var2col = 'k-';
     end
 
     % get caxis limits
@@ -170,24 +170,24 @@ for ii = t_index
     end
 
     % add contours of another field
-    if ~strcmpi(opts.cont2,'None')
-        if (strncmp(var,'Mean',4) || strncmp(var,'SD',2)) && ~strcmp(opts.cont2,'Streamline')
+    if ~strcmpi(opts.var2,'None')
+        if (strncmp(var,'Mean',4) || strncmp(var,'SD',2)) && ~strcmp(opts.var2,'Streamline')
             % choose Mean of field if primary field is Mean or SD
-            cont2 = ['Mean ',opts.cont2];
+            var2 = ['Mean ',opts.var2];
         else
-            cont2 = opts.cont2;
+            var2 = opts.var2;
         end
-        if strcmp(cont2,var)            % read in data only if the field is different
+        if strcmp(var, var2)            % read in data only if the field is different
             data2 = data1;
         else
-            data2 = spins_readdata(cont2,ii,nx,ny,nz,opts.dimen);
+            data2 = spins_readdata(var2,ii,nx,ny,nz,opts.dimen);
             if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
                 [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, opts.slice);
             end
-            if strcmp(params.mapped_grid, 'false') && ~strcmp(opts.cont2, 'Streamline')
+            if strcmp(params.mapped_grid, 'false') && ~strcmp(opts.var2, 'Streamline')
                 data2 = data2';
             end
-            if strcmp(opts.cont2, 'Streamline')
+            if strcmp(opts.var2, 'Streamline')
                 if strcmp(params.mapped_grid, 'true')
                     warning('Streamline has not been tested for mapped grids.')
                 end
@@ -203,7 +203,7 @@ for ii = t_index
                 data2(:,:,1) = u1;
                 streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic')
             else
-                contour(xvar,yvar,data2,opts.ncont2,cont2col)
+                contour(xvar,yvar,data2,opts.nlevels2,var2col)
             end
         end
     end
@@ -265,7 +265,7 @@ for ii = t_index
     pltinfo.var1 = var;
     try
         pltinfo.data2 = data2;
-        pltinfo.var2 = cont2;
+        pltinfo.var2 = var2;
     end
     pltinfo.dimen = opts.dimen;
     pltinfo.slice = opts.slice;

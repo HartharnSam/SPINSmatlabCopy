@@ -14,8 +14,8 @@ d.xskp = 1;             % x-grid points to skip
 d.yskp = 1;             % y	"
 d.zskp = 1;             % z	"
 d.fnum = 1;             % figure window number to use
-d.cont2 = 'Density';    % secondary field to plot
-d.ncont2 = 6;           % contours of secondary field
+d.var2 = 'Density';     % secondary field to plot
+d.nlevels2 = 6;         % number of contours of secondary field
 ncontourf = 51;         % plotting regions in contourf style
 ncontour = 20;          % contours in contour style
 d.nlevels = 0;          % levels of colormap (0 is placeholder, value set below)
@@ -67,8 +67,8 @@ addParameter(p,'dimen', d.dimen, @(x) any(validatestring(x,exp_dimen)))
 addParameter(p,'slice', d.slice, @isnumeric)
 addParameter(p,'fnum', d.fnum, validation_fnum)
 addParameter(p,'style', d.style, @(x) any(validatestring(x,exp_style)))
-addParameter(p,'cont2', d.cont2, @ischar)
-addParameter(p,'ncont2', d.ncont2, @isnumeric)
+addParameter(p,'var2', d.var2, @ischar)
+addParameter(p,'nlevels2', d.nlevels2, @isnumeric)
 addParameter(p,'speed', d.speed, @isnumeric)
 addParameter(p,'xskp', d.xskp, @isnumeric)
 addParameter(p,'yskp', d.yskp, @isnumeric)
@@ -132,7 +132,7 @@ end
 % don't plot secondary field if primary is rho or Density
 if (length(strfind(var,'Density')) > 0 || length(strfind(var,'rho')) > 0) && ...
     length(strfind(var, 'SD')) == 0
-    opts.cont2 = 'none';
+    opts.var2 = 'none';
 end
 
 % change default colormap length depending on plotting style
