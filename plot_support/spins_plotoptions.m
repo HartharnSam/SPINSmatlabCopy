@@ -129,9 +129,14 @@ else
     filename = opts.filename;
 end
 
-% don't plot secondary field if primary is rho or Density
-if (length(strfind(var,'Density')) > 0 || length(strfind(var,'rho')) > 0) && ...
-    length(strfind(var, 'SD')) == 0
+% don't plot secondary field if it matches the primary field
+var_name = strrep(var, 'Mean ', '');
+var_name = strrep(var_name, 'Scaled SD ', '');
+var_name = strrep(var_name, 'SD ', '');
+var2_name = strrep(opts.var2, 'Mean ', '');
+var2_name = strrep(var2_name, 'Scaled SD ', '');
+var2_name = strrep(var2_name, 'SD ', '');
+if strcmp(var_name, var2_name)
     opts.var2 = 'none';
 end
 
