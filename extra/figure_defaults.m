@@ -1,5 +1,6 @@
 function [] = figure_defaults(fig_hand)
-% FIGURE_DEFAULTS       Makes the figure (given by fig_hand) to be prettier (more latex)
+% FIGURE_DEFAULTS       Makes the figure to be prettier (more like Latex).
+%  Run this function after making the plot to improve it's look.
 %
 %  Usage:
 %    figure_defaults(gcf)
@@ -26,10 +27,12 @@ function [] = figure_defaults(fig_hand)
     % Change axis
     ax = findobj(childs,'Type','Axes');
     if ~isempty(ax)
-        ax.TickLabelInterpreter = 'Latex';
-        ax.FontSize = fontsize;
-        ax.XLabel.Interpreter = 'Latex';
-        ax.YLabel.Interpreter = 'Latex';
+        for ii = 1:length(ax)
+            ax(ii).TickLabelInterpreter = 'Latex';
+            ax(ii).FontSize = fontsize;
+            ax(ii).XLabel.Interpreter = 'Latex';
+            ax(ii).YLabel.Interpreter = 'Latex';
+        end
     end
 
     % Change colorbar
