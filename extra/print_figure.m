@@ -63,6 +63,7 @@ end
 fig_hand.PaperSize = opts.size;
 % set position
 fig_hand.PaperPosition = [0 0 opts.size];
+fig_hand.PaperPositionMode = 'manual';
 
 % save figure
 print(fig_hand, filename,...
