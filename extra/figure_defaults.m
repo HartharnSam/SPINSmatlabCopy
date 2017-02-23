@@ -19,7 +19,7 @@ function [] = figure_defaults(fig_hand)
     end
 
     % settings
-    fontsize = 10;
+    fontsize = 12;
 
     % get figure children
     childs = allchild(fig_hand);
@@ -46,4 +46,10 @@ function [] = figure_defaults(fig_hand)
     if ~isempty(leg)
         leg.Interpreter = 'Latex';
     end
+
+    % Change text size
+    text_hand = findall(fig_hand, 'Type', 'Text');
+    %texthands = texthands(~strcmp(get(texthands,'string'),''));
+    set(text_hand, 'Interpreter', 'Latex',...
+                   'Fontsize',fontsize)
 end
