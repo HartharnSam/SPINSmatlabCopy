@@ -78,10 +78,12 @@ for ii = t_index
     hold on
     % Title
     plot_title = var;
-    if strncmp(var,'Mean',4) || strncmp(var,'SD',2)
+    is_spanwise = strncmp(var,'Mean',4) || strncmp(var,'SD',2) || strncmp(var, 'Scaled SD',9);
+    if is_spanwise
         plot_title = ['Spanwise ', plot_title];
     end
-    if params.ndims == 3	% add cross-section information
+    % add cross-section information
+    if params.ndims == 3 && ~is_spanwise
         plot_title = [plot_title,', ',opts.dimen,'=',num2str(opts.slice),' m'];
     end
     % add time in seconds or output number
