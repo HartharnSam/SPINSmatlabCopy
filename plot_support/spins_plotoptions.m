@@ -131,15 +131,10 @@ end
 
 % don't plot secondary field if it matches the primary field
 var_name = strrep(var, 'Mean ', '');
-var_name = strrep(var_name, 'Scaled SD ', '');
-var_name = strrep(var_name, 'SD ', '');
-var2_name = strrep(opts.var2, 'Mean ', '');
-var2_name = strrep(var2_name, 'Scaled SD ', '');
-var2_name = strrep(var2_name, 'SD ', '');
 if strcmp(var_name, 'rho')
     var_name = 'Density';
 end
-if strcmp(var_name, var2_name)
+if strcmp(var_name, opts.var2)
     opts.var2 = 'none';
 end
 
