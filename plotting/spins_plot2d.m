@@ -84,7 +84,12 @@ for ii = t_index
     if params.ndims == 3	% add cross-section information
         plot_title = [plot_title,', ',opts.dimen,'=',num2str(opts.slice),' m'];
     end
-    if isfield(params, 'plot_interval')	% add time in seconds or output number
+    % add time in seconds or output number
+    if isfield(params, 'plot_interval') && isfield(params, 'restart_time') && ...
+       isfield(params, 'restart_sequence')
+        time = params.restart_time + (ii-params.restart_sequence)*params.plot_interval;
+        plot_title = [plot_title,', t=',num2str(time),' s'];
+    elseif isfield(params, 'plot_interval')
         plot_title = [plot_title,', t=',num2str(ii*params.plot_interval),' s'];
     else
         plot_title = [plot_title,', t_n=',int2str(ii)];
