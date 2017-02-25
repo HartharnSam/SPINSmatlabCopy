@@ -16,8 +16,9 @@ d.zskp = 1;             % z	"
 d.fnum = 1;             % figure window number to use
 d.var2 = 'Density';     % secondary field to plot
 d.nlevels2 = 6;         % number of contours of secondary field
-d.ncontourf = 51;         % plotting regions in contourf style
-d.ncontour = 20;          % contours in contour style
+d.ncontourf = 65;       % plotting regions in contourf style
+d.ncontour = 20;        % contours in contour style
+c.npcolor = 128;        % number of levels to use in colorbar for pcolor
 d.nlevels = 0;          % levels of colormap (0 is placeholder, value set below)
 d.clim = 0;             % colour axis limits to use -
                         % 0 uses default in choose_caxis function
@@ -144,7 +145,7 @@ if strcmp(opts.style, 'contourf') && opts.nlevels == 0
 elseif strcmp(opts.style, 'contour') && opts.nlevels == 0
     opts.nlevels = d.ncontour;
 elseif strcmp(opts.style, 'pcolor')
-    opts.nlevels = 128;
+    opts.nlevels = d.npcolor;
 end
 
 % get indices and grid for plotting
