@@ -23,3 +23,20 @@ Mapped grids require the full grid to be loaded. 'Full' reads the entire grids.
 | spins_plot2d(var, 't');     | plot var at time t |  
 
 There are many optional arguments for adjusting the plot, see spins_plot2d.m for more documentation.
+
+To automatically include the SPINSmatlab directory in the MATLAB search path, add the following to `startup.m` which must exist in the MATLAB path.
+
+```
+% add path to SPINSmatlab
+sm_loc = genpath('/path/to/SPINSmatlab');
+addpath(sm_loc);
+% remove all hidden subdirectories
+all_subs =  strsplit(sm_loc,':');
+for ii = 1:length(all_subs)
+    if ~isempty(strfind(all_subs{ii},'.'))
+        rmpath(all_subs{ii});
+    end
+end
+% clean work space
+clear all
+```
