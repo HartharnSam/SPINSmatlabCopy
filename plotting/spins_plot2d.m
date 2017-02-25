@@ -92,8 +92,10 @@ for ii = t_index
         time = params.restart_time + (ii-params.restart_sequence)*params.plot_interval;
         plot_title = [plot_title,', t=',num2str(time),' s'];
     elseif isfield(params, 'plot_interval')
-        plot_title = [plot_title,', t=',num2str(ii*params.plot_interval),' s'];
+        time = ii*params.plot_interval;
+        plot_title = [plot_title,', t=',num2str(time),' s'];
     else
+        time = 'n/a';
         plot_title = [plot_title,', t_n=',int2str(ii)];
     end
     title(plot_title);
@@ -177,7 +179,7 @@ for ii = t_index
     end
 
     % add contours of another field
-    if ~strcmpi(opts.var2,'None')
+    if ~strcmpi(opts.var2, 'None')
         if (strncmp(var,'Mean',4) || strncmp(var,'SD',2)) && ~strcmp(opts.var2,'Streamline')
             % choose Mean of field if primary field is Mean or SD
             var2 = ['Mean ',opts.var2];
@@ -210,7 +212,7 @@ for ii = t_index
                 data2(:,:,1) = u1;
                 streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic')
             else
-                contour(xvar,yvar,data2,opts.nlevels2,var2col)
+                [~,p2_hand] = contour(xvar,yvar,data2,opts.nlevels2,var2col);
             end
         end
     end
@@ -259,22 +261,34 @@ for ii = t_index
     end
     hold off
 
+    % add info into opts
+    opts.var = var;
+    opts.output = t_index;
+    opts.time = time;
+    opts.axis = plotaxis;
+    opts.clim = clim;
+    opts.cmap = cmap;
+    opts.filename = filename;
+    opts.fig_hand = fighand;
+    opts.p_hand = p_hand;
+    if ~strcmpi(opts.var2, 'None')
+        opts.p2_hand = p2_hand;
+    end
+    opts.nx = nx;
+    opts.ny = ny;
+    opts.nz = nz;
     % output plotted data
     if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
         data1 = data1';
-        try
+        if ~strcmpi(opts.var2, 'None')
             data2 = data2';
         end
     end
     pltinfo.xvar = xvar;
     pltinfo.yvar = yvar;
     pltinfo.data1 = data1;
-    pltinfo.var1 = var;
-    try
+    if ~strcmpi(opts.var2, 'None')
         pltinfo.data2 = data2;
-        pltinfo.var2 = var2;
     end
-    pltinfo.dimen = opts.dimen;
-    pltinfo.slice = opts.slice;
-
+    pltinfo.opts = opts;
 end

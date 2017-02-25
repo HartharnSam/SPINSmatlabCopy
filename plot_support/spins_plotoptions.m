@@ -16,8 +16,8 @@ d.zskp = 1;             % z	"
 d.fnum = 1;             % figure window number to use
 d.var2 = 'Density';     % secondary field to plot
 d.nlevels2 = 6;         % number of contours of secondary field
-ncontourf = 51;         % plotting regions in contourf style
-ncontour = 20;          % contours in contour style
+d.ncontourf = 51;         % plotting regions in contourf style
+d.ncontour = 20;          % contours in contour style
 d.nlevels = 0;          % levels of colormap (0 is placeholder, value set below)
 d.clim = 0;             % colour axis limits to use -
                         % 0 uses default in choose_caxis function
@@ -135,14 +135,14 @@ if strcmp(var_name, 'rho')
     var_name = 'Density';
 end
 if strcmp(var_name, opts.var2)
-    opts.var2 = 'none';
+    opts.var2 = 'None';
 end
 
 % change default colormap length depending on plotting style
 if strcmp(opts.style, 'contourf') && opts.nlevels == 0
-    opts.nlevels = ncontourf;
+    opts.nlevels = d.ncontourf;
 elseif strcmp(opts.style, 'contour') && opts.nlevels == 0
-    opts.nlevels = ncontour;
+    opts.nlevels = d.ncontour;
 elseif strcmp(opts.style, 'pcolor')
     opts.nlevels = 128;
 end
