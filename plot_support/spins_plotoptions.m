@@ -18,7 +18,7 @@ d.var2 = 'Density';     % secondary field to plot
 d.nlevels2 = 6;         % number of contours of secondary field
 d.ncontourf = 65;       % plotting regions in contourf style
 d.ncontour = 20;        % contours in contour style
-c.npcolor = 128;        % number of levels to use in colorbar for pcolor
+d.npcolor = 128;        % number of levels to use in colorbar for pcolor
 d.nlevels = 0;          % levels of colormap (0 is placeholder, value set below)
 d.clim = 0;             % colour axis limits to use -
                         % 0 uses default in choose_caxis function
