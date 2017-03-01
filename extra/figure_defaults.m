@@ -38,7 +38,9 @@ function [] = figure_defaults(fig_hand)
     % Change colorbar
     cbar = findobj(childs,'Type','ColorBar');
     if ~isempty(cbar)
-        cbar.TickLabelInterpreter = 'Latex';
+        for ii = 1:length(cbar)
+            cbar(ii).TickLabelInterpreter = 'Latex';
+        end
     end
 
     % Change legend
