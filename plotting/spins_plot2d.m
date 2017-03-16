@@ -260,35 +260,35 @@ for ii = t_index
         cd(strt_dir)
     end
     hold off
-
-    % add info into opts
-    opts.var = var;
-    opts.output = t_index;
-    opts.time = time;
-    opts.axis = plotaxis;
-    opts.clim = clim;
-    opts.cmap = cmap;
-    opts.filename = filename;
-    opts.fig_hand = fighand;
-    opts.p_hand = p_hand;
-    if ~strcmpi(opts.var2, 'None')
-        opts.p2_hand = p2_hand;
-    end
-    opts.nx = nx;
-    opts.ny = ny;
-    opts.nz = nz;
-    % output plotted data
-    if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
-        data1 = data1';
-        if ~strcmpi(opts.var2, 'None')
-            data2 = data2';
-        end
-    end
-    pltinfo.xvar = xvar;
-    pltinfo.yvar = yvar;
-    pltinfo.data1 = data1;
-    if ~strcmpi(opts.var2, 'None')
-        pltinfo.data2 = data2;
-    end
-    pltinfo.opts = opts;
 end
+
+% add info into opts
+opts.var = var;
+opts.output = ii;
+opts.time = time;
+opts.axis = plotaxis;
+opts.clim = clim;
+opts.cmap = cmap;
+opts.filename = filename;
+opts.fig_hand = fighand;
+opts.p_hand = p_hand;
+if ~strcmpi(opts.var2, 'None')
+    opts.p2_hand = p2_hand;
+end
+opts.nx = nx;
+opts.ny = ny;
+opts.nz = nz;
+% output plotted data
+if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
+    data1 = data1';
+    if ~strcmpi(opts.var2, 'None')
+        data2 = data2';
+    end
+end
+pltinfo.xvar = xvar;
+pltinfo.yvar = yvar;
+pltinfo.data1 = data1;
+if ~strcmpi(opts.var2, 'None')
+    pltinfo.data2 = data2;
+end
+pltinfo.opts = opts;
