@@ -51,7 +51,7 @@ end
 
 function par = add_params(gd, params, check_grid, varargin)
     % parse varargin
-    if nargin == 0
+    if length(varargin{1}) == 0
        vectorized = true;
     else
         if strcmpi(varargin{1},'Vector')
