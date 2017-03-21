@@ -30,7 +30,7 @@ global gdpar
         if islogical(varargin{2})
             check_grid = varargin{2};
         else
-            error('The second argument was not a boolean. Use false or true.')
+            error('The second argument was not a boolean. Use true or false.')
         end
         gd = spins_grid(varargin{1});
     elseif nargin == 1
@@ -134,7 +134,12 @@ function par = add_params(gd, params, check_grid, varargin)
     if isfield(gd,'z') && check_grid
         % get vector of depths at mid-depth of domain
         if isvector(gd.z)
-            middepth = spins_reader('zgrid',1:10:Nx,1,round(Nz/2));
+            try
+                middepth = spins_reader('zgrid',round(linspace(1,Nx,64)),1,round(Nz/2));
+            catch
+                warning('zgrid not found. Grid is assumed to be unmapped.')
+                middepth = 1;
+            end
         else
             if params.ndims == 3
                 middepth = gd.z(1:10:Nx,1,round(Nz/2));
