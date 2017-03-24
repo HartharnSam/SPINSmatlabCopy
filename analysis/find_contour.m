@@ -8,7 +8,7 @@ function [cont_x, cont_y] = find_contour(x, y, field, val)
 %    'x'     - the x-grid
 %    'y'     - the y-grid
 %    'field' - the field given on the grid
-%    'val'   - a number to find contour level
+%    'val'   - the contour value
 %
 %  Outputs:
 %    'cont_x' - the x positions of the contour
@@ -16,19 +16,21 @@ function [cont_x, cont_y] = find_contour(x, y, field, val)
 %
 %  David Deepwell, 2016
 
-    cont = contourcs(x, y, field, [1 1]*val);
+    cont = contour_data(x, y, field, [1 1]*val);
     % fix for when there are multiple contours in cont
-    if length(cont) == 1 % if a single contour
+    len_c = length(cont);
+    if len_c == 1 % if a single contour
         cont_x = cont.X;
         cont_y = cont.Y;
-    elseif length(cont) > 1 % if multiple contours
+    elseif len_c > 1 % if multiple contours
         % find which contour has most elements (it's likely the proper one)
-        cont_size = zeros(length(cont),1);
-        for kk = 1:length(cont)
-            cont_size(kk) = length(cont(kk).Y);
+        cont_size = zeros(len_c,1);
+        for kk = 1:len_c
+            cont_size(kk) = cont(kk).Length;
         end
         [~, cont_ind] = max(cont_size);
-        cont_x = cont(cont_ind).X;    % select that contour
+        % select that contour
+        cont_x = cont(cont_ind).X;
         cont_y = cont(cont_ind).Y;
     else
         disp('No contours found for top isopycnal'), return

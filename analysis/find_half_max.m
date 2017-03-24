@@ -1,5 +1,5 @@
 function [pos, ind] = find_half_max(x, y)
-% FIND_HALF_MAX     Find the first time (while moving away from the location of maximum)
+% FIND_HALF_MAX     Find the first location (while moving away from the location of maximum)
 %    that y drops to half it's maximum. It assumes that the maximum is at the last index.
 %
 %  Usage:

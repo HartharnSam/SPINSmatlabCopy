@@ -1,8 +1,8 @@
 function [ varargout ] = FiniteDiff(x, OrdD, n, varargin)
-%FiniteDiff : Create a finite difference matrix of arbitrary order for an
-%arbitrary grid. Note that the algorithm will produce a differentiation
-%with accuracy of at least order n, but it might be higher.
-
+% FiniteDiff : Create a finite difference matrix of arbitrary order for an
+% arbitrary grid. Note that the algorithm will produce a differentiation
+% with accuracy of at least order n, but it might be higher.
+%
 % x       -> Grid along which to compute derivatives.
 %         ->    If x is a vector, then a 1D derivative is computed. If x is
 %               cell array of vectors, then the N-D derivatives are
@@ -12,7 +12,10 @@ function [ varargout ] = FiniteDiff(x, OrdD, n, varargin)
 % n       -> Order of accuracy
 % sp      -> Is sparse? (bool) (default: false)
 % uniform -> Is unifrom grid? (bool) (default: true)
-
+%
+% There is a known bug, that odd order (OrdD) greater than 1 returns garbage.
+% Just use even orders.
+%
 % courtesy Benjamin Storer, 2015
 
 if length(varargin) == 0
