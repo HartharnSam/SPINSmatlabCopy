@@ -14,8 +14,7 @@ function [] = make_movie(var)
 %  Outputs:
 %    none
 %
-%  David Deepwell, 2016
-global gdpar
+%  David Deepwell, 2017
 
 % get grid and parameters
 gd = gdpar.gd;
@@ -38,12 +37,7 @@ framerate = 3;  % frame rate lower than 3 does not work with quicktime
 if exist('tmp_figs','dir')
     rmdir('tmp_figs','s') % wipe directory clear before populating
 end
-fig_hand = figure(1);
-set(fig_hand, 'Units', 'Inches')
-pos = get(fig_hand, 'Position');
-set(fig_hand, 'PaperPositionMode','Auto',...
-              'PaperUnits', 'Inches',...
-              'PaperSize', [pos(3) pos(4)]);
+mkdir('tmp_figs')
 
 % outputs to use in movie (default here is all of them)
 first_out = first_output(var);
@@ -70,7 +64,7 @@ for ii = outputs
     % save output figure
     cd('tmp_figs')
     filename = ['tmp_',num2str(ii,'%03d')];
-    print(fig_hand, filename, '-dpng', '-r500')
+    print_figure(filename, 'format', 'png')
     cd('..')
 
     completion(ii-first_out+1, length(outputs))
