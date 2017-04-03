@@ -12,10 +12,11 @@ function [] = print_all(filenames, varargin)
 %    Optional arguments:
 %   Name:       Options                    - Description
 %   ----------------------------------------------------
-%   format:     {pdf, png, eps, ...}       - file format
-%   units:      {Inches, cm, ...}          - paper units
+%   format:     {'pdf', 'png', 'eps', ...} - file format
+%   units:      {'Inches', 'cm', ...}      - paper units
 %   size:       {[width height]}           - vector of dimensions
 %   res:        {integer}                  - image resolution
+%   renderer:   {'painters', 'opengl'}     - renderer
 %
 %  Outputs:
 %    - none
@@ -31,6 +32,7 @@ d.format = 'png';   % file format
 d.units = 'Inches'; % figure and paper units
 d.size = 0;         % size of figure, 0 is placeholder
 d.res = 500;        % image resolution
+d.renderer = 'painters';    % renderer
 
 % parse optional arguments
 p = inputParser;
@@ -38,6 +40,7 @@ addParameter(p, 'format', d.format);
 addParameter(p, 'units', d.units);
 addParameter(p, 'size', d.size, @isvector);
 addParameter(p, 'res', d.res, @isnumeric);
+addParameter(p, 'renderer', d.renderer);
 parse(p, varargin{:})
 % put options into a shorter structure
 opts = p.Results;
@@ -59,7 +62,8 @@ for ii = 1:length(figs)
                  'format', opts.format,...
                  'units', opts.units,...
                  'size', opts.size,...
-                 'res', opts.res);
+                 'res', opts.res,...
+                 'renderer', opts.renderer);
     % print information
     disp(['Figure ',num2str(fig_hand.Number),' printed.'])
     completion(ii, length(figs))

@@ -13,10 +13,11 @@ function [] = print_figure(filename, varargin)
 %   Name:       Options                    - Description
 %   ----------------------------------------------------
 %   fig_hand:   {integer or figure handle} - figure to use
-%   format:     {pdf, png, eps, ...}       - file format
-%   units:      {Inches, cm, ...}          - paper units
+%   format:     {'pdf', 'png', 'eps', ...} - file format
+%   units:      {'Inches', 'cm', ...}      - paper units
 %   size:       {[width height]}           - vector of dimensions
 %   res:        {integer}                  - image resolution
+%   renderer:   {'painters', 'opengl'}     - renderer
 %
 %  Outputs:
 %    - none
@@ -33,6 +34,7 @@ d.format = 'png';   % file format
 d.units = 'Inches'; % figure and paper units
 d.size = 0;         % size of figure, 0 is placeholder
 d.res = 500;        % image resolution
+d.renderer = 'painters';    % renderer
 
 % parse optional arguments
 p = inputParser;
@@ -41,6 +43,7 @@ addParameter(p, 'format', d.format);
 addParameter(p, 'units', d.units);
 addParameter(p, 'size', d.size, @isvector);
 addParameter(p, 'res', d.res, @isnumeric);
+addParameter(p, 'renderer', d.renderer);
 parse(p, varargin{:})
 % put options into a shorter structure
 opts = p.Results;
@@ -68,4 +71,5 @@ fig_hand.PaperPositionMode = 'manual';
 % save figure
 print(fig_hand, filename,...
       ['-d',opts.format],...
-      ['-r',num2str(opts.res)])
+      ['-r',num2str(opts.res)],...
+      ['-',opts.renderer])
