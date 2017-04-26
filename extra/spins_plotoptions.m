@@ -44,14 +44,19 @@ validation_time(t_index)
 % need to convert to output number
 if ischar(t_index)
     dt = params.plot_interval;
+    if isfield(params, 'restart_time')
+        t_0 = params.restart_time;
+    else
+        t_0 = 0;
+    end
+    if isfield(params, 'restart_sequence')
+        seq_0 = params.restart_sequence;
+    else
+        seq_0 = 0;
+    end
     time = str2num(t_index);
     % find nearest output time
-    if round(mod(time, dt)/dt, 10, 'significant') < 0.5
-        time = time - mod(time, dt);
-    else
-        time = time - mod(time, dt) + dt;
-    end
-    t_index = time/dt;
+    t_index = round((time-t_0)/dt + seq_0);
 
     % check if index is in bounds of simulation outputs
     if t_index > last_output()
