@@ -139,13 +139,13 @@ end
 if max_diss > 0
     Kolm = (rho_0*visco^3/max_diss)^(1/4);
     Batch = Kolm*sqrt(kappa_min/visco);
-    if strcmp(params.mapped_grid, 'true')
+    if strcmpi(params.mapped_grid, 'true')
         if params.ndims == 3
             max_dxyz = max([params.dx,params.dy]);
         else
             max_dxyz = max([params.dx]);
         end
-    elseif strcmp(params.mapped_grid, 'false')
+    elseif strcmpi(params.mapped_grid, 'false')
         if params.ndims == 3
             max_dxyz = max([params.dx,params.dy, params.dz]);
         else

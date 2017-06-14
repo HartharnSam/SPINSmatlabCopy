@@ -55,7 +55,7 @@ global gdpar
 % get grid and parameters
 gd = gdpar.gd;
 params = gdpar.params;
-if ~strcmp(params.mapped_grid,'true') && ~isvector(gd.x)
+if ~strcmpi(params.mapped_grid,'true') && ~isvector(gd.x)
     gd = get_vector_grid(gd);
 end
 
@@ -100,22 +100,22 @@ for ii = t_index
     end
     title(plot_title);
     % axis labels
-    if strcmp(opts.dimen, 'X')
+    if strcmpi(opts.dimen, 'X')
         xlabel('y (m)'), ylabel('z (m)')
-    elseif strcmp(opts.dimen, 'Y')
+    elseif strcmpi(opts.dimen, 'Y')
         xlabel('x (m)'), ylabel('z (m)')
-    elseif strcmp(opts.dimen, 'Z')
+    elseif strcmpi(opts.dimen, 'Z')
         xlabel('x (m)'), ylabel('y (m)')
     end
 
     % get data to plot
     data1 = spins_readdata(var,ii,nx,ny,nz,opts.dimen);
     % if mapped grid and taking horizontal opts.slice, then find interpolation
-    if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
+    if strcmpi(opts.dimen, 'Z') && strcmpi(params.mapped_grid, 'true')
         [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, opts.slice);
     end
     % transpose unmapped data
-    if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
+    if strcmpi(params.mapped_grid, 'false') && ~strcmpi(var, 'Streamline')
         data1 = data1';
     end
     % remove points outside of desirable plotting range (typically from spectral aliasing)
@@ -132,7 +132,7 @@ for ii = t_index
     % choose plotting style (contourf may take up less memory,
     % but can be slower than pcolor)
     if strcmpi(var,'Streamline')
-        if strcmp(params.mapped_grid, 'true')
+        if strcmpi(params.mapped_grid, 'true')
             warning('Streamline has not been tested for mapped grids.')
         end
         if opts.speed == -1
@@ -147,13 +147,13 @@ for ii = t_index
         data1(:,:,1) = u1;
         p_hand = streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic');
         var2col = 'r-';
-    elseif strcmp(opts.style,'pcolor')
+    elseif strcmpi(opts.style,'pcolor')
         p_hand = pcolor(xvar,yvar,data1);
         var2col = 'k-';
-    elseif strcmp(opts.style,'contourf')
+    elseif strcmpi(opts.style,'contourf')
         [~,p_hand] = contourf(xvar,yvar,data1,opts.nlevels);
         var2col = 'k-';
-    elseif strcmp(opts.style,'contour')
+    elseif strcmpi(opts.style,'contour')
         [~,p_hand] = contour(xvar,yvar,data1,opts.nlevels);
         var2col = 'k-';
     end
@@ -167,20 +167,20 @@ for ii = t_index
 
     % add extra information
     shading flat
-    if strcmp(opts.style,'contourf')
+    if strcmpi(opts.style,'contourf')
         set(p_hand,'LineColor','none')
     end
     colormap(cmap)
-    if ~strcmp(clim, 'auto')
+    if ~strcmpi(clim, 'auto')
         caxis(clim);
     end
-    if opts.colorbar == true && ~strcmp(var, 'Streamline')
+    if opts.colorbar == true && ~strcmpi(var, 'Streamline')
         colorbar
     end
 
     % add contours of another field
     if ~strcmpi(opts.var2, 'None')
-        if (strncmp(var,'Mean',4) || strncmp(var,'SD',2)) && ~strcmp(opts.var2,'Streamline')
+        if (strncmp(var,'Mean',4) || strncmp(var,'SD',2)) && ~strcmpi(opts.var2,'Streamline')
             % choose Mean of field if primary field is Mean or SD
             var2 = ['Mean ',opts.var2];
         else
@@ -190,14 +190,14 @@ for ii = t_index
             data2 = data1;
         else
             data2 = spins_readdata(var2,ii,nx,ny,nz,opts.dimen);
-            if strcmp(opts.dimen, 'Z') && strcmp(params.mapped_grid, 'true')
+            if strcmpi(opts.dimen, 'Z') && strcmpi(params.mapped_grid, 'true')
                 [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, opts.slice);
             end
-            if strcmp(params.mapped_grid, 'false') && ~strcmp(opts.var2, 'Streamline')
+            if strcmpi(params.mapped_grid, 'false') && ~strcmpi(opts.var2, 'Streamline')
                 data2 = data2';
             end
-            if strcmp(opts.var2, 'Streamline')
-                if strcmp(params.mapped_grid, 'true')
+            if strcmpi(opts.var2, 'Streamline')
+                if strcmpi(params.mapped_grid, 'true')
                     warning('Streamline has not been tested for mapped grids.')
                 end
                 if opts.speed == -1
@@ -221,7 +221,7 @@ for ii = t_index
     end
 
     % add contour of hill if grid is mapped
-    if strcmp(params.mapped_grid,'true') && strcmp(opts.dimen, 'Y')
+    if strcmpi(params.mapped_grid,'true') && strcmpi(opts.dimen, 'Y')
         hill_nx = nx(1):nx(end);
         if params.ndims == 3
             hill   = squeeze(gd.z(hill_nx,1,params.Nz));
@@ -279,7 +279,7 @@ opts.nx = nx;
 opts.ny = ny;
 opts.nz = nz;
 % output plotted data
-if strcmp(params.mapped_grid, 'false') && ~strcmp(var, 'Streamline')
+if strcmpi(params.mapped_grid, 'false') && ~strcmpi(var, 'Streamline')
     data1 = data1';
     if ~strcmpi(opts.var2, 'None')
         data2 = data2';
