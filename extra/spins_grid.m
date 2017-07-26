@@ -127,12 +127,12 @@ function gd_vec = make_vector(params,e3D);
     min_z = params.min_z;
     type_x = params.type_x;
     type_z = params.type_z;
-    if strcmpi(type_x,'FREE_SLIP')
+    if ~strcmp(type_x,'NO_SLIP') && ~strcmp(type_x,'CHEBY')
         gd_vec.x = min_x + Lx*([0:(Nx-1)]+0.5)/Nx;
     else
         gd_vec.x = min_x + Lx*0.5*(1 - cos(pi*[0:(Nx-1)]/(Nx-1)));
     end
-    if strcmpi(type_z,'FREE_SLIP')
+    if ~strcmp(type_z,'NO_SLIP') && ~strcmp(type_z,'CHEBY')
         gd_vec.z = min_z + Lz*([0:(Nz-1)]+0.5)/Nz;
     else
         gd_vec.z = min_z + Lz*0.5*(1 - cos(pi*[0:(Nz-1)]/(Nz-1)));
@@ -142,7 +142,7 @@ function gd_vec = make_vector(params,e3D);
         Ny = params.Ny;
         min_y = params.min_y;
         type_y = params.type_y;
-        if strcmpi(type_y,'FREE_SLIP')
+        if ~strcmp(type_y,'NO_SLIP') && ~strcmp(type_y,'CHEBY')
             gd_vec.y = min_y + Ly*([0:(Ny-1)]+0.5)/Ny;
         else
             gd_vec.y = min_y + Ly*0.5*(1 - cos(pi*[0:(Ny-1)]/(Ny-1)));
