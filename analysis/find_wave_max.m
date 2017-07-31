@@ -21,10 +21,27 @@ min_height = 0.2*y_max;
 if max_ind < length(x)
     [y_sep, ~] = find_position(x(max_ind:end), y(max_ind:end), 0.5*y_max);
     min_pk_dist = (y_sep - x(max_ind))/3;
+    % remove locations where grid doubles back
+    ni = 1;
+    xmax = x(end);
+    inds(1) = length(x);
+    for nn = inds(1)-1:-1:1
+        if x(nn) < xmax
+            ni = ni+1;
+            xmax = x(nn);
+            inds(ni) = nn;
+        end
+    end
+    xc = x(fliplr(inds));
+    yc = y(fliplr(inds));
+
+    %x_diff = x(2:end) > x(1:end-1);
+    %x = x(x_diff);
+    %y = y(x_diff);
     % find peaks if x is monotonic
-    if all(diff(x)>0)
-        [pks, locs, width, prom] = findpeaks(y, x, 'MinPeakHeight', min_height,...
-                                   'NPeaks', 5, 'MinPeakDistance', min_pk_dist);
+    if all(diff(xc)>0)
+        [pks, locs, width, prom] = findpeaks(yc, xc, 'MinPeakHeight', min_height,...
+            'MinPeakProminence',min_height/2,'NPeaks', 5, 'MinPeakDistance', min_pk_dist);
         %findpeaks(y, x, 'MinPeakHeight', min_height,...
         %                        'SortStr', 'descend', 'NPeaks', 5,...
         %                        'MinPeakDistance',min_pk_dist,...
@@ -39,6 +56,7 @@ if max_ind < length(x)
         max_val = y_max;
         ind = nearest_index(y, y_max);
         pos = x(ind);
+        warning('No peaks found, using largest value as peak.')
     else
         % improve location and max given by pks
         % by fitting three points near peak with a quadratic (y = ax^2 + bx + c)
