@@ -46,7 +46,9 @@ function [] = figure_defaults(fig_hand)
     % Change legend
     leg = findobj(childs,'Type','Legend');
     if ~isempty(leg)
-        leg.Interpreter = 'Latex';
+        for ii = 1:length(leg)
+            leg(ii).Interpreter = 'Latex';
+        end
     end
 
     % Change text size
