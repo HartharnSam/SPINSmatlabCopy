@@ -69,7 +69,7 @@ elseif strcmpi(var,'KE')
         v = 0;
     end
     w = spins_reader('w',ii,nx,ny,nz);
-    data = 0.5*(u.^2 + v.^2 + w.^2);
+    data = 0.5*params.rho_0*(u.^2 + v.^2 + w.^2);
     clearvars u v w
 % plot speed (magnitude of velocity vector)
 elseif strcmpi(var,'speed')

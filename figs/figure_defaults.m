@@ -32,6 +32,8 @@ function [] = figure_defaults(fig_hand)
             ax(ii).FontSize = fontsize;
             ax(ii).XLabel.Interpreter = 'Latex';
             ax(ii).YLabel.Interpreter = 'Latex';
+            set(ax(ii),'layer','top');
+            box on
         end
     end
 
