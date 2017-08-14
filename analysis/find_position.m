@@ -19,19 +19,35 @@ function [pos, ind] = find_position(x, y, val)
     if val < min(y) || val > max(y)
         pos = x(ind);
     else
-        % find points for interpolation
-        if val > y(ind) && ind < length(x)
+        % find points for quadratic interpolation
+        if ind > 1 && ind < length(x)
+            ind1 = ind - 1;
+            ind2 = ind;
+            ind3 = ind + 1;
+        elseif ind == 1
             ind1 = ind;
             ind2 = ind + 1;
-        elseif val < y(ind) && ind > 1
-            ind1 = ind -1;
-            ind2 = ind;
+            ind3 = ind + 2;
+        elseif ind == length(x)
+            ind1 = ind - 2;
+            ind2 = ind - 1;
+            ind3 = ind;
         end
-        x1 = x(ind1);
-        x2 = x(ind2);
-        y1 = y(ind1);
-        y2 = y(ind2);
+        inds = [ind1 ind2 ind3];
         % do interpolation
-        pos = x1 + (val-y1)*(x2-x1)/(y2-y1);
+        xs = x(inds)';
+        ys = y(inds);
+        mat = [xs.^2, xs, ones(3,1)];
+        quad_fit = mat\ys;
+        a = quad_fit(1);
+        b = quad_fit(2);
+        c = quad_fit(3);
+        pos1 =  sqrt(val/a + (b/2/a)^2 - c/a) - b/2/a;
+        pos2 = -sqrt(val/a + (b/2/a)^2 - c/a) - b/2/a;
+        % find which root is the proper one
+        posn = [pos1 pos2];
+        dist = abs([1 1]*x(ind) - posn);
+        [~,p_ind] = min(dist);
+        pos = posn(p_ind);
     end
 end
