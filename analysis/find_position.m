@@ -34,9 +34,18 @@ function [pos, ind] = find_position(x, y, val)
             ind3 = ind;
         end
         inds = [ind1 ind2 ind3];
-        % do interpolation
-        xs = x(inds)';
+        % make vectors of the points
+        xs = x(inds);
         ys = y(inds);
+        szx = size(xs);
+        if szx(1) == 1
+            xs = xs';
+        end
+        szy = size(ys);
+        if szy(1) == 1
+            ys = ys';
+        end
+        % do interpolation
         mat = [xs.^2, xs, ones(3,1)];
         quad_fit = mat\ys;
         a = quad_fit(1);
