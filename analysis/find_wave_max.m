@@ -17,9 +17,12 @@ function [max_val, pos, ind] = find_wave_max(x, y)
 
 % set parameters for findpeaks
 [y_max, max_ind] = max(y);
-min_height = 0.2*y_max;
+min_height = y_max/3;
 if max_ind < length(x)
-    [y_sep, ~] = find_position(x(max_ind:end), y(max_ind:end), 0.5*y_max);
+    [y_sep, ind] = find_position(x(max_ind:end), y(max_ind:end), 0.5*y_max);
+    if ~isreal(y_sep)
+        y_sep = x(max_ind-1+ind);
+    end
     min_pk_dist = (y_sep - x(max_ind))/3;
     % remove locations where grid doubles back
     ni = 1;
@@ -41,7 +44,7 @@ if max_ind < length(x)
     % find peaks if x is monotonic
     if all(diff(xc)>0)
         [pks, locs, width, prom] = findpeaks(yc, xc, 'MinPeakHeight', min_height,...
-            'MinPeakProminence',min_height/2,'NPeaks', 5, 'MinPeakDistance', min_pk_dist);
+            'MinPeakProminence',min_height/2,'NPeaks', 15, 'MinPeakDistance', min_pk_dist);
         %findpeaks(y, x, 'MinPeakHeight', min_height,...
         %                        'SortStr', 'descend', 'NPeaks', 5,...
         %                        'MinPeakDistance',min_pk_dist,...
@@ -66,9 +69,19 @@ if max_ind < length(x)
                 x1 = loc_ind - 1;
                 x2 = loc_ind;
                 x3 = loc_ind + 1;
-                xinds = [x1 x2 x3];
-                xs = x(xinds)';
-                ys = y(xinds)';
+                inds = [x1 x2 x3];
+                % make vectors of the points
+                xs = x(inds);
+                ys = y(inds);
+                szx = size(xs);
+                if szx(1) == 1
+                    xs = xs';
+                end
+                szy = size(ys);
+                if szy(1) == 1
+                    ys = ys';
+                end
+                % do interpolation
                 mat = [xs.^2, xs ones(3,1)];
                 quad_fit = mat\ys;
                 a = quad_fit(1);
