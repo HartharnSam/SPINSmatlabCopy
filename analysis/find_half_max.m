@@ -33,7 +33,7 @@ function [pos, ind] = find_half_max(x, y)
         pos = x(ind);
     else
         % interpolate to find location of half max
-        inds = [ii ii+1];
+        inds = [ii-1 ii ii+1];
         [pos, ~] = find_position(x(inds), y(inds), max_val/2);
         ind = nearest_index(x, pos);
     end
