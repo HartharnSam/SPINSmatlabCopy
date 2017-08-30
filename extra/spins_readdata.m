@@ -1,12 +1,12 @@
-function data = spins_readdata(var, ii, nx, ny, nz, dimen)
-%  SPINS_READDATA  read in data for the given variable
+function data = spins_readdata(varname, ii, nx, ny, nz, dimen)
+%  SPINS_READDATA  Read in data for a given variable
 %
 %  Usage:
-%    data = spins_readdata(var, t_i, nx, ny, nz) reads in var at positions (nx,ny,nz) at t_i
+%    data = spins_readdata('var', t_i, nx, ny, nz) reads in var at positions (nx,ny,nz) at t_i
 %                          where nx, ny, nz are scalars or 1D vectors
 %
 %  Inputs:
-%    'var' may be of different forms:
+%    'varname' may be of different forms:
 %	any field in the working directory ('rho','u',...)
 %	'Density'          searches for rho otherwise searches for t and s
 %	'KE'               finds the local kinetic energy
@@ -33,21 +33,21 @@ if isfield(gd, 'y')
 end
 
 % parse the variable
-if strncmp(var,'Mean',4) || strncmp(var,'SD',2) || strncmp(var,'Scaled SD',9)
-    % Remove prefix from var (ie. remove Mean, SD, or Scaled SD)
+if strncmp(varname,'Mean',4) || strncmp(varname,'SD',2) || strncmp(varname,'Scaled SD',9)
+    % Remove prefix from varname (ie. remove Mean, SD, or Scaled SD)
     if params.ndims == 3
         ny = 1:Ny;
-        varorig = var;
-        var = strrep(var, 'Mean ', '');
-        var = strrep(var, 'Scaled SD ', '');
-        var = strrep(var, 'SD ', '');
+        varorig = varname;
+        varname = strrep(varname, 'Mean ', '');
+        varname = strrep(varname, 'Scaled SD ', '');
+        varname = strrep(varname, 'SD ', '');
     else
         error('Mean, SD, and Scaled SD are not supported on 2D data.');
     end
 end
 
 % try different densities
-if strcmpi(var,'Density')
+if strcmpi(varname,'Density')
     rhofiles = dir('rho.*');
     if ~isempty(rhofiles)
         data = spins_reader('rho',ii,nx,ny,nz);
@@ -61,7 +61,7 @@ if strcmpi(var,'Density')
         end
     end
 % read in kinetic energy
-elseif strcmpi(var,'KE')
+elseif strcmpi(varname,'KE')
     u = spins_reader('u',ii,nx,ny,nz);
     if params.ndims == 3
         v = spins_reader('v',ii,nx,ny,nz);
@@ -72,7 +72,7 @@ elseif strcmpi(var,'KE')
     data = 0.5*params.rho_0*(u.^2 + v.^2 + w.^2);
     clearvars u v w
 % plot speed (magnitude of velocity vector)
-elseif strcmpi(var,'speed')
+elseif strcmpi(varname,'speed')
     u = spins_reader('u',ii,nx,ny,nz);
     if params.ndims == 3
         v = spins_reader('v',ii,nx,ny,nz);
@@ -83,7 +83,7 @@ elseif strcmpi(var,'speed')
     data = sqrt(u.^2 + v.^2 + w.^2);
     clearvars u  v w
 % read in gradient Richardson number
-elseif strcmp(var, 'Ri')
+elseif strcmp(varname, 'Ri')
     if length(ny) > 1
         error('Gradient Richardson number must be plotted in x-z plane.')
     else
@@ -104,7 +104,7 @@ elseif strcmp(var, 'Ri')
         end
     end
 % read in data for plotting streamlines
-elseif strcmpi(var,'Streamline')
+elseif strcmpi(varname,'Streamline')
     if params.ndims == 3
         ny = 1:Ny;
         u = squeeze(mean(spins_reader('u',ii,nx,ny,nz),2));
@@ -118,11 +118,7 @@ elseif strcmpi(var,'Streamline')
     data(:,:,2) = w;
 % read in data for given file name
 else
-    try
-         data = spins_reader(var, ii, nx, ny, nz);
-    catch
-        error('Variable not understood or output does not exist.');
-    end
+    data = spins_reader(varname, ii, nx, ny, nz);
 end
 
 % take mean or standard deviation if asked
