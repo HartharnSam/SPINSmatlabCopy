@@ -82,7 +82,12 @@ elseif ~is_grid && nargin==4 && Ny==1
     xrange = varargin{2};
     zrange = varargin{3};
 elseif (is_grid && nargin>1) || (~is_grid && nargin>2)
-    error('Inputs not understood.')
+    fname = sprintf('%s.%d',varname,varargin{1});
+    if ~(exist(fname, 'file') == 2)
+        error([fname,' does not exist.']);
+    else
+        error('Input arguments not understood.')
+    end
 end
 
 % Sanitize the ranges:
