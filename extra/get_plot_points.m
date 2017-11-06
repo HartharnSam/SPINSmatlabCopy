@@ -88,7 +88,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
             yvarT = nearest_index(z, plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
-            ny = xvarL2:opts.xskp:xvarR2;
+            ny = xvarL2:opts.yskp:xvarR2;
             nz = yvarB2:opts.zskp:yvarT2;
         end
         xvar = y(ny);
@@ -141,7 +141,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:opts.xskp:xvarR2;
-            ny = yvarB2:opts.zskp:yvarT2;
+            ny = yvarB2:opts.yskp:yvarT2;
         end
         xvar = x(nx);
         yvar = y(ny);
@@ -204,7 +204,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             yvarT = nearest_index(z(nx,1,:), plotaxis(4));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
-            ny = xvarL2:opts.xskp:xvarR2;
+            ny = xvarL2:opts.yskp:xvarR2;
             nz = yvarB2:opts.zskp:yvarT2;
         end
         xvar = squeeze(y(nx,ny,nz));
@@ -269,7 +269,7 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:opts.xskp:xvarR2;
-            ny = yvarB2:opts.zskp:yvarT2;
+            ny = yvarB2:opts.yskp:yvarT2;
         end
         xvar = x(nx,ny,nz);
         yvar = y(nx,ny,nz);
