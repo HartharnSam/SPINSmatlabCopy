@@ -1,4 +1,4 @@
-function data = spins_readdata(varname, ii, nx, ny, nz, dimen)
+function data = spins_readdata(varname, ii, nx, ny, nz)
 %  SPINS_READDATA  Read in data for a given variable
 %
 %  Usage:
