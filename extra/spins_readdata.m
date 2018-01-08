@@ -54,7 +54,7 @@ if strcmpi(varname,'Density')
     else
         try
             s = spins_reader('s',ii,nx,ny,nz);
-            t = spins_reader('t',ii,nx,nz,nz);
+            t = spins_reader('t',ii,nx,ny,nz);
             data = eqn_of_state(t,s);
         catch
             error('Density could not be computed.');
