@@ -91,11 +91,14 @@ elseif strcmp(varname, 'Ri')
         rho_z = spins_reader('rho_z',ii,nx,ny,nz)';
         u_z   = spins_reader('u_z',ii,nx,ny,nz)';
         g = params.g;
-        rho_0 = params.rho_0;
+        if params.delta_rho < 1
+            rho_0 = 1;
+        else
+            rho_0 = params.rho_0;
+        end
         % calculate Ri
-        Uz_sq = u_z.^2;
         N_sq  = -g/rho_0*rho_z;
-        data = (N_sq./Uz_sq)';
+        data = (N_sq./u_z.^2)';
         % remove data that is too large
         if max(data(:)) > 5
             data(data>5) = 5;
