@@ -106,7 +106,8 @@ function par = add_params(gd, params, check_grid, varargin)
     % print error if one dimensions is accidentally written out
     if params.ndims == 3
         if Nx == 1 || Ny == 1 || Nz == 1
-            warning('Grid appears to be 2 dimensional but all 3 grid fields are present. Remove the unnecessary field before proceeding.')
+            warning(['Grid appears to be 2 dimensional but all 3 grid fields are present.',newline,...
+                'Remove the unnecessary field before proceeding.'])
         end
     end
 
@@ -135,16 +136,16 @@ function par = add_params(gd, params, check_grid, varargin)
         % get vector of depths at mid-depth of domain
         if isvector(gd.z)
             try
-                middepth = spins_reader('zgrid',round(linspace(1,Nx,64)),1,round(Nz/2));
+                middepth = spins_reader('zgrid',round(linspace(1,Nx,10)),1,round(Nz/2));
             catch
                 warning('zgrid not found. Grid is assumed to be unmapped.')
                 middepth = 1;
             end
         else
             if params.ndims == 3
-                middepth = gd.z(1:10:Nx,1,round(Nz/2));
+                middepth = gd.z(round(linspace(1,Nx,10)),1,round(Nz/2));
             elseif params.ndims == 2
-                middepth = gd.z(1:10:end,round(Nz/2));
+                middepth = gd.z(round(linspace(1,Nx,10)),round(Nz/2));
             end
         end
         % grid is mapped if there is variation in the depth
