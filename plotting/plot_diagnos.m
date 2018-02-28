@@ -170,6 +170,9 @@ if any(ismember(diagnos.Properties.VariableNames, 'Max_diss'))
     else
         max_dxyz = max([params.dx,params.dz]);
     end
+    if strcmp(params.type_z, 'NO_SLIP')
+        params.dz = '-';
+    end
     dx_Kolm  = max_dxyz/Kolm;
     dx_Batch = max_dxyz/Batch;
     fprintf('\n')
@@ -180,7 +183,7 @@ end
 
 %%%%%%%%%%% Parse and Print Energy diagnostics %%%%%%%%%%%%%%%
 % compute total KE
-if params.ndims == 2
+if ~any(ismember(diagnos.Properties.VariableNames, 'KE_y'))
     diagnos.KE_y = diagnos.KE_x*0;
 end
 KE_tot = diagnos.KE_x + diagnos.KE_y + diagnos.KE_z;
@@ -262,11 +265,14 @@ if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
         max_mix1 = max(mix_eff1);
         mix_eff2 = BPE_rate(inds)./(diss_offset(inds) + BPE_rate(inds));
         max_mix2 = max(mix_eff2);
-        mix_eff3 = APE2BPE_rate(inds)./(diss_offset(inds) + APE2BPE_rate(inds));
+        mix_eff3 = APE2BPE_rate(inds)./diss_offset(inds);
         max_mix3 = max(mix_eff3);
+        mix_eff4 = APE2BPE_rate(inds)./(diss_offset(inds) + APE2BPE_rate(inds));
+        max_mix4 = max(mix_eff4);
         fprintf('Max {phi_d/epsilon}:            %6.2f \n', max_mix1)
         fprintf('Max {phi_d/(epsilon+phi_d)}:    %6.2f \n', max_mix2)
-        fprintf('Max {phi_a/(epsilon+phi_a)}:    %6.2f \n', max_mix3)
+        fprintf('Max {phi_a/epsilon}:            %6.2f \n', max_mix3)
+        fprintf('Max {phi_a/(epsilon+phi_a)}:    %6.2f \n', max_mix4)
     end
 end
 
@@ -284,7 +290,7 @@ for name = diagnos.Properties.VariableNames
     %%%% Clock Time per Step %%%%
     elseif strcmp(name, 'Clock_time')
         figure(fn), clf
-        subplot(3,1,1), cla
+        subplot(3,1,1), cla reset
         hold on
         for ii = 1:N_start
             if ii == 1
@@ -309,7 +315,7 @@ for name = diagnos.Properties.VariableNames
     %%%% Simulation Time per Step %%%%
     elseif strcmp(name, 'Time')
         figure(fn)
-        subplot(3,1,2), cla
+        subplot(3,1,2), cla reset
         hold on
         for ii = 1:N_start
             its = strt_ind(ii):strt_ind(ii+1)-1;
@@ -324,7 +330,7 @@ for name = diagnos.Properties.VariableNames
         hold off
 
         %%%% Clock Time per Simulation Time per Step %%%%
-        subplot(3,1,3), cla
+        subplot(3,1,3), cla reset
         hold on
         clk_per_sim = clk_step_time./sim_step_time;
         for ii = 1:N_start
@@ -343,8 +349,8 @@ for name = diagnos.Properties.VariableNames
     %%%% Maximum (absolute value of) Velocities %%%%
     elseif strcmp(name, 'Max_u')
         figure(fn+1)
-        subplot(2,1,1), cla
-        if params.ndims == 2
+        subplot(2,1,1), cla reset
+        if ~any(ismember(diagnos.Properties.VariableNames, 'Max_v'))
             diagnos.Max_v = diagnos.Max_u*0;
         end
         plot(diagnos.Time, [diagnos.Max_u, diagnos.Max_v, diagnos.Max_w, diagnos.Max_vel])
@@ -366,7 +372,7 @@ for name = diagnos.Properties.VariableNames
     elseif strcmp(name, 'KE_x')
         %% Plot just kinetic energy
         figure(fn+1)
-        subplot(2,1,2), cla
+        subplot(2,1,2), cla reset
         plot(diagnos.Time,[diagnos.KE_x, diagnos.KE_y, diagnos.KE_z, KE_tot])
         if params.ndims == 3
             set(gca,'yscale','log');
@@ -383,7 +389,7 @@ for name = diagnos.Properties.VariableNames
         %% Plot all energy components
         %(KE, APE, Change in internal, Change in BPE, and numerical)
         figure(fn+2)
-        subplot(2,1,1), cla
+        subplot(2,1,1), cla reset
         hold on
         plot(diagnos.Time, KE_tot)
         energy_label = {'KE'};
@@ -417,19 +423,20 @@ for name = diagnos.Properties.VariableNames
         legend('boxoff')
 
         %% plot the rate of change of Energy components
-        subplot(2,1,2), cla
+        subplot(2,1,2), cla reset
         hold on
-        plot(time_rate, KE_rate)
+        inds = 10:length(time_rate);
+        plot(time_rate(inds), KE_rate(inds))
         energy_label = {'KE'};
         % Add APE, AE, and change in BPE, if calculated
         if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
-            plot(time_rate, [APE_rate, AE_rate, BPE_rate])
+            plot(time_rate(inds), [APE_rate(inds), AE_rate(inds), BPE_rate(inds)])
             energy_label = [energy_label, {'APE','AE','BPE (\phi_d)'}];
         end
         % Add change in internal energy if calculated
         if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) && ...
                 any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
-            plot(diagnos.Time, Int_rate,'k')
+            plot(diagnos.Time(10:end), Int_rate(10:end),'k')
             energy_label = [energy_label, 'Internal'];
         end
         % add energy created/removed by numerics (filter and numerical errors/scheme etc.)
@@ -437,9 +444,7 @@ for name = diagnos.Properties.VariableNames
         if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) && ...
                 any(ismember(diagnos.Properties.VariableNames, 'BPE_tot')) && ...
                 any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
-            plot(time_rate, NumE_rate)
-            %plot([0 diagnos.Time(end)],[1 1]*AE_tot(1),'k')
-            %energy_label = [energy_label, {'Numerics','BPE from int','AE(0)'}];
+            plot(time_rate(inds), NumE_rate(inds))
             energy_label = [energy_label, {'Numerics'}];
         end
         grid on
@@ -453,7 +458,7 @@ for name = diagnos.Properties.VariableNames
 
         %% Plot all energy component rates (KE, APE, Diss, Change in BPE)
         figure(fn+3)
-        subplot(2,1,1), cla
+        subplot(2,1,1), cla reset
         hold on
         % interpolate onto a regular grid of similar size
         energy_label = {};
@@ -492,34 +497,35 @@ for name = diagnos.Properties.VariableNames
         box on
         hold off
 
-        subplot(2,1,2), cla
+        subplot(2,1,2), cla reset
         hold on
+        inds = 5:length(time_rate);
         % interpolate onto a regular grid of similar size
         energy_label = {};
         if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot'))
-            plot(time_rate(4:end), KE2APE_rate(4:end))
+            plot(time_rate(inds), KE2APE_rate(inds))
             energy_label = {'KE  to APE (\phi_z)'};
         end
         % Add APE if calculated
         if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot')) ...
                 && any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
-            plot(time_rate(4:end), APE2BPE_rate(4:end))
+            plot(time_rate(inds), APE2BPE_rate(inds))
             energy_label = [energy_label, {'APE to BPE (\phi_a)'}];
         end
         % Add energy converted from internal energy
         if any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
-            plot(diagnos.Time(4:end), diagnos.BPE_from_int(4:end),'Color',cols(4,:))
+            plot(diagnos.Time, diagnos.BPE_from_int,'Color',cols(4,:))
             energy_label = [energy_label, 'Int to BPE (\phi_i)'];
         end
         % Add dissipation if calculated
         if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot'))
-            plot(diagnos.Time(8:end), diagnos.Diss_tot(8:end),'k')
+            plot(diagnos.Time(15:end), diagnos.Diss_tot(15:end),'k')
             energy_label = [energy_label, 'KE  to Int (diss, \epsilon)'];
         end
         if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) ...
                 && any(ismember(diagnos.Properties.VariableNames, 'BPE_tot')) ...
                 && any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
-            plot(time_rate(4:end), NumE_rate(4:end),'Color',cols(5,:))
+            plot(time_rate(inds), NumE_rate(inds),'Color',cols(5,:))
             energy_label = [energy_label, 'to Numerics'];
         end
         grid on
@@ -539,7 +545,7 @@ for name = diagnos.Properties.VariableNames
     %%%% Total Mass %%%%
     elseif strcmp(name, 'Mass')
         figure(fn+4)
-        subplot(3,1,1), cla
+        subplot(3,1,1), cla reset
         first_ind = 50;
         % ignore the early adjustment caused by
         % the non-divergence free initial random perturbation
@@ -554,14 +560,14 @@ for name = diagnos.Properties.VariableNames
     %%%% Maximum Density or Salt/Temp %%%%
     elseif strcmp(name, 'Max_density')
         figure(fn+4)
-        subplot(3,1,2), cla
+        subplot(3,1,2), cla reset
         plot(diagnos.Time, rho_var)
         ylabel('$\rho_\mathrm{max}/\rho_\mathrm{max}(0) - 1$',...
             'Interpreter','Latex','FontSize',14)
         title('Max tracers deviation (Density, etc.)')
     elseif strcmp(name, 'Max_temp') || strcmp(name, 'Max_salt')
         figure(fn+4)
-        subplot(2,1,2), cla
+        subplot(2,1,2), cla reset
         plot(diagnos.Time, [temp_var, salt_var])
         ylabel('Tracer ratio')
         legend({'$\rho_\mathrm{max}/\rho_\mathrm{max}(0)$',...
@@ -575,7 +581,7 @@ for name = diagnos.Properties.VariableNames
         first_ind = 20;
         if length(diagnos.Max_diss) > first_ind
             figure(fn+4)
-            subplot(3,1,3), cla
+            subplot(3,1,3), cla reset
             inds = first_ind:length(diagnos.Max_diss);
             plot(diagnos.Time(inds), diagnos.Max_diss(inds))
             xlabel('time (s)')
@@ -614,10 +620,9 @@ for name = diagnos.Properties.VariableNames
         first_ind = 20; % remove values due to initial perturbations
         if length(diagnos.Max_vort_y) > first_ind
             figure(fn+7)
-            subplot(2,1,1), cla
+            subplot(2,1,1), cla reset
             inds = first_ind:length(diagnos.Max_vort_y);
             if params.ndims == 3
-                % need to add in max vorticity component max{ om = sqrt(om_x^2 + om_y^2 + om_z^2)}
                 plot(diagnos.Time(inds),...
                 [diagnos.Max_vort_x(inds), diagnos.Max_vort_y(inds), diagnos.Max_vort_z(inds)])
                 set(gca,'yscale','log');
@@ -641,7 +646,7 @@ for name = diagnos.Properties.VariableNames
         first_ind = 20; % remove values due to initial perturbations
         if length(diagnos.Enst_y_tot) > first_ind
             figure(fn+7)
-            subplot(2,1,2), cla
+            subplot(2,1,2), cla reset
             inds = first_ind:length(diagnos.Enst_y_tot);
             if params.ndims == 3
                 plot(diagnos.Time(inds),...
@@ -673,7 +678,7 @@ for name = diagnos.Properties.VariableNames
         end
         inds = first_ind:length(diagnos.Diss_tot);
         figure(fn+8)
-        subplot(3,1,2), cla
+        subplot(3,1,2), cla reset
         plot(diagnos.Time(inds), diagnos.Diss_tot(inds))
         if any(ismember(diagnos.Properties.VariableNames, 'Enst_y_tot'))
             xticklabels([])
@@ -687,14 +692,14 @@ for name = diagnos.Properties.VariableNames
         %%%% Enstrophy-Dissipation ratio %%%%
         if any(ismember(diagnos.Properties.VariableNames, 'Enst_y_tot'))
             figure(fn+8)
-            subplot(3,1,1), cla
+            subplot(3,1,1), cla reset
             plot(diagnos.Time(inds), enst_tot(inds));
             xticklabels([])
             ylabel('$\Omega_\mathrm{tot}$ (1/s$^2$)',...
                 'Interpreter','Latex','FontSize',14)
             title('Total enstrophy')
 
-            subplot(3,1,3), cla
+            subplot(3,1,3), cla reset
             plot(diagnos.Time(inds), enst_diss(inds)-1,'.')
             xlabel('time (s)')
             ylabel('$\epsilon_{tot}/(2 \mu \Omega_{tot})-1$',...
