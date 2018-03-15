@@ -65,6 +65,26 @@ n_steps = length(diagnos.Iter);
 % total steps and clock time
 tot_clk_time = sum(clk_step_time);
 tot_sim_time = sum(sim_step_time);
+% clock time minus write time
+if exist('plot_times.txt', 'file')
+    % if outputs exist, remove output write time
+    warning('off','MATLAB:table:ModifiedAndSavedVarnames'); % suppress warning for this only
+    plottimes = readtable('plot_times.txt');
+    warning('on','MATLAB:table:ModifiedAndSavedVarnames');
+    avg_write = mean(plottimes.WriteTime_s_);
+    tot_write =  sum(plottimes.WriteTime_s_);
+else
+    avg_write = 0;
+    tot_write = 0;
+end
+avg_clk_step = (tot_clk_time - tot_write)/n_steps;
+avg_sim_step = tot_sim_time/n_steps;
+avg_clk_per_sim = avg_clk_step/avg_sim_step;
+clk_per_sim = clk_step_time./sim_step_time;
+clk_per_sim_num = clk_per_sim(~isinf(clk_per_sim) & ~isnan(clk_per_sim));
+% estimated clock time required to complete simulation
+sim_time_remain = params.final_time - sim_time(end);
+clk_time_remain = sim_time_remain*avg_clk_per_sim;
 
 % legend labels for each run
 run_label = cell(1,N_start);
@@ -95,37 +115,24 @@ s2dhms = @(sec) datestr(datenum(0,0,0,0,0,sec),'DD:HH:MM:SS');
 % print info
 fprintf('\n')
 disp('---- Timings ----')
-disp(['Total simulated time:  ',num2str(tot_sim_time),' s'])
-disp(['Most recent sim. time: ',num2str(sim_time(end)),' s'])
-disp(['Total clock time:      ',num2str(s2dhm(tot_clk_time)),' (D:H:M)'])
+fprintf('Most recent sim. time: %5.2f s\n',sim_time(end))
+fprintf('Total clock time:      %s (D:H:M)\n',s2dhm(tot_clk_time))
 %% print out average write time and step time
-warning('off','MATLAB:table:ModifiedAndSavedVarnames'); % suppress warning for this only
-if exist('plot_times.txt', 'file')
-    % if outputs exist, remove output write time
-    plottimes = readtable('plot_times.txt');
-    avg_write = mean(plottimes.WriteTime_s_);
-    tot_write =  sum(plottimes.WriteTime_s_);
-    avg_clk_step = (tot_clk_time - tot_write)/n_steps;
-    avg_sim_step = tot_sim_time/n_steps;
-    clk_per_sim = avg_clk_step/avg_sim_step;
-    if avg_write < 1
+if avg_write > 0
+    if avg_write < 10
         fprintf('Average write time: %8.3f s\n',avg_write)
     else
         fprintf('Average write time: %s (M:S)\n',s2ms(avg_write))
     end
-    fprintf('Avg. sim. step time: %7.3f s\n',avg_sim_step)
-    if avg_clk_step < 1
-        fprintf('Avg. clock step time:  %5.3f s\n',avg_clk_step)
-    else
-        fprintf('Avg. clock step time:  %s (M:S)\n',s2ms(avg_clk_step))
-    end
-    fprintf('Avg. clock time per sim. sec.: %s (D:H:M:S)\n',s2dhms(clk_per_sim))
-else
-    clk_per_sim = tot_clk_time/tot_sim_time;
-    fprintf('Avg. clock time per sim. sec.: %s (D:H:M:S)\n',s2dhms(clk_per_sim))
-    disp('plot_times.txt file not found, or incorrectly configured.');
 end
-warning('on','MATLAB:table:ModifiedAndSavedVarnames');
+fprintf('Avg. sim. step time: %7.3f s\n',avg_sim_step)
+if avg_clk_step < 10
+    fprintf('Avg. clock step time:  %5.3f s\n',avg_clk_step)
+else
+    fprintf('Avg. clock step time:  %s (M:S)\n',s2ms(avg_clk_step))
+end
+fprintf('Avg. clock time per sim. sec.: %s (D:H:M:S)\n',s2dhms(avg_clk_per_sim))
+fprintf('Est. clock time remaining:     %s (D:H:M:S)\n',s2dhms(clk_time_remain))
 
 %%%%%%%%%%% Shorten entstrophy variable and compare against dissipation %%%%%%%%%%%%%%%
 % from Mike Waite's Turbulence class: 
@@ -332,7 +339,6 @@ for name = diagnos.Properties.VariableNames
         %%%% Clock Time per Simulation Time per Step %%%%
         subplot(3,1,3), cla reset
         hold on
-        clk_per_sim = clk_step_time./sim_step_time;
         for ii = 1:N_start
             its = strt_ind(ii):strt_ind(ii+1)-1;
             plot(diagnos.Iter(its) + strt_ind(ii)-1, clk_per_sim(its), '.')
@@ -340,7 +346,6 @@ for name = diagnos.Properties.VariableNames
         xlabel('Iteration')
         ylabel('\Delta{T_c} / \Delta{T_s}')
         title('Ratio of time steps')
-        clk_per_sim_num = clk_per_sim(~isinf(clk_per_sim) & ~isnan(clk_per_sim));
         ylim([0 2.5*mean(clk_per_sim_num)]); 
         box on
         hold off
