@@ -1,7 +1,7 @@
 function [] = clean_diagnostics()
 % clean_diagnostics reads in the diagnostic file and removed repeated times
 
-files_to_clean = {'diagnostics','enstrophy','stresses'}; % without file extensions (all are .txt)
+files_to_clean = {'diagnostics','stresses_top','stresses_bottom'}; % without file extensions (all are .txt)
 
 for nn = 1:length(files_to_clean)
     % read analysis file (if it exists
@@ -10,16 +10,12 @@ for nn = 1:length(files_to_clean)
         try
             diagnos = readtable(diag_file);
         catch
-            warning('diagnostic file not found, or incorrectly configured.')
+            warning(['file "',diag_file,'" incorrectly configured.'])
             continue
         end
 
         % find indices to keep
-        try
-            time = diagnos.Sim_time;
-        catch
-            time = diagnos.Time;
-        end
+        time = diagnos.Time;
         keep_inds = find_inds(time);
 
         % clean up diagnostics file
@@ -27,6 +23,9 @@ for nn = 1:length(files_to_clean)
         N_fields = length(names) - 1;
         new_diagnos = struct;
         for ii = 1:N_fields
+            if ~isempty(strfind('Properties, Row', names{ii}))
+                continue
+            end
             temp = diagnos.(names{ii});
             new_diagnos.(names{ii}) = temp(keep_inds);
         end
