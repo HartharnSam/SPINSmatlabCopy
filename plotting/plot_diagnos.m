@@ -84,7 +84,7 @@ clk_per_sim = clk_step_time./sim_step_time;
 clk_per_sim_num = clk_per_sim(~isinf(clk_per_sim) & ~isnan(clk_per_sim));
 % estimated clock time required to complete simulation
 sim_time_remain = params.final_time - sim_time(end);
-clk_time_remain = sim_time_remain*avg_clk_per_sim;
+clk_time_remain = sim_time_remain*mean(clk_per_sim(end-50:end));
 
 % legend labels for each run
 run_label = cell(1,N_start);
@@ -93,10 +93,11 @@ for ii = 1:N_start
 end
 
 %% max density variation
-try
+if any(ismember(diagnos.Properties.VariableNames, 'Max_density'))
     rho_init = diagnos.Max_density(1);
     rho_var = diagnos.Max_density/rho_init - 1;
-catch
+elseif any(ismember(diagnos.Properties.VariableNames, 'Max_temperature')) ...
+    && any(ismember(diagnos.Properties.VariableNames, 'Max_salinity'))
     temp_init = diagnos.Max_temperature(1);
     salt_init = diagnos.Max_salinity(1);
     temp_var = diagnos.Max_temperature/temp_init;
@@ -125,7 +126,11 @@ if avg_write > 0
         fprintf('Average write time: %s (M:S)\n',s2ms(avg_write))
     end
 end
-fprintf('Avg. sim. step time: %7.3f s\n',avg_sim_step)
+if avg_sim_step < 1e-2
+    fprintf('Avg. sim. step time: %7.3f ms\n',avg_sim_step*1000)
+else
+    fprintf('Avg. sim. step time: %7.3f s\n',avg_sim_step)
+end
 if avg_clk_step < 10
     fprintf('Avg. clock step time:  %5.3f s\n',avg_clk_step)
 else
@@ -170,7 +175,10 @@ if any(ismember(diagnos.Properties.VariableNames, 'Max_diss'))
     Batch = Kolm*sqrt(kappa_min/visco);
     % compare min grid size to these scales
     if strcmp(params.type_z, 'NO_SLIP')
-        params.dz = max(gdpar_vec.gd.z(2:end) - gdpar_vec.gd.z(1:end-1));
+        params.dz = max(diff(gdpar_vec.gd.z));
+    end
+    if strcmp(params.type_x, 'NO_SLIP')
+        params.dx = max(diff(gdpar_vec.gd.x));
     end
     if params.ndims == 3
         max_dxyz = max([params.dx,params.dy,params.dz]);
@@ -179,6 +187,9 @@ if any(ismember(diagnos.Properties.VariableNames, 'Max_diss'))
     end
     if strcmp(params.type_z, 'NO_SLIP')
         params.dz = '-';
+    end
+    if strcmp(params.type_x, 'NO_SLIP')
+        params.dx = '-';
     end
     dx_Kolm  = max_dxyz/Kolm;
     dx_Batch = max_dxyz/Batch;
