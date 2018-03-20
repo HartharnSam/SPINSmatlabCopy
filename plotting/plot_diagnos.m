@@ -205,6 +205,19 @@ if ~any(ismember(diagnos.Properties.VariableNames, 'KE_y'))
     diagnos.KE_y = diagnos.KE_x*0;
 end
 KE_tot = diagnos.KE_x + diagnos.KE_y + diagnos.KE_z;
+
+% is there KE forcing?
+if any(ismember(diagnos.Properties.VariableNames, 'KE_from_forcing'))
+    KE_forcing = true;
+    F2KE_rate = diagnos.KE_from_forcing;
+    F2KE_tot  = cumtrapz(diagnos.Time, F2KE_rate);
+else
+    KE_forcing = false;
+    F2KE_rate = 0;
+    F2KE_tot = 0;
+end
+
+% total energy
 E_tot  = KE_tot + diagnos.PE_tot;
 E_loss = E_tot(1) - E_tot;
 % compute rates
@@ -216,7 +229,8 @@ E_rate  = Dmat*interp1(sim_time, E_tot,  time_rate, 'pchip')';
 % compute APE, total Avail. Energy (AE_tot), and change in BPE, and their rates of change
 if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
     APE_tot = diagnos.PE_tot - diagnos.BPE_tot;
-    AE_tot  = KE_tot + APE_tot;
+    AE_tot  = E_tot - diagnos.BPE_tot;
+    E0_and_W = AE_tot(1) + F2KE_tot(end);
     AE_loss = AE_tot(1) - AE_tot;
     BPE_change = diagnos.BPE_tot - diagnos.BPE_tot(1);
     BPE_rate = Dmat*interp1(sim_time, BPE_change, time_rate, 'pchip')';
@@ -239,7 +253,7 @@ if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot'))
     KE2Int_rate = diagnos.Diss_tot;
     KE2Int_tot  = cumtrapz(diagnos.Time, KE2Int_rate);
     % KE to APE (phi_z)
-    KE2APE_tot  = -(KE_tot - KE_tot(1)) - KE2Int_tot;
+    KE2APE_tot  = -(KE_tot - KE_tot(1)) - KE2Int_tot + F2KE_tot;
     KE2APE_rate = Dmat*interp1(sim_time, KE2APE_tot, time_rate, 'pchip')';
     % offset onto the grid to use with other rates which are off_set by 1st order FD derivative
     diss_offset = interp1(sim_time, diagnos.Diss_tot, time_rate, 'pchip')';
@@ -255,20 +269,26 @@ end
 if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) ...
         && any(ismember(diagnos.Properties.VariableNames, 'BPE_tot')) ...
         && any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
-    NumE_tot  = E_loss - Int_change;
+    NumE_tot  = E_loss - Int_change + F2KE_tot;
     NumE_rate = Dmat*interp1(sim_time, NumE_tot, time_rate, 'pchip')';
 
     fprintf('\n')
     fprintf('---- Energy ----\n')
     fprintf('As a percentage of the initial available energy\n')
-    fprintf('Total avail. energy lost: %6.2f %%\n',AE_loss(end)/AE_tot(1)*100)
-    fprintf('  - Total energy lost:    %6.2f %%\n',E_loss(end)/AE_tot(1)*100)
-    fprintf('     > to dissipation:    %6.2f %%\n',KE2Int_tot(end)/AE_tot(1)*100)
-    fprintf('     > to numerics:       %6.2f %%\n',NumE_tot(end)/AE_tot(1)*100)
-    fprintf('     > to internal:       %6.2f %%\n',-Int2BPE_tot(end)/AE_tot(1)*100)
-    fprintf('  - Total BPE gained:     %6.2f %%\n',BPE_change(end)/AE_tot(1)*100)
-    fprintf('     > from APE:          %6.2f %%\n',APE2BPE_tot(end)/AE_tot(1)*100)
-    fprintf('     > from internal:     %6.2f %%\n',Int2BPE_tot(end)/AE_tot(1)*100)
+    if KE_forcing
+        fprintf('  and total work applied by forcing\n')
+    end
+    fprintf('Total avail. energy lost: %6.2f %%\n',AE_loss(end)/E0_and_W*100)
+    fprintf('  - Total energy lost:    %6.2f %%\n',E_loss(end)/E0_and_W*100)
+    fprintf('     > to dissipation:    %6.2f %%\n',KE2Int_tot(end)/E0_and_W*100)
+    fprintf('     > to numerics:       %6.2f %%\n',NumE_tot(end)/E0_and_W*100)
+    fprintf('     > to internal:       %6.2f %%\n',-Int2BPE_tot(end)/E0_and_W*100)
+    if KE_forcing
+        fprintf('     > to forcing:        %6.2f %%\n',-F2KE_tot(end)/E0_and_W*100)
+    end
+    fprintf('  - Total BPE gained:     %6.2f %%\n',BPE_change(end)/E0_and_W*100)
+    fprintf('     > from APE:          %6.2f %%\n',APE2BPE_tot(end)/E0_and_W*100)
+    fprintf('     > from internal:     %6.2f %%\n',Int2BPE_tot(end)/E0_and_W*100)
 end
 
 % compute mixing efficiencies
@@ -430,6 +450,10 @@ for name = diagnos.Properties.VariableNames
             %energy_label = [energy_label, {'Numerics','BPE from int','AE(0)'}];
             energy_label = [energy_label, {'Numerics'}];
         end
+        if KE_forcing
+            plot(diagnos.Time, -F2KE_tot)
+            energy_label = [energy_label, {'- Work'}];
+        end
         grid on
         box on
         ylabel('Energy (J)')
@@ -462,6 +486,10 @@ for name = diagnos.Properties.VariableNames
                 any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
             plot(time_rate(inds), NumE_rate(inds))
             energy_label = [energy_label, {'Numerics'}];
+        end
+        if KE_forcing
+            plot(diagnos.Time, -F2KE_rate)
+            energy_label = [energy_label, {'- Work'}];
         end
         grid on
         box on
@@ -504,6 +532,10 @@ for name = diagnos.Properties.VariableNames
             plot(diagnos.Time, NumE_tot,'Color',cols(5,:))
             energy_label = [energy_label, 'to Numerics'];
         end
+        if KE_forcing
+            plot(diagnos.Time, F2KE_tot)
+            energy_label = [energy_label, {'Work to KE'}];
+        end
         grid on
         ylabel('Energy (J)')
         title('Energy converted')
@@ -544,6 +576,10 @@ for name = diagnos.Properties.VariableNames
             plot(time_rate(inds), NumE_rate(inds),'Color',cols(5,:))
             energy_label = [energy_label, 'to Numerics'];
         end
+        if KE_forcing
+            plot(diagnos.Time, F2KE_rate)
+            energy_label = [energy_label, {'Work to KE'}];
+        end
         grid on
         xlabel('time (s)')
         ylabel('Rate (J/s)')
@@ -555,7 +591,7 @@ for name = diagnos.Properties.VariableNames
         hold off
 
     elseif strcmp(name, 'KE_y') || strcmp(name, 'KE_z') || strcmp(name, 'BPE_tot') ||...
-        strcmp(name, 'PE_tot') || strcmp(name, 'BPE_from_int')
+        strcmp(name, 'PE_tot') || strcmp(name, 'BPE_from_int') || strcmp(name, 'KE_from_forcing')
         continue
 
     %%%% Total Mass %%%%
