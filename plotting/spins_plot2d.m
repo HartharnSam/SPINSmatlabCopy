@@ -224,11 +224,11 @@ for ii = t_index
     if strcmpi(params.mapped_grid,'true') && strcmpi(opts.dimen, 'Y')
         hill_nx = nx(1):nx(end);
         if params.ndims == 3
-            hill   = squeeze(gd.z(hill_nx,1,params.Nz));
-            hill_x = squeeze(gd.x(hill_nx,1,params.Nz));
+            hill   = squeeze(gd.z(hill_nx,1,1));
+            hill_x = squeeze(gd.x(hill_nx,1,1));
         elseif params.ndims == 2
-            hill   = squeeze(gd.z(hill_nx,params.Nz));
-            hill_x = squeeze(gd.x(hill_nx,params.Nz));
+            hill   = squeeze(gd.z(hill_nx,1));
+            hill_x = squeeze(gd.x(hill_nx,1));
         end
         plot(hill_x,hill,'k')
     end
