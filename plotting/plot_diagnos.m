@@ -173,7 +173,7 @@ if any(ismember(diagnos.Properties.VariableNames, 'Max_diss'))
     end
     Kolm = (rho_0*visco^3/max_diss)^(1/4);
     Batch = Kolm*sqrt(kappa_min/visco);
-    % compare min grid size to these scales
+    % compare max grid size to these scales
     if strcmp(params.type_z, 'NO_SLIP')
         params.dz = max(diff(gdpar_vec.gd.z));
     end
@@ -241,7 +241,7 @@ end
 if any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
     Int2BPE_rate = diagnos.BPE_from_int;
     Int2BPE_tot  = cumtrapz(diagnos.Time, Int2BPE_rate);
-    % energy transfered from APE to BPE (phi_a = phi_d - phi_i)
+    % energy transfered from APE to BPE (phi_m = phi_d - phi_i)
     if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
         APE2BPE_tot  = BPE_change - Int2BPE_tot;
         APE2BPE_rate = Dmat*interp1(sim_time, APE2BPE_tot, time_rate, 'pchip')';
@@ -274,21 +274,25 @@ if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) ...
 
     fprintf('\n')
     fprintf('---- Energy ----\n')
-    fprintf('As a percentage of the initial available energy\n')
+    if KE_forcing
+        fprintf('As a percentage of the initial available energy + work done\n')
+    else
+        fprintf('As a percentage of the initial available energy\n')
+    end
     if KE_forcing
         fprintf('  and total work applied by forcing\n')
     end
-    fprintf('Total avail. energy lost: %6.2f %%\n',AE_loss(end)/E0_and_W*100)
-    fprintf('  - Total energy lost:    %6.2f %%\n',E_loss(end)/E0_and_W*100)
-    fprintf('     > to dissipation:    %6.2f %%\n',KE2Int_tot(end)/E0_and_W*100)
-    fprintf('     > to numerics:       %6.2f %%\n',NumE_tot(end)/E0_and_W*100)
-    fprintf('     > to internal:       %6.2f %%\n',-Int2BPE_tot(end)/E0_and_W*100)
+    fprintf('Available energy lost:      %6.2f %%\n',AE_loss(end)/E0_and_W*100)
+    fprintf('  - Total energy lost:      %6.2f %%\n',E_loss(end)/E0_and_W*100)
+    fprintf('     > through dissipation: %6.2f %%\n',KE2Int_tot(end)/E0_and_W*100)
+    fprintf('     > through numerics:    %6.2f %%\n',NumE_tot(end)/E0_and_W*100)
+    fprintf('     > through internal:    %6.2f %%\n',-Int2BPE_tot(end)/E0_and_W*100)
     if KE_forcing
-        fprintf('     > to forcing:        %6.2f %%\n',-F2KE_tot(end)/E0_and_W*100)
+        fprintf('     > through forcing:     %6.2f %%\n',-F2KE_tot(end)/E0_and_W*100)
     end
-    fprintf('  - Total BPE gained:     %6.2f %%\n',BPE_change(end)/E0_and_W*100)
-    fprintf('     > from APE:          %6.2f %%\n',APE2BPE_tot(end)/E0_and_W*100)
-    fprintf('     > from internal:     %6.2f %%\n',Int2BPE_tot(end)/E0_and_W*100)
+    fprintf('  - Total BPE gained:       %6.2f %%\n',BPE_change(end)/E0_and_W*100)
+    fprintf('     > through mixing:      %6.2f %%\n',APE2BPE_tot(end)/E0_and_W*100)
+    fprintf('     > through diffusion:   %6.2f %%\n',Int2BPE_tot(end)/E0_and_W*100)
 end
 
 % compute mixing efficiencies
@@ -309,8 +313,8 @@ if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
         max_mix4 = max(mix_eff4);
         fprintf('Max {phi_d/epsilon}:            %6.2f \n', max_mix1)
         fprintf('Max {phi_d/(epsilon+phi_d)}:    %6.2f \n', max_mix2)
-        fprintf('Max {phi_a/epsilon}:            %6.2f \n', max_mix3)
-        fprintf('Max {phi_a/(epsilon+phi_a)}:    %6.2f \n', max_mix4)
+        fprintf('Max {phi_m/epsilon}:            %6.2f \n', max_mix3)
+        fprintf('Max {phi_m/(epsilon+phi_m)}:    %6.2f \n', max_mix4)
     end
 end
 
@@ -514,7 +518,7 @@ for name = diagnos.Properties.VariableNames
         if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot')) ...
                 && any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
             plot(diagnos.Time, APE2BPE_tot)
-            energy_label = [energy_label, {'APE to BPE (\int \phi_a dt)'}];
+            energy_label = [energy_label, {'APE to BPE (\int \phi_m dt)'}];
         end
         % Add energy converted from internal energy
         if any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
@@ -558,7 +562,7 @@ for name = diagnos.Properties.VariableNames
         if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot')) ...
                 && any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
             plot(time_rate(inds), APE2BPE_rate(inds))
-            energy_label = [energy_label, {'APE to BPE (\phi_a)'}];
+            energy_label = [energy_label, {'APE to BPE (\phi_m)'}];
         end
         % Add energy converted from internal energy
         if any(ismember(diagnos.Properties.VariableNames, 'BPE_from_int'))
