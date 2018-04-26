@@ -29,7 +29,7 @@ try
     end
     fclose(fileID);
 catch
-    warning('spins.conf was not found.')
+    warning('spins.conf was not found or has a parameter with no value.')
     params = struct();
 end
 end
