@@ -1,4 +1,4 @@
-function [] = make_movie(var)
+function [] = make_movie(varname)
 % MAKE_MOVIE     Make a movie tracking the wave in the current directory.
 %   make_movie uses ffmpeg to stitch frames together, so a working copy 
 %   of that is necessary.
@@ -7,27 +7,36 @@ function [] = make_movie(var)
 %    make_movie('rho')
 %
 %  Inputs:
-%    'var'   - a string for which variable to make a movie of.
-%              Allowed names - Anything readable by spins_plot2d:
-%                  rho, u, KE, Mean KE, SD KE, ...
+%    'varname'   - the variable to make a movie of.
+%                  Allowed names - Anything readable by spins_plot2d:
+%                      rho, u, KE, Mean KE, SD KE, ...
 %
 %  Outputs:
 %    none
 %
-%  David Deepwell, 2017
+%  David Deepwell, 2018
 
 % get grid and parameters
-gd = gdpar.gd;
-params = gdpar.params;
+gdpar = spins_gridparams();
+split_gdpar
 
 % colorbar option
-%clim = [1 2];
-clim = 'auto';
+if strcmp(varname,'rho')
+    clim = [-1 1]*params.delta_rho/2;
+elseif strncmp(varname,'dye',3) || strcmp(varname,'tracer')
+    clim = [0 1];
+    if strcmp(varname,'dye1b')
+        clim = [-1 0];
+    end
+else
+    clim = 'auto';
+end
 % axis options
-zB = 0;
-zT = 0.3;
-xL = -1.5;
-xR = 1;
+zm = params.Lz/2 + params.min_z;
+zB = zm - 0.07;
+zT = zm + 0.07;
+xL = -0.4;
+xR = 0.1;
 width = xR - xL;
 
 % video frame rate
@@ -40,8 +49,8 @@ end
 mkdir('tmp_figs')
 
 % outputs to use in movie (default here is all of them)
-first_out = first_output(var);
-last_out = last_output(var);
+first_out = first_output(varname);
+last_out = last_output(varname);
 outputs = first_out:last_out;
 
 % do loop
@@ -49,22 +58,32 @@ for ii = outputs
     % find region
     ax = wave_region(ii,'type','fixed','x',[xL xR],'z',[zB zT]);
     if ax(2)-ax(1) < width
-        ax(2) = ax(1) + width;
+        if ax(2) > params.Lx
+            ax(1) = ax(2) - width;
+        elseif ax(1) < 0
+            ax(2) = ax(1) + width;
+        end
     end
 
     % make plot
     if strcmp(clim, 'auto')
-        spins_plot2d(var,ii,'axis',ax);
+        spins_plot2d(varname,ii,'axis',ax);
     else
-        spins_plot2d(var,ii,'axis',ax,'clim',clim,'trim',true);
+        spins_plot2d(varname,ii,'axis',ax,'clim',clim,'trim',true);
+    end
+    if strncmp(varname,'dye',3)
+        colormap(cmocean('tempo'))
+        if strcmp(varname,'dye1b')
+            colormap(cmocean('-tempo'))
+        end
     end
     % adjust to defaults
-    figure_defaults(fig_hand)
+    figure_defaults()
 
     % save output figure
     cd('tmp_figs')
     filename = ['tmp_',num2str(ii,'%03d')];
-    print_figure(filename, 'format', 'png')
+    print_figure(filename, 'format', 'png','size',[8 3])
     cd('..')
 
     completion(ii-first_out+1, length(outputs))
@@ -76,13 +95,13 @@ if ~(exist('movies','dir')==7)
 end
 % make movie and remove temporary files and folder
 cd('tmp_figs')
-filename = strrep(var, ' ','_');
+filename = strrep(varname, ' ','_');
 status = system(['ffmpeg -r ',num2str(framerate),...
          ' -start_number ',num2str(first_out),' -i tmp_%03d.png',...
          ' -r ',num2str(framerate),' -y -pix_fmt yuv420p -q 1',...
          ' -vf scale=-1:600 ../movies/',filename,'.mp4']);
 if status ~= 0
-    disp([var,'.mp4 was possibly not redered correctly.'])
+    disp([varname,'.mp4 was possibly not rendered correctly.'])
 end
 cd('..')
 rmdir('tmp_figs','s')
