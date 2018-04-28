@@ -64,15 +64,15 @@ if max_ind < length(x)
         % improve location and max given by pks
         % by fitting three points near peak with a quadratic (y = ax^2 + bx + c)
         for ii = 1:length(pks)
-            loc_ind = nearest_index(x, locs(ii));
-            if loc_ind > 1 && loc_ind < length(x)
+            loc_ind = nearest_index(xc, locs(ii));
+            if loc_ind > 1 && loc_ind < length(xc)
                 x1 = loc_ind - 1;
                 x2 = loc_ind;
                 x3 = loc_ind + 1;
                 inds = [x1 x2 x3];
                 % make vectors of the points
-                xs = x(inds);
-                ys = y(inds);
+                xs = xc(inds);
+                ys = yc(inds);
                 szx = size(xs);
                 if szx(1) == 1
                     xs = xs';
@@ -94,7 +94,7 @@ if max_ind < length(x)
                 max_val(ii) = pks(ii);
                 pos(ii) = locs(ii);
             end
-            ind(ii) = loc_ind;
+            ind(ii) = nearest_index(x, locs(ii));
         end
     end
 
