@@ -45,6 +45,11 @@ function [pos, ind] = find_position(x, y, val)
         if szy(1) == 1
             ys = ys';
         end
+        % if the x values do not change, simply return this value
+        if min(diff(xs)) == 0
+            pos = xs(2);
+            return
+        end
         % do interpolation
         mat = [xs.^2, xs, ones(3,1)];
         quad_fit = mat\ys;
