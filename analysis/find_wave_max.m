@@ -95,6 +95,14 @@ if max_ind < length(x)
                 pos(ii) = locs(ii);
             end
             ind(ii) = nearest_index(x, locs(ii));
+            if sum(x == locs(ii)) ~= 1
+                % there are multiple points (or none)
+                % that are at the exact x-value of the max
+                % It's really unlikely, but it's happened
+                xlocs_inds = find(x == locs(ii));
+                [~,xloc_ind] = max(y(xlocs_inds));
+                ind = xlocs_inds(xloc_ind);
+            end
         end
     end
 
