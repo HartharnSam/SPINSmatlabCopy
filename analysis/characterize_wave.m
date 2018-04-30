@@ -111,57 +111,66 @@ for jj = 1:noutputs
         rho = spins_readdata('Density', ii, x_inds, 1, z_inds);
     end
 
+    % set-up the figure
+    all_conts = true; % do all contours exist in the domain?
+    figure(18), clf
+    hold on
+
+    % loop through the contours
     for nn = 1:n_cont
-        % find contour (isopycnal)
-        if isvector(gd.x)
-            [cont_x, cont_y] = find_contour(gd.x(x_inds), gd.z(z_inds), rho', contval(nn));
+        if contval(nn) < max(rho(:)) && contval(nn) > min(rho(:))
+            % find contour (isopycnal)
+            if isvector(gd.x)
+                [cont_x, cont_y] = find_contour(gd.x(x_inds), gd.z(z_inds), rho', contval(nn));
+            else
+                [cont_x, cont_y] = find_contour(gd.x(x_inds,z_inds), gd.z(x_inds,z_inds), rho, contval(nn));
+            end
+            cont_y = cont_y - strat_loc(jj, nn); % shift so that cont_y=0 at far field
+            % if wave is a depression, then flip vertically
+            if strcmp(config{nn}, 'depr')
+                cont_y = -cont_y;
+            end
+
+            % find amplitudes and locations of local maxima
+            [max_val, max_pos, max_ind] = find_wave_max(cont_x, cont_y);
+            amplitude(jj, nn)   = max_val(1);
+            wave_center(jj, nn) = max_pos(1);
+            % what to do about other components?
+
+            % find wavelengths
+            inds = max_ind(1):length(cont_x);
+            if length(inds) > 1 % if wave hasn't reach tank end
+                % fore (right) wavelength
+                [front_loc, ~] = find_position(cont_x(inds), cont_y(inds), max_val(1)/2);
+                wavelength_right(jj, nn) = front_loc - max_pos(1);
+                % aft (left) wavelength
+                inds = 1:max_ind;
+                [back_loc, ~] = find_half_max(cont_x(inds), cont_y(inds));
+                wavelength_left(jj, nn) = max_pos(1) - back_loc;
+            else % wave has reached tank end
+                wavelength_right(jj, nn) = 0;
+                wavelength_left(jj, nn)  = 0;
+                reach_end = true;
+            end
+
+            % make plot to check
+            p_hand(nn) = plot(cont_x, cont_y, '.', 'Color', c_map(nn,:));
+            % plot wave centre and wavelengths
+            plot([1 1]*max_pos(1), [0 max_val(1)],'-', 'Color', c_map(nn,:))
+            plot([1 1]*front_loc,  [0 max_val(1)],'-', 'Color', c_map(nn,:))
+            plot([1 1]*back_loc,   [0 max_val(1)],'-', 'Color', c_map(nn,:))
         else
-            [cont_x, cont_y] = find_contour(gd.x(x_inds,z_inds), gd.z(x_inds,z_inds), rho, contval(nn));
+            warning(['contour ',num2str(contval(nn)),' is not in the data set, skipping.'])
+            all_conts = false;
         end
-        cont_y = cont_y - strat_loc(jj, nn); % shift so that cont_y=0 at far field
-        % if wave is a depression, then flip vertically
-        if strcmp(config{nn}, 'depr')
-            cont_y = -cont_y;
-        end
-
-        % find amplitudes and locations of local maxima
-        [max_val, max_pos, max_ind] = find_wave_max(cont_x, cont_y);
-        amplitude(jj, nn)   = max_val(1);
-        wave_center(jj, nn) = max_pos(1);
-        % what to do about other components?
-
-        % find wavelengths
-        inds = max_ind(1):length(cont_x);
-        if length(inds) > 1 % if wave hasn't reach tank end
-            % fore (right) wavelength
-            [front_loc, ~] = find_position(cont_x(inds), cont_y(inds), max_val(1)/2);
-            wavelength_right(jj, nn) = front_loc - max_pos(1);
-            % aft (left) wavelength
-            inds = 1:max_ind;
-            [back_loc, ~] = find_half_max(cont_x(inds), cont_y(inds));
-            wavelength_left(jj, nn) = max_pos(1) - back_loc;
-        else % wave has reached tank end
-            wavelength_right(jj, nn) = 0;
-            wavelength_left(jj, nn)  = 0;
-            reach_end = true;
-        end
-
-        % make plot to check
-        if nn == 1
-            figure(18), clf
-            hold on
-        end
-        p_hand(nn) = plot(cont_x, cont_y, '.', 'Color', c_map(nn,:));
-        % plot wave centre and wavelengths
-        plot([1 1]*max_pos(1), [0 max_val(1)],'-', 'Color', c_map(nn,:))
-        plot([1 1]*front_loc,  [0 max_val(1)],'-', 'Color', c_map(nn,:))
-        plot([1 1]*back_loc,   [0 max_val(1)],'-', 'Color', c_map(nn,:))
     end
     % other stuff
     grid on
     title(['t=',int2str(params.plot_interval*ii),'s'])
-    leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
-    legend(p_hand, leg)
+    if all_conts
+        leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
+        legend(p_hand, leg)
+    end
     drawnow
     hold off
 
