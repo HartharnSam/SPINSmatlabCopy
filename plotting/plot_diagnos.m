@@ -286,7 +286,7 @@ if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) ...
     fprintf('  - Total energy lost:      %6.2f %%\n',E_loss(end)/E0_and_W*100)
     fprintf('     > through dissipation: %6.2f %%\n',KE2Int_tot(end)/E0_and_W*100)
     fprintf('     > through numerics:    %6.2f %%\n',NumE_tot(end)/E0_and_W*100)
-    fprintf('     > through internal:    %6.2f %%\n',-Int2BPE_tot(end)/E0_and_W*100)
+    fprintf('     > through diffusion:   %6.2f %%\n',-Int2BPE_tot(end)/E0_and_W*100)
     if KE_forcing
         fprintf('     > through forcing:     %6.2f %%\n',-F2KE_tot(end)/E0_and_W*100)
     end
