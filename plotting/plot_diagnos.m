@@ -36,6 +36,20 @@ catch
 end
 rho_0 = params.rho_0;
 visco = params.visco;
+% Volume of domain
+Vol = params.Lx * params.Ly * params.Lz;
+if strcmp(params.mapped_grid,'true');
+    if params.ndims == 3
+        hill = gd.z(:,1,1);
+    else
+        hill = gd.z(:,1);
+    end
+    if strcmp(params.type_x, 'NO_SLIP')
+        warning('Volume calculation is not setup for Cheb grid in x.')
+    else
+        Vol = Vol - params.Ly * sum(hill)*params.dx;
+    end
+end
 
 % find all diffusivity values
 diffu_types = {'kappa','kappa_rho','kappa_tracer','kappa_dye','kappa_dye1','kappa_dye2',...
@@ -706,12 +720,12 @@ for name = diagnos.Properties.VariableNames
             inds = first_ind:length(diagnos.Enst_y_tot);
             if params.ndims == 3
                 plot(diagnos.Time(inds),...
-                [enst_x_tot(inds), enst_y_tot(inds), enst_z_tot(inds), enst_tot(inds)])
+                [enst_x_tot(inds), enst_y_tot(inds), enst_z_tot(inds), enst_tot(inds)]/Vol)
                 set(gca,'yscale','log');
                 leg = legend({'$\Omega_x$','$\Omega_y$','$\Omega_z$','$\Omega_\mathrm{tot}$'},...
                     'Interpreter', 'Latex','FontSize',14);
             else
-                plot(diagnos.Time(inds), enst_y_tot(inds), 'Color', coly)
+                plot(diagnos.Time(inds), enst_y_tot(inds)/Vol, 'Color', coly)
                 set(gca,'yscale','linear');
                 leg = legend({'$\Omega_\mathrm{tot}$'},...
                     'Interpreter', 'Latex','FontSize',14);
@@ -719,7 +733,7 @@ for name = diagnos.Properties.VariableNames
             leg.Location = 'best';
             leg.Box = 'off';
             xlabel('time (s)')
-            ylabel('$\Omega_\mathrm{tot}$ (1/s$^2$)',...
+            ylabel('$\Omega_\mathrm{tot}/V$ (1/s$^2$)',...
                 'Interpreter','Latex','FontSize',14)
             title('Enstrophy components')
         end
@@ -749,9 +763,9 @@ for name = diagnos.Properties.VariableNames
         if any(ismember(diagnos.Properties.VariableNames, 'Enst_y_tot'))
             figure(fn+8)
             subplot(3,1,1), cla reset
-            plot(diagnos.Time(inds), enst_tot(inds));
+            plot(diagnos.Time(inds), enst_tot(inds)/Vol);
             xticklabels([])
-            ylabel('$\Omega_\mathrm{tot}$ (1/s$^2$)',...
+            ylabel('$\Omega_\mathrm{tot}/V$ (1/s$^2$)',...
                 'Interpreter','Latex','FontSize',14)
             title('Total enstrophy')
 
