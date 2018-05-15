@@ -655,7 +655,7 @@ for name = diagnos.Properties.VariableNames
             inds = first_ind:length(diagnos.Max_diss);
             plot(diagnos.Time(inds), diagnos.Max_diss(inds))
             xlabel('time (s)')
-            ylabel('$\epsilon_\mathrm{max}$  (J/s)',...
+            ylabel('$\epsilon_\mathrm{max}$  (J s$^{-1}$ m$^{-3}$)',...
                 'Interpreter','Latex','FontSize',14) 
             title('Max dissipation')
         end
