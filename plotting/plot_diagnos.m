@@ -317,18 +317,25 @@ if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
     fprintf('Change in BPE / |change in AE|: %6.2f \n', ...
         BPE_change(end)/abs(AE_tot(end) - AE_tot(1)))
     if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot'))
-        mix_eff1 = BPE_rate(inds)./diss_offset(inds); 
-        max_mix1 = max(mix_eff1);
-        mix_eff2 = BPE_rate(inds)./(diss_offset(inds) + BPE_rate(inds));
-        max_mix2 = max(mix_eff2);
-        mix_eff3 = APE2BPE_rate(inds)./diss_offset(inds);
+        % We include the energy removed by the numerics as this is likely
+        % the filter acting as numerical viscosity
+        %mix_eff1 = BPE_rate(inds)./diss_offset(inds);
+        %max_mix1 = max(mix_eff1);
+        %mix_eff2 = BPE_rate(inds)./(diss_offset(inds) + BPE_rate(inds));
+        %max_mix2 = max(mix_eff2);
+        mix_eff3 = APE2BPE_rate(inds)./(diss_offset(inds) + NumE_rate(inds));
         max_mix3 = max(mix_eff3);
-        mix_eff4 = APE2BPE_rate(inds)./(diss_offset(inds) + APE2BPE_rate(inds));
+        mix_eff4 = APE2BPE_rate(inds)./(diss_offset(inds) + NumE_rate(inds) + APE2BPE_rate(inds));
         max_mix4 = max(mix_eff4);
-        fprintf('Max {phi_d/epsilon}:            %6.2f \n', max_mix1)
-        fprintf('Max {phi_d/(epsilon+phi_d)}:    %6.2f \n', max_mix2)
-        fprintf('Max {phi_m/epsilon}:            %6.2f \n', max_mix3)
-        fprintf('Max {phi_m/(epsilon+phi_m)}:    %6.2f \n', max_mix4)
+        mix_eff4_cum = APE2BPE_tot./(KE2Int_tot + APE2BPE_tot + NumE_tot);
+        mix_eff4_cum = mix_eff4_cum(end);
+        %fprintf('Max {phi_d/epsilon}:               %6.2f \n', max_mix1)
+        %fprintf('Max {phi_d/(epsilon+phi_d)}:       %6.2f \n', max_mix2)
+        %fprintf('Max {phi_m/(epsilon+gamma)}:       %6.2f \n', max_mix3)
+        %fprintf('Max {phi_m/(epsilon+phi_m+gamma)}: %6.2f \n', max_mix4)
+        fprintf('Cumulative mixing eff.:         %6.2f \n', mix_eff4_cum)
+        fprintf('Max inst. mixing eff.:          %6.2f \n', max_mix4)
+        fprintf('Max inst. mixing coeff.:        %6.2f \n', max_mix3)
     end
 end
 
