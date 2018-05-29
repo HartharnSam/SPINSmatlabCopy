@@ -309,7 +309,7 @@ if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) ...
     fprintf('     > through diffusion:   %6.2f %%\n',Int2BPE_tot(end)/E0_and_W*100)
 end
 
-% compute mixing efficiencies
+% compute mixing efficiencies (see Gregg 2018)
 if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
     inds = 20:length(BPE_rate);
     fprintf('\n')
@@ -319,23 +319,13 @@ if any(ismember(diagnos.Properties.VariableNames, 'BPE_tot'))
     if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot'))
         % We include the energy removed by the numerics as this is likely
         % the filter acting as numerical viscosity
-        %mix_eff1 = BPE_rate(inds)./diss_offset(inds);
-        %max_mix1 = max(mix_eff1);
-        %mix_eff2 = BPE_rate(inds)./(diss_offset(inds) + BPE_rate(inds));
-        %max_mix2 = max(mix_eff2);
-        mix_eff3 = APE2BPE_rate(inds)./(diss_offset(inds) + NumE_rate(inds));
-        max_mix3 = max(mix_eff3);
-        mix_eff4 = APE2BPE_rate(inds)./(diss_offset(inds) + NumE_rate(inds) + APE2BPE_rate(inds));
-        max_mix4 = max(mix_eff4);
-        mix_eff4_cum = APE2BPE_tot./(KE2Int_tot + APE2BPE_tot + NumE_tot);
-        mix_eff4_cum = mix_eff4_cum(end);
-        %fprintf('Max {phi_d/epsilon}:               %6.2f \n', max_mix1)
-        %fprintf('Max {phi_d/(epsilon+phi_d)}:       %6.2f \n', max_mix2)
-        %fprintf('Max {phi_m/(epsilon+gamma)}:       %6.2f \n', max_mix3)
-        %fprintf('Max {phi_m/(epsilon+phi_m+gamma)}: %6.2f \n', max_mix4)
-        fprintf('Cumulative mixing eff.:         %6.2f \n', mix_eff4_cum)
-        fprintf('Max inst. mixing eff.:          %6.2f \n', max_mix4)
-        fprintf('Max inst. mixing coeff.:        %6.2f \n', max_mix3)
+        mix_cof = APE2BPE_rate(inds)./(diss_offset(inds) + NumE_rate(inds));
+        mix_eff = APE2BPE_rate(inds)./(diss_offset(inds) + NumE_rate(inds) + APE2BPE_rate(inds));
+        mix_eff_cum = APE2BPE_tot./(KE2Int_tot + APE2BPE_tot + NumE_tot);
+        mix_eff_cum = mix_eff_cum(end);
+        fprintf('Cumulative mixing eff.:         %6.2f \n', mix_eff_cum)
+        fprintf('Max inst. mixing eff.:          %6.2f \n', max(mix_eff))
+        fprintf('Max inst. mixing coeff.:        %6.2f \n', max(mix_cof))
     end
 end
 
