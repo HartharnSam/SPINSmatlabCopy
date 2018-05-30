@@ -39,6 +39,7 @@ visco = params.visco;
 % Volume of domain
 Vol = params.Lx * params.Ly * params.Lz;
 if strcmp(params.mapped_grid,'true');
+    gd = spins_grid('FastFull');
     if params.ndims == 3
         hill = gd.z(:,1,1);
     else
@@ -296,17 +297,18 @@ if any(ismember(diagnos.Properties.VariableNames, 'Diss_tot')) ...
     if KE_forcing
         fprintf('  and total work applied by forcing\n')
     end
-    fprintf('Available energy lost:      %6.2f %%\n',AE_loss(end)/E0_and_W*100)
-    fprintf('  - Total energy lost:      %6.2f %%\n',E_loss(end)/E0_and_W*100)
-    fprintf('     > through dissipation: %6.2f %%\n',KE2Int_tot(end)/E0_and_W*100)
-    fprintf('     > through numerics:    %6.2f %%\n',NumE_tot(end)/E0_and_W*100)
-    fprintf('     > through diffusion:   %6.2f %%\n',-Int2BPE_tot(end)/E0_and_W*100)
+    fprintf('Available energy lost:  %6.2f %%\n',AE_loss(end)/E0_and_W*100)
+    fprintf('  > through mixing:       %6.2f %%\n',APE2BPE_tot(end)/E0_and_W*100)
+    fprintf('  > through dissipation:  %6.2f %%\n',KE2Int_tot(end)/E0_and_W*100)
+    fprintf('  > through numerics:     %6.2f %%\n',NumE_tot(end)/E0_and_W*100)
     if KE_forcing
-        fprintf('     > through forcing:     %6.2f %%\n',-F2KE_tot(end)/E0_and_W*100)
+        fprintf('  > through forcing:      %6.2f %%\n',-F2KE_tot(end)/E0_and_W*100)
     end
-    fprintf('  - Total BPE gained:       %6.2f %%\n',BPE_change(end)/E0_and_W*100)
-    fprintf('     > through mixing:      %6.2f %%\n',APE2BPE_tot(end)/E0_and_W*100)
-    fprintf('     > through diffusion:   %6.2f %%\n',Int2BPE_tot(end)/E0_and_W*100)
+    fprintf('Total energy lost:      %6.2f %%\n',E_loss(end)/E0_and_W*100)
+    fprintf('  > through diffusion:    %6.2f %%\n',-Int2BPE_tot(end)/E0_and_W*100)
+    fprintf('  > through dissipation:  %6.2f %%\n',KE2Int_tot(end)/E0_and_W*100)
+    fprintf('  > through numerics:     %6.2f %%\n',NumE_tot(end)/E0_and_W*100)
+    fprintf('Change in BPE:          %6.2f %%\n',BPE_change(end)/E0_and_W*100)
 end
 
 % compute mixing efficiencies (see Gregg 2018)
