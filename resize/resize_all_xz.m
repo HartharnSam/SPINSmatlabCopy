@@ -1,4 +1,4 @@
-function resize_all_z(ii, Nx_new, Nz_new)
+function resize_all_xz(ii, Nx_new, Nz_new)
 % RESIZE_ALL_XZ  Adjust the resolution in x and z of all fields.
 %
 %  Assumptions:
