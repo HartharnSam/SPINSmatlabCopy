@@ -59,6 +59,14 @@ if ~strcmpi(params.mapped_grid,'true') && ~isvector(gd.x)
     gd = get_vector_grid(gd);
 end
 
+% check that the grid is the same size as that listed in spins.conf
+par = spins_params();
+if par.Nx ~= params.Nx || ...
+        par.Ny ~= params.Ny || ...
+        par.Nz ~= params.Nz
+    error('The currently loaded grid is incorrect. Rerun spins_grid or spins_gridparams')
+end
+
 % set plotting options
 spins_plotoptions
 
