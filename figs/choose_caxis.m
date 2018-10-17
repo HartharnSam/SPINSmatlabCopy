@@ -43,9 +43,10 @@ if exist('SD', 'var') ...
     if ~strcmp(opts.style,'contour')
         cmap = cmocean('-grey',nlevels);
     end
-elseif ~isempty(strfind(var, 'Dye')) ...
-    || strcmpi(var, 'Tracer')
-    clim = [-1 1];
+elseif ~isempty(strfind(lower(var), 'dye')) ...
+    || strcmpi(lower(var), 'tracer')
+    clim = [0 1];
+    cmap = cmocean('tempo', nlevels);
 elseif ((strcmpi(var, 'Density') || strcmp(var, 'rho')) ...
     && mean(data(:)) < 1)
     clim = [-1 1]*max(abs(data(:)));
