@@ -65,6 +65,7 @@ if opts.size == 0
 end
 fig_hand.PaperSize = opts.size;
 % set position
+fig_hand.Position = [1 1 opts.size];
 fig_hand.PaperPosition = [0 0 opts.size];
 fig_hand.PaperPositionMode = 'manual';
 
