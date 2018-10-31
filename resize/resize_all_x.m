@@ -119,7 +119,7 @@ if strncmp(comp,'MAC',3)
     system(['sed -i '''' ''s/^restart_sequence.*$/restart_sequence = ',num2str(ii),'/g'' spins.conf']);
     system(['sed -i '''' ''s/^restart_from_dump.*$/restart_from_dump = false/g'' spins.conf']);
 else
-    system(['sed -i -e ''s/Nx\s*=\s*',num2str(Nx),'/Nx = ',num2str(Nx_new),'/'' spins.conf']);
+    system(['sed -i -e ''s/Nx\s*=\s*',num2str(Nx_old),'/Nx = ',num2str(Nx_new),'/'' spins.conf']);
     system(['sed -i -e ''s/^restart[[:space:]]*=.*$/restart = true/g'' spins.conf']);
     system(['sed -i -e ''s/^restart_time.*$/restart_time = ',num2str(restart_time),'/g'' spins.conf']);
     system(['sed -i -e ''s/^restart_sequence.*$/restart_sequence = ',num2str(ii),'/g'' spins.conf']);
