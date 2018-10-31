@@ -76,10 +76,12 @@ clear data
 fprintf('Creating / writing grids ...')
 tic
 dx_new = Lx/Nx_new;
+x1d = dx_new/2:dx_new:Lx;
 z1d = dz/2:dz:Lz;
 if Ny ~= 1
     y1d = dy/2:dy:Ly;
     xg = bsxfun(@times, ones(Nx_new, Ny, Nz), x1d');
+    yg = bsxfun(@times, ones(Nx_new, Ny, Nz), y1d);
     zg = bsxfun(@times, ones(Nx_new, Ny, Nz), reshape(z1d,1,1,Nz));
 else
     xg = bsxfun(@times, ones(Nx_new, Nz), x1d');
