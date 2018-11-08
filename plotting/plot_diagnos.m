@@ -337,6 +337,7 @@ fn = 20;    % first figure number
 fm = fn+15; % first figure number for unknown diagnostics
 cols = get(groot,'DefaultAxesColorOrder');
 coly = cols(2,:);
+tr_ind = 0; % tracer number
 
 for name = diagnos.Properties.VariableNames
     if strcmp(name, 'Iter')
@@ -678,11 +679,34 @@ for name = diagnos.Properties.VariableNames
         continue
 
     %%%% Maximum of Dye or Tracer %%%%
-    elseif strcmp(name, 'Max_dye') || strcmp(name, 'Max_tracer')
-        figure(fn+6), clf
+    elseif strncmp(name, 'Max_dye',6) || strcmp(name, 'Max_tracer')
+        % initialize figure
+        figure(fn+6)
+        tr_ind = tr_ind + 1;
+        if tr_ind == 1
+            clf
+            hold on
+            leg_text = {};
+        end
         plot(diagnos.Time, diagnos.(name{1}))
         xlabel('time (s)')
-        ylabel('Maximum tracer') 
+        ylabel('Maximum tracer')
+
+        % Make legend
+        if length(name{1}) > 7
+            tr_num = name{1}(8);
+            if strcmp(name, 'Max_tracer')
+                tr_num = {};
+            end
+        else
+            tr_num = {};
+        end
+        leg_text = [leg_text,tr_num];
+        % add legend
+        if ~isempty(leg_text)
+            legend(leg_text)
+            legend('location','best')
+        end
 
     %%%% Max (absolute value of) vorticity %%%%
     elseif strcmp(name, 'Max_vort_y')
