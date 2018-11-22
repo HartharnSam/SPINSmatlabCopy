@@ -56,6 +56,7 @@ if isfield(par, 'compute_stresses_bottom')
     legend(lab,'Interpreter','Latex','FontSize',14)
     legend('location','best')
     legend('boxoff')
+    grid on
 end
 
 if isfield(par, 'compute_stresses_top')
@@ -71,4 +72,5 @@ if isfield(par, 'compute_stresses_top')
     legend(lab,'Interpreter','Latex','FontSize',14)
     legend('location','best')
     legend('boxoff')
+    grid on
 end
