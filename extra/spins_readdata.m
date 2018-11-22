@@ -82,6 +82,20 @@ elseif strcmpi(varname,'speed')
     w = spins_reader('w',ii,nx,ny,nz);
     data = sqrt(u.^2 + v.^2 + w.^2);
     clearvars u  v w
+% rotate horizontal velocity vectors (for tilted tank cases)
+elseif strcmpi(varname,'up')
+    u = spins_reader('u',ii,nx,ny,nz);
+    w = spins_reader('w',ii,nx,ny,nz);
+    theta = params.tilt_angle;
+    data = u*cosd(theta) + w*sind(theta);
+    clearvars u w
+% rotate horizontal velocity vectors (for tilted tank cases)
+elseif strcmpi(varname,'wp')
+    u = spins_reader('u',ii,nx,ny,nz);
+    w = spins_reader('w',ii,nx,ny,nz);
+    theta = params.tilt_angle;
+    data = w*cosd(theta) - u*sind(theta);
+    clearvars u w
 % read in gradient Richardson number
 elseif strcmp(varname, 'Ri')
     if length(ny) > 1
