@@ -107,21 +107,6 @@ for ii = 1:N_start
     run_label{ii} = ['Run ',num2str(ii)];
 end
 
-%% max density variation
-if any(ismember(diagnos.Properties.VariableNames, 'Max_density'))
-    rho_init = diagnos.Max_density(1);
-    rho_var = diagnos.Max_density/rho_init - 1;
-elseif any(ismember(diagnos.Properties.VariableNames, 'Max_temperature')) ...
-    && any(ismember(diagnos.Properties.VariableNames, 'Max_salinity'))
-    temp_init = diagnos.Max_temperature(1);
-    salt_init = diagnos.Max_salinity(1);
-    temp_var = diagnos.Max_temperature/temp_init;
-    salt_var = diagnos.Max_salinity/salt_init;
-    rho_init = eqn_of_state(temp_init, salt_init);
-    rho_var = eqn_of_state(temp_var, salt_var)/rho_init - 1;
-end
-
-
 %%%%%%%%%%% Print Timing info %%%%%%%%%%%%%%%
 % functions for converting seconds into other units
 s2ms   = @(sec) datestr(datenum(0,0,0,0,0,sec),'MM:SS');
@@ -138,7 +123,7 @@ if avg_write > 0
     if avg_write < 10
         fprintf('Average write time: %8.3f s\n',avg_write)
     else
-        fprintf('Average write time: %s (M:S)\n',s2ms(avg_write))
+        fprintf('Average write time:    %s (M:S)\n',s2ms(avg_write))
     end
 end
 if avg_sim_step < 1e-2
@@ -212,6 +197,30 @@ if any(ismember(diagnos.Properties.VariableNames, 'Max_diss'))
     disp('---- Kolmogorov and Batchelor Scales ----')
     disp(['dx/eta =      ',num2str(dx_Kolm)])
     disp(['dx/lambda_B = ',num2str(dx_Batch)])
+end
+
+%%%%%%%%%%% Max density variation %%%%%%%%%%%%%%%
+if any(ismember(diagnos.Properties.VariableNames, 'Max_density'))
+    rho_init = diagnos.Max_density(1);
+    rho_var = diagnos.Max_density/rho_init - 1;
+    fprintf('\n')
+    disp('---- Max density deviation ----')
+    fprintf('rho/rho_0 - 1 =  %4.2f\n',max(rho_var));
+elseif any(ismember(diagnos.Properties.VariableNames, 'Max_temperature')) ...
+    && any(ismember(diagnos.Properties.VariableNames, 'Max_salinity'))
+    temp_init = diagnos.Max_temperature(1);
+    salt_init = diagnos.Max_salinity(1);
+    temp_var = diagnos.Max_temperature/temp_init;
+    salt_var = diagnos.Max_salinity/salt_init;
+    rho_init = eqn_of_state(temp_init, salt_init);
+    rho_var = eqn_of_state(temp_var, salt_var)/rho_init - 1;
+    temp_var = temp_var - 1;    % now subtract of the initial
+    salt_var = salt_var - 1;
+    fprintf('\n')
+    disp('---- Max s/t/rho deviation ----')
+    fprintf('t/t_0 - 1     =  %4.2f\n',max(temp_var));
+    fprintf('s/s_0 - 1     =  %4.2f\n',max(salt_var));
+    fprintf('rho/rho_0 - 1 =  %4.2f\n',max(rho_var));
 end
 
 %%%%%%%%%%% Parse and Print Energy diagnostics %%%%%%%%%%%%%%%
@@ -809,3 +818,4 @@ for name = diagnos.Properties.VariableNames
         fm = fm+1;
     end
 end
+fprintf('\n')
