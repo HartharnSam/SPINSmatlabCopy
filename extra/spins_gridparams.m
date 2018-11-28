@@ -238,7 +238,11 @@ function par = add_params(gd, params, check_grid, varargin)
             params.dz = dz;
         else
             params.dz = '-';
-            params.dz_max = max(max(diff(gd.z')));
+            if params.ndims == 2
+                params.dz_max = max(max(diff(gd.z')));
+            else
+                params.dz_max = max(max(diff(squeeze(gd.z(:,1,:))')));
+            end
         end
     end 
 
