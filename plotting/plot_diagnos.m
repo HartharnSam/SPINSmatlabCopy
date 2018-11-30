@@ -99,7 +99,11 @@ clk_per_sim = clk_step_time./sim_step_time;
 clk_per_sim_num = clk_per_sim(~isinf(clk_per_sim) & ~isnan(clk_per_sim));
 % estimated clock time required to complete simulation
 sim_time_remain = params.final_time - sim_time(end);
-clk_time_remain = sim_time_remain*mean(clk_per_sim(end-50:end));
+if length(clk_per_sim) > 50
+    clk_time_remain = sim_time_remain*mean(clk_per_sim(end-50:end));
+else
+    clk_time_remain = sim_time_remain*mean(clk_per_sim);
+end
 
 % legend labels for each run
 run_label = cell(1,N_start);
@@ -205,7 +209,7 @@ if any(ismember(diagnos.Properties.VariableNames, 'Max_density'))
     rho_var = diagnos.Max_density/rho_init - 1;
     fprintf('\n')
     disp('---- Max density deviation ----')
-    fprintf('rho/rho_0 - 1 =  %4.2f\n',max(rho_var));
+    fprintf('rho/rho_0 - 1 =  %4.2g\n',max(rho_var));
 elseif any(ismember(diagnos.Properties.VariableNames, 'Max_temperature')) ...
     && any(ismember(diagnos.Properties.VariableNames, 'Max_salinity'))
     temp_init = diagnos.Max_temperature(1);
