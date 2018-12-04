@@ -102,7 +102,7 @@ sim_time_remain = params.final_time - sim_time(end);
 if length(clk_per_sim) > 50
     clk_time_remain = sim_time_remain*mean(clk_per_sim(end-50:end));
 else
-    clk_time_remain = sim_time_remain*mean(clk_per_sim);
+    clk_time_remain = sim_time_remain*mean(clk_per_sim(2:end));
 end
 
 % legend labels for each run
