@@ -14,6 +14,8 @@ diag_file_name = 'diagnostics';
 if exist([diag_file_name,'.mat'], 'file') == 2
     diag_file = [diag_file_name,'.mat'];
     diagnos = load(diag_file);
+    % also load the txt file to check if mat file is up to date
+    diag_txt = readtable([diag_file_name,'.txt']);
 elseif exist([diag_file_name,'.txt'], 'file') == 2
     diag_file = [diag_file_name,'.txt'];
     diagnos = readtable(diag_file);
@@ -30,6 +32,9 @@ params = gdpar_vec.params;
 try
     clk_time = diagnos.Clock_time;
     sim_time = diagnos.Time;
+    if exist('diag_txt', 'var')
+        sim_txt_time = diag_txt.Time;
+    end
 catch
     error(['Diagnostics file incorrectly labeled the time (clock time and simulation time).',...
         newline,'Should be "Clock_time" and "Time"'])
@@ -96,7 +101,6 @@ avg_clk_step = (tot_clk_time - tot_write)/n_steps;
 avg_sim_step = tot_sim_time/n_steps;
 avg_clk_per_sim = avg_clk_step/avg_sim_step;
 clk_per_sim = clk_step_time./sim_step_time;
-clk_per_sim_num = clk_per_sim(~isinf(clk_per_sim) & ~isnan(clk_per_sim));
 % estimated clock time required to complete simulation
 sim_time_remain = params.final_time - sim_time(end);
 if length(clk_per_sim) > 50
@@ -120,6 +124,9 @@ s2dhms = @(sec) datestr(datenum(0,0,0,0,0,sec),'DD:HH:MM:SS');
 % print info
 fprintf('\n')
 disp('---- Timings ----')
+if exist('diag_txt', 'var')
+    fprintf('Sim. is %5.2g s ahead of mat file.\n',sim_txt_time(end) - sim_time(end))
+end
 fprintf('Most recent sim. time: %5.2f s\n',sim_time(end))
 fprintf('Total clock time:      %s (D:H:M)\n',s2dhm(tot_clk_time))
 %% print out average write time and step time
@@ -408,7 +415,8 @@ for name = diagnos.Properties.VariableNames
         xlabel('Iteration')
         ylabel('\Delta{T_c} / \Delta{T_s}')
         title('Ratio of time steps')
-        ylim([0 2.5*mean(clk_per_sim_num)]); 
+        max_clk_per_sim = max(clk_per_sim(~isoutlier(clk_per_sim,'ThresholdFactor',15)));
+        ylim([0 1.1*max_clk_per_sim]);
         box on
         hold off
 
