@@ -230,15 +230,39 @@ for ii = t_index
 
     % add contour of hill if grid is mapped
     if strcmpi(params.mapped_grid,'true') && strcmpi(opts.dimen, 'Y')
-        hill_nx = nx(1):nx(end);
-        if params.ndims == 3
-            hill   = squeeze(gd.z(hill_nx,1,1));
-            hill_x = squeeze(gd.x(hill_nx,1,1));
-        elseif params.ndims == 2
-            hill   = squeeze(gd.z(hill_nx,1));
-            hill_x = squeeze(gd.x(hill_nx,1));
+        hill_nx = nx(1):nx(end); % don't skip points when plotting the hill
+        % check whether the top, the bottom, or both were mapped
+        if params.ndims == 2
+            bottom = gd.z(round(linspace(1,params.Nx,10)),1);
+            top    = gd.z(round(linspace(1,params.Nx,10)),params.Nz);
+        else
+            bottom = gd.z(round(linspace(1,params.Nx,10)),1,1);
+            top    = gd.z(round(linspace(1,params.Nx,10)),1,params.Nz);
         end
-        plot(hill_x,hill,'k')
+        bratio =  max(bottom) - min(bottom);
+        tratio =  max(top)    - min(top);
+        % plot bottom if mapped
+        if bratio ~= 0
+            if params.ndims == 3
+                hill   = squeeze(gd.z(hill_nx,1,1));
+                hill_x = squeeze(gd.x(hill_nx,1,1));
+            elseif params.ndims == 2
+                hill   = squeeze(gd.z(hill_nx,1));
+                hill_x = squeeze(gd.x(hill_nx,1));
+            end
+            plot(hill_x,hill,'k')
+        end
+        % plot top if mapped
+        if tratio ~= 0
+            if params.ndims == 3
+                hill   = squeeze(gd.z(hill_nx,1,params.Nz));
+                hill_x = squeeze(gd.x(hill_nx,1,params.Nz));
+            elseif params.ndims == 2
+                hill   = squeeze(gd.z(hill_nx,params.Nz));
+                hill_x = squeeze(gd.x(hill_nx,params.Nz));
+            end
+            plot(hill_x,hill,'k')
+        end
     end
 
     % axis options
