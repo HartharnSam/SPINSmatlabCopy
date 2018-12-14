@@ -1,5 +1,5 @@
 function [] = rotate_axes(fig_hand, theta);
-% Rotate the axes object by some angle theta
+% Rotate the axes object clockwise by some angle theta
 %
 % David Deepwell, 2018
 
