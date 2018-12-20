@@ -1,20 +1,27 @@
-function [cont_x, cont_y] = find_contour(x, y, field, val)
+function [cont_x, cont_y] = find_contour(x, y, field, val, cont_ind)
 % FIND_CONTOUR     Find the contour where field=val.
 %
 %  Usage:
 %    [cont_x, cont_y] = find_contour(gd.x, gd.z, rho, rho_0)
 %
 %  Inputs:
-%    'x'     - the x-grid
-%    'y'     - the y-grid
-%    'field' - the field given on the grid
-%    'val'   - the contour value
+%    'x'        - the x-grid
+%    'y'        - the y-grid
+%    'field'    - the field given on the grid
+%    'val'      - the contour value
+%    'cont_ind' - contour index (optional argument)
 %
 %  Outputs:
 %    'cont_x' - the x positions of the contour
 %    'cont_y' - the y positions of the contour
 %
 %  David Deepwell, 2016
+
+    % set contour index to zero if not provided
+    % (to use the longest contour)
+    if nargin < 5
+        cont_ind = 0;
+    end
 
     cont = contour_data(x, y, field, [1 1]*val);
     % fix for when there are multiple contours in cont
@@ -23,12 +30,14 @@ function [cont_x, cont_y] = find_contour(x, y, field, val)
         cont_x = cont.X;
         cont_y = cont.Y;
     elseif len_c > 1 % if multiple contours
-        % find which contour has most elements (it's likely the proper one)
-        cont_size = zeros(len_c,1);
-        for kk = 1:len_c
-            cont_size(kk) = cont(kk).Length;
+        if cont_ind == 0
+            % find which contour has most elements (this is the default)
+            cont_size = zeros(len_c,1);
+            for kk = 1:len_c
+                cont_size(kk) = cont(kk).Length;
+            end
+            [~, cont_ind] = max(cont_size);
         end
-        [~, cont_ind] = max(cont_size);
         % select that contour
         cont_x = cont(cont_ind).X;
         cont_y = cont(cont_ind).Y;
