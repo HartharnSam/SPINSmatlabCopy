@@ -266,10 +266,11 @@ for ii = t_index
     end
 
     % axis options
-    if (plotaxis(2)-plotaxis(1))/(plotaxis(4)-plotaxis(3)) > 5
-        axis normal
-    else
+    if (plotaxis(2)-plotaxis(1))/(plotaxis(4)-plotaxis(3)) <= 5 || ...
+            strcmp(opts.axisstyle, 'image')
         axis image
+    else
+        axis(opts.axisstyle)
     end
     axis(plotaxis)
     set(gca,'layer','top')

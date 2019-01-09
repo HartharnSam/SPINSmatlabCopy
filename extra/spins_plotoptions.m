@@ -24,6 +24,7 @@ d.clim = 0;             % colour axis limits to use -
                         % 0 uses default in choose_caxis function
 d.colorbar = true;      % colorbar? (bool)
 d.trim = false;         % trims values outside clim range to be within it
+d.axisstyle = 'normal'; % the axis style to use
 d.visible = true;       % make plot visible or not (bool)
 d.speed = -1;           % wave speed for streamlines
 d.savefig = false;      % save figure? (bool)
@@ -83,6 +84,7 @@ addParameter(p,'axis', d.axis, @isnumeric)
 addParameter(p,'nlevels', d.nlevels, @isnumeric)
 addParameter(p,'clim', d.clim, validation_clim)
 addParameter(p,'trim', d.trim, @islogical)
+addParameter(p,'axisstyle', d.axisstyle, @ischar)
 addParameter(p,'colorbar', d.colorbar, @islogical)
 addParameter(p,'visible', d.visible, @islogical)
 addParameter(p,'savefig', d.savefig, @islogical)
