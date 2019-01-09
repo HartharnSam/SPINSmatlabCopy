@@ -231,16 +231,23 @@ for ii = t_index
     % add contour of hill if grid is mapped
     if strcmpi(params.mapped_grid,'true') && strcmpi(opts.dimen, 'Y')
         hill_nx = nx(1):nx(end); % don't skip points when plotting the hill
+        hill_nz = nz(1):nz(end); % don't skip points when plotting the hill
         % check whether the top, the bottom, or both were mapped
         if params.ndims == 2
             bottom = gd.z(round(linspace(1,params.Nx,10)),1);
             top    = gd.z(round(linspace(1,params.Nx,10)),params.Nz);
+            right  = gd.x(params.Nx,round(linspace(1,params.Nz,10)));
+            left   = gd.x(1,        round(linspace(1,params.Nz,10)));
         else
             bottom = gd.z(round(linspace(1,params.Nx,10)),1,1);
             top    = gd.z(round(linspace(1,params.Nx,10)),1,params.Nz);
+            right  = gd.x(params.Nx,1,round(linspace(1,params.Nz,10)));
+            left   = gd.x(1,        1,round(linspace(1,params.Nz,10)));
         end
         bratio =  max(bottom) - min(bottom);
         tratio =  max(top)    - min(top);
+        rratio =  max(right)  - min(right);
+        lratio =  max(left)   - min(left);
         % plot bottom if mapped
         if bratio ~= 0
             if params.ndims == 3
@@ -260,6 +267,28 @@ for ii = t_index
             elseif params.ndims == 2
                 hill   = squeeze(gd.z(hill_nx,params.Nz));
                 hill_x = squeeze(gd.x(hill_nx,params.Nz));
+            end
+            plot(hill_x,hill,'k')
+        end
+        % if right side is mapped (or tank is rotated)
+        if rratio ~= 0
+            if params.ndims == 3
+                hill   = squeeze(gd.z(params.Nx,1,hill_nz));
+                hill_x = squeeze(gd.x(params.Nx,1,hill_nz));
+            elseif params.ndims == 2
+                hill   = squeeze(gd.z(params.Nx,hill_nz));
+                hill_x = squeeze(gd.x(params.Nx,hill_nz));
+            end
+            plot(hill_x,hill,'k')
+        end
+        % if left side is mapped (or tank is rotated)
+        if lratio ~= 0
+            if params.ndims == 3
+                hill   = squeeze(gd.z(1,1,hill_nz));
+                hill_x = squeeze(gd.x(1,1,hill_nz));
+            elseif params.ndims == 2
+                hill   = squeeze(gd.z(1,hill_nz));
+                hill_x = squeeze(gd.x(1,hill_nz));
             end
             plot(hill_x,hill,'k')
         end
