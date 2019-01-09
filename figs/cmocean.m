@@ -94,23 +94,27 @@ function cmap = cmocean(ColormapName,varargin)
 % If you find an occasion to cite these colormaps for any reason, or if you just want
 % some nice beach reading, check out the following paper from the journal Oceanography: 
 % 
-% Kristen M. Thyng, Chad A. Greene, Robert D. Hetland, Heather M. Zimmerle, and Steven
-% F. DiMarco. True colors of oceanography: Guidelines for effective and accurate colormap
-% selection. Oceanography, September 2016. 
-% http://dx.doi.org/10.5670/oceanog.2016.66
+% Thyng, K.M., C.A. Greene, R.D. Hetland, H.M. Zimmerle, and S.F. DiMarco. 2016. True 
+% colors of oceanography: Guidelines for effective and accurate colormap selection. 
+% Oceanography 29(3):9?13, http://dx.doi.org/10.5670/oceanog.2016.66.
 % 
 % See also colormap and caxis.  
 
 %% Display colormap options: 
 
 if nargin==0
-   figure('menubar','none','numbertitle','off','Name','cmocean options:','pos',[10 10 364 751])
-   axes('pos',[0 0 1 1])
-   image(imread('cmocean.png')); 
-   axis image off
+   figure('menubar','none','numbertitle','off','Name','cmocean options:')
+   
+   if license('test','image_toolbox')
+      imshow(imread('cmocean.png')); 
+   else
+      axes('pos',[0 0 1 1])
+      image(imread('cmocean.png')); 
+      axis image off
+   end
+   
    return
 end
-
 %% Error checks: 
 
 assert(isnumeric(ColormapName)==0,'Input error: ColormapName must be a string.') 
@@ -132,7 +136,7 @@ if any(dash)
 end
 
 % Forgive the British: 
-if strncmpi(ColormapName,'grey',4); 
+if strncmpi(ColormapName,'grey',4)
    ColormapName = 'gray'; 
 end
 
@@ -147,8 +151,8 @@ end
 
 % Does the user want to center a diverging colormap on a specific value? 
 % This parsing support original 'zero' syntax and current 'pivot' syntax. 
-tmp = any([strncmpi(varargin,'pivot',3) strncmpi(varargin,'zero',3)]); 
-if any(tmp) 
+ tmp = strncmpi(varargin,'pivot',3) | strncmpi(varargin,'zero',3); % Thanks to Phelype Oleinik for this suggestion. 
+ if any(tmp) 
    autopivot = true; 
    try
       if isscalar(varargin{find(tmp)+1})
@@ -158,7 +162,6 @@ if any(tmp)
    end
    varargin = varargin(~tmp); 
 end
-
 
 % Has user requested a specific number of levels? 
 tmp = isscalar(varargin); 
@@ -194,11 +197,8 @@ if negativeColormap
 end
 
 % Interpolate if necessary: 
-if NLevels~=size(cmap,1); 
-   R = interp1((1:size(cmap,1)),cmap(:,1),linspace(1,size(cmap,1),NLevels)'); 
-   G = interp1((1:size(cmap,1)),cmap(:,2),linspace(1,size(cmap,1),NLevels)'); 
-   B = interp1((1:size(cmap,1)),cmap(:,3),linspace(1,size(cmap,1),NLevels)'); 
-   cmap = [R G B]; 
+if NLevels~=size(cmap,1)
+   cmap = interp1(1:size(cmap,1), cmap, linspace(1,size(cmap,1),NLevels),'linear');
 end
 
 %% Invert the colormap if requested by user: 
@@ -211,13 +211,9 @@ end
 
 if autopivot
    clim = caxis; 
+   assert(PivotValue>=clim(1) & PivotValue<=clim(2),'Error: pivot value must be within the current color axis limits.') 
    maxval = max(abs(clim-PivotValue)); 
-   
-   R = interp1( linspace(-maxval,maxval,size(cmap,1))'+PivotValue ,cmap(:,1), linspace(clim(1),clim(2),size(cmap,1))'); 
-   G = interp1( linspace(-maxval,maxval,size(cmap,1))'+PivotValue ,cmap(:,2), linspace(clim(1),clim(2),size(cmap,1))'); 
-   B = interp1( linspace(-maxval,maxval,size(cmap,1))'+PivotValue ,cmap(:,3), linspace(clim(1),clim(2),size(cmap,1))'); 
-   cmap = [R G B]; 
-
+   cmap = interp1(linspace(-maxval,maxval,size(cmap,1))+PivotValue, cmap, linspace(clim(1),clim(2),size(cmap,1)),'linear');
 end
 
 %% Clean up 
