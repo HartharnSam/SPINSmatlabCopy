@@ -105,7 +105,7 @@ if max_ind < length(x)
                 % It's really unlikely, but it's happened
                 xlocs_inds = find(x == locs(ii));
                 [~,xloc_ind] = max(y(xlocs_inds));
-                ind = xlocs_inds(xloc_ind);
+                ind(ii) = xlocs_inds(xloc_ind);
             end
         end
     end
