@@ -66,8 +66,10 @@ end
 % create legends
 if par.Ny == 1
     lab = {'$\int t_x dx$','$\int |t_x| dx$'};
+    ylab = 'Stress (N/m)';
 else
     lab = {'$\int t_x dA$','$\int t_y dA$','$\int |t_x| dA$','$\int |t_y| dA$','$\int t_s dA$'};
+    ylab = 'Stress (N/m^2)';
 end
 
 % plot
@@ -80,8 +82,8 @@ if isfield(par, 'compute_stresses_bottom')
         plot(Bot_time,[Bot_tx_tot, Bot_ty_tot, Bot_tx_abs, Bot_ty_abs, Bot_ts]);
     end
     xlabel('Time (s)')
-    ylabel('Stress (N)')
-    title('Bottom stresses')
+    ylabel('Force (N)')
+    title('Bottom Forces')
     %legend(lab,'Interpreter','Latex','FontSize',14)
     %legend('location','best')
     %legend('boxoff')
@@ -96,8 +98,8 @@ if isfield(par, 'compute_stresses_top')
         plot(Top_time,[Top_tx_tot, Top_ty_tot, Top_tx_abs, Top_ty_abs, Top_ts]);
     end
     xlabel('Time (s)')
-    ylabel('Stress (N)')
-    title('Top stresses')
+    ylabel('Force (N)')
+    title('Top Forces')
     legend(lab,'Interpreter','Latex','FontSize',12)
     legend('location','best')
     legend('boxoff')
@@ -124,7 +126,7 @@ if Bot_max || Top_max
             plot(Bot_time,[Bot_tx_max, Bot_ty_max, Bot_tx_min, Bot_ty_min, Bot_ts_max]);
         end
         xlabel('Time (s)')
-        ylabel('Stress (N)')
+        ylabel(ylab)
         title('Bottom extrema stresses')
         %legend(lab,'Interpreter','Latex','FontSize',14)
         %legend('location','best')
@@ -140,7 +142,7 @@ if Bot_max || Top_max
             plot(Top_time,[Top_tx_max, Top_ty_max, Top_tx_min, Top_ty_min, Top_ts_max]);
         end
         xlabel('Time (s)')
-        ylabel('Stress (N)')
+        ylabel(ylab)
         title('Top extrema stresses')
         legend(lab,'Interpreter','Latex','FontSize',12)
         legend('location','best')
