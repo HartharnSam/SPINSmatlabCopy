@@ -97,6 +97,10 @@ if (~exist('zrange') || isempty(zrange) || strcmp(zrange,':')) zrange = [1:Nz]; 
 xrange(xrange < 1) = []; xrange(xrange > Nx) = [];
 yrange(yrange < 1) = []; yrange(yrange > Ny) = [];
 zrange(zrange < 1) = []; zrange(zrange > Nz) = [];
+% reset ranges if they were input as values outside of the extrema
+if isempty(xrange) xrange = [1:Nx]; end;
+if isempty(yrange) yrange = [1:Ny]; end;
+if isempty(zrange) zrange = [1:Nz]; end;
 
 % Define ranges in file-ordering
 ranges = {xrange,yrange,zrange};
