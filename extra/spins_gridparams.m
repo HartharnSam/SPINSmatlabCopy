@@ -118,8 +118,8 @@ function par = add_params(gd, params, check_grid, varargin)
 
     % add reference density
     if ~isfield(params, 'rho_0')
-        params.rho_0 = 1;
-        warning('Reference density is not specified, default is chosen to be 1.')
+        params.rho_0 = 1000;
+        warning('Reference density is not specified, default is chosen to be 1000.')
     end
 
     % add number of outputs
