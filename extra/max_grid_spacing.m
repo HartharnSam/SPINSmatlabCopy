@@ -2,19 +2,18 @@ function max_dxyz = max_grid_spacing(gdpar)
 %  MAX_GRID_SPACING Return the maximum grid spacing in each dimension
 %
 %  Usage:
-%    max_dxyz = max_grid_spacing()
+%    max_dxyz = max_grid_spacing(gdpar);
 %
 %  Inputs:
-%    n/a
+%    gdpar - grid and parameter structure
 %
 %  Outputs:
 %    'max_dxyz'	- a vector of the max grid spacing in each dimension
 %
 %  David Deepwell, 2018
 
-% separate grid and parameters
+% set-up grid and parameters
 split_gdpar
-% vectorize grid
 gdvec = get_vector_grid(gd);
 
 % max x-grid spacing

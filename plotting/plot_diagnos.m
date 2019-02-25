@@ -50,9 +50,16 @@ else
     error('Diagnostics file not found.')
 end
 
-% read grid and parameters from spins.conf
-gdpar_vec = spins_gridparams('Vector',false);
-params = gdpar_vec.params;
+% load parameters and grid (read separately so that it's not a global variable)
+params = spins_params();
+if strcmp(params.mapped_grid, 'true')
+    gd = spins_grid('FastFull');
+else
+    gd = spins_grid('vector');
+end
+params.ndims = length(fieldnames(gd)); % Number of dimensions
+gdpar.gd = gd;
+gdpar.params = params;
 
 % place into output structure
 all_diagnos.diagnos = diagnos;
@@ -61,7 +68,7 @@ all_diagnos.diagnos = diagnos;
 % shorten parameters
 rho_0 = params.rho_0;
 visco = params.visco;
-Vol = find_volume(params); % Volume of domain
+Vol = find_volume(gdpar); % Volume of domain
 kappa_min = find_min_diffu(params); % find minimum diffusivity
 % get time variables
 try
@@ -200,7 +207,7 @@ if compute_enstrophy
 end
 
 %%%%%%%%%%% Print Kolmogorov and Batchelor scales %%%%%%%%%%%%%%%
-Scales = find_Kolm_Batch(diagnos, params, kappa_min);
+Scales = find_Kolm_Batch(diagnos, gdpar, kappa_min);
 all_diagnos.Scales = Scales; % place into output structure
 
 %%%%%%%%%%% Max density variation %%%%%%%%%%%%%%%
@@ -904,14 +911,22 @@ fprintf('\n')
 end
 
 %% Volume of domain
-function Vol = find_volume(params)
+function Vol = find_volume(gdpar)
+    split_gdpar
+    gdvec = get_vector_grid(gd);
     Vol = params.Lx * params.Ly * params.Lz;
     if strcmp(params.mapped_grid, 'true')
-        hill = spins_reader('zgrid',[],1,1);
+        if params.ndims == 3
+            bot = gd.z(:,1,1);
+            top = gd.z(:,1,params.Nz);
+        else
+            bot = gd.z(:,1);
+            top = gd.z(:,params.Nz);
+        end
         if strcmp(params.type_x, 'NO_SLIP')
             warning('Volume calculation is not setup for Cheb grid in x.')
         else
-            Vol = Vol - params.Ly * sum(hill) * params.dx;
+            Vol = Vol - params.Ly * trapz(gdvec.x, bot+top);
         end
     end
 end
@@ -932,12 +947,13 @@ function kappa_min = find_min_diffu(params)
 end
 
 %% Kolmogorov and Batchelor Scales
-function Scales = find_Kolm_Batch(diagnos, params, kappa_min)
+function Scales = find_Kolm_Batch(diagnos, gdpar, kappa_min)
     % Kolmogorov Scale: eta = (rho_0 nu^3/epsilon)^(1/4)
     % Batchelor Scale:  lambda_B = eta * sqrt(kappa/nu)
     % rho_0 is included to make epsilon the dissipation per unit mass (makes dimensions work)
 
     % shorten parameters
+    split_gdpar
     rho_0 = params.rho_0;
     visco = params.visco;
 
@@ -954,19 +970,7 @@ function Scales = find_Kolm_Batch(diagnos, params, kappa_min)
         Batch = Kolm * sqrt(kappa_min/visco);
 
         % compare max grid size to these scales
-        if strcmp(params.type_z, 'NO_SLIP')
-            dz = params.dz_max;
-        else
-            dz = params.dz;
-        end
-        if strcmp(params.type_x, 'NO_SLIP')
-            error('Must adjust to account for Cheb in x in spins_gridparams')
-        end
-        if params.ndims == 3
-            max_dxyz = max([params.dx,params.dy,dz]);
-        else
-            max_dxyz = max([params.dx,dz]);
-        end
+        max_dxyz = max(max_grid_spacing(gdpar));
         dx_Kolm  = max_dxyz/Kolm;
         dx_Batch = max_dxyz/Batch;
 
