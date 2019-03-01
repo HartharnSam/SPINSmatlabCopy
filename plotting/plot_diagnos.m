@@ -770,9 +770,11 @@ if make_plots
                 hold on
                 leg_text = {};
             end
-            plot(diagnos.Time, diagnos.(name{1}))
+            max_tr = diagnos.(name{1}) / diagnos.(name{1})(1) - 1;
+            plot(diagnos.Time, max_tr)
             xlabel('time (s)')
-            ylabel('Maximum tracer')
+            ylabel('Tr_{max}/Tr(0) - 1')
+            title('Maximum tracer')
 
             % Make legend
             if length(name{1}) > 7
@@ -902,6 +904,9 @@ if make_plots
         plot(time_rate, [mix_eff mix_cof])
         xlabel('time (s)')
         ylabel('Mixing')
+        title('Mixing')
+        yl = ylim;
+        ylim([0 yl(2)])
         leg = legend({'Mixing eff.','Mixing coeff.'});
         leg.Location = 'best';
         leg.Box = 'off';
