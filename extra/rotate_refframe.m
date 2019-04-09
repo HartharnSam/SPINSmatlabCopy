@@ -1,4 +1,4 @@
-function gdpar_rot = rotate_frame(full_trnfrm);
+function gdpar_rot = rotate_refframe(full_trnfrm);
 % rotate grid into laboratory reference frame
 %
 % David Deepwell, 2019
