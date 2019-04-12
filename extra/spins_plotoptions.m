@@ -55,7 +55,7 @@ if ischar(t_index)
     else
         seq_0 = 0;
     end
-    time = str2num(t_index);
+    time = str2double(t_index);
     % find nearest output time
     t_index = round((time-t_0)/dt + seq_0);
 
@@ -142,8 +142,27 @@ var_name = strrep(var, 'Mean ', '');
 if strcmp(var_name, 'rho')
     var_name = 'Density';
 end
-if strcmp(var_name, opts.var2)
+if strcmp(var_name, opts.var2) || ...
+        strncmp(reverse(var), 'mottob', 6) || ... % bottom surface
+        strncmp(reverse(var), 'pot', 3) % top surface
     opts.var2 = 'None';
+elseif strncmp(reverse(var), 'ms', 2) || ...    % ends in sm - Spanwise Mean
+        strncmp(reverse(var), 'zx', 2)          % ends in xz - a cross-section
+    if strcmp(var, ['rho-',var(end-1:end)])
+        opts.var2 = 'None';
+    else
+        opts.var2 = ['rho-',var(end-1:end)];
+    end
+end
+
+% adjust if plotting bottom/top surface
+if strncmp(reverse(var), 'mottob', 6) || strncmp(reverse(var), 'pot', 3)
+    opts.dimen = 'z';
+    if strncmp(reverse(var), 'mottob', 6)
+        opts.slice = params.zlim(1);
+    elseif strncmp(reverse(var), 'pot', 3)
+        opts.slice = params.zlim(2);
+    end
 end
 
 % change default colormap length depending on plotting style

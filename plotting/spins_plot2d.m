@@ -94,8 +94,13 @@ for ii = t_index
     if params.ndims == 3 && ~is_spanwise
         plot_title = [plot_title,', ',opts.dimen,'=',num2str(opts.slice),' m'];
     end
-    % add time in seconds or output number
-    if isfield(params, 'plot_interval') && isfield(params, 'restart_time') && ...
+    % add time in seconds or output number to title
+    if strncmp(reverse(var), 'ms', 2) || strncmp(reverse(var), 'zx', 2) || ...
+        strncmp(reverse(var), 'mottob', 6) || strncmp(reverse(var), 'pot', 3)
+        times = read_slice_times();
+        time = times(ii);
+        plot_title = [plot_title,', t=',num2str(time),' s'];
+    elseif isfield(params, 'plot_interval') && isfield(params, 'restart_time') && ...
        isfield(params, 'restart_sequence')
         time = params.restart_time + (ii-params.restart_sequence)*params.plot_interval;
         plot_title = [plot_title,', t=',num2str(time),' s'];
@@ -120,7 +125,12 @@ for ii = t_index
     data1 = spins_readdata(var, ii, nx, ny, nz);
     % if mapped grid and taking horizontal opts.slice, then find interpolation
     if strcmpi(opts.dimen, 'Z') && strcmpi(params.mapped_grid, 'true')
-        [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, opts.slice);
+        if ~(strncmp(reverse(var), 'mottob', 6) || strncmp(reverse(var), 'pot', 3)) % not bottom or top
+            [xvar, yvar, data1] = get_fixed_z(xvar, yvar, zvar, data1, opts.slice);
+        else
+            xvar = squeeze(gd.x(:,:,1));
+            yvar = squeeze(gd.y(:,:,1));
+        end
     end
     % transpose unmapped data
     if strcmpi(params.mapped_grid, 'false') && ~strcmpi(var, 'Streamline')

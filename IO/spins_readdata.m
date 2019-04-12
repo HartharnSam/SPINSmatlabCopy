@@ -96,6 +96,27 @@ elseif strcmpi(varname,'wp')
     theta = params.tilt_angle;
     data = w*cosd(theta) - u*sind(theta);
     clearvars u w
+elseif strncmp(reverse(varname), 'ms', 2) || ... % ends in sm - Spanwise Mean
+        strncmp(reverse(varname), 'zx', 2)       % ends in xz - a cross-section
+    suf = varname(end-2:end);
+    if strncmpi(varname,'up', 2)
+        u = xz_reader(['u',suf], ii, nx, nz);
+        w = xz_reader(['w',suf], ii, nx, nz);
+        theta = params.tilt_angle;
+        data = u*cosd(theta) + w*sind(theta);
+        clearvars u w
+    elseif strncmpi(varname,'wp', 2)
+        u = xz_reader(['u',suf], ii, nx, nz);
+        w = xz_reader(['w',suf], ii, nx, nz);
+        theta = params.tilt_angle;
+        data = w*cosd(theta) - u*sind(theta);
+        clearvars u w
+    else
+        data = xz_reader(varname, ii, nx, nz);
+    end
+elseif strncmp(reverse(varname), 'mottob', 6) || ... % bottom surface
+        strncmp(reverse(varname), 'pot', 3) % top surface
+    data = xy_reader(varname, ii, nx, ny);
 % read in gradient Richardson number
 elseif strcmp(varname, 'Ri')
     if length(ny) > 1
