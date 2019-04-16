@@ -214,29 +214,47 @@ all_diagnos.Scales = Scales; % place into output structure
 if isfield(diagnos, 'Max_density')
     rho_init = diagnos.Max_density(1);
     rho_var = diagnos.Max_density/rho_init - 1;
+    rho_max_diff = diagnos.Max_density - rho_init;
     fprintf('\n')
     disp('---- Max density deviation ----')
-    fprintf('Max rho/rho(0) - 1 =  %4.2g\n',max(rho_var));
+    fprintf('Max {Max rho / Max rho(0)} - 1 =  %4.2g\n',max(rho_var));
+    fprintf('Max {Max rho - Max rho(0)}     =  %4.2g\n',max(rho_max_diff));
     % place into output structure
     all_diagnos.diagnos.rho_var = rho_var;
-elseif isfield(diagnos, 'Max_temperature') && isfield(diagnos, 'Max_salinity')
-    temp_init = diagnos.Max_temperature(1);
-    salt_init = diagnos.Max_salinity(1);
-    temp_var = diagnos.Max_temperature/temp_init;
-    salt_var = diagnos.Max_salinity/salt_init;
-    rho_init = eqn_of_state(temp_init, salt_init);
-    rho_var = eqn_of_state(temp_var, salt_var)/rho_init - 1;
-    temp_var = temp_var - 1;    % now subtract of the initial
-    salt_var = salt_var - 1;
-    fprintf('\n')
-    disp('---- Max s/t/rho deviation ----')
-    fprintf('Max s/s(0) - 1     =  %4.2f\n',max(salt_var));
-    fprintf('Max t/t(0) - 1     =  %4.2f\n',max(temp_var));
-    fprintf('Max rho/rho(0) - 1 =  %4.2f\n',max(rho_var));
+end
+if isfield(diagnos, 'Min_density')
+    rho_min_init = diagnos.Min_density(1);
+    rho_min_var = diagnos.Min_density/rho_min_init - 1;
+    rho_min_diff = diagnos.Min_density - rho_min_init;
+    fprintf('Min {Min rho / Min rho(0)} - 1 =  %4.2g\n',min(rho_var));
+    fprintf('Min {Min rho - Min rho(0)}     =  %4.2g\n',min(rho_min_diff));
     % place into output structure
-    all_diagnos.diagnos.temp_var = temp_var;
-    all_diagnos.diagnos.salt_var = salt_var;
-    all_diagnos.diagnos.rho_var  = rho_var;
+    all_diagnos.diagnos.rho_min_var = rho_min_var;
+end
+if isfield(diagnos, 'Max_temperature') || isfield(diagnos, 'Max_salinity') || ...
+        isfield(diagnos, 'Min_temperature') || isfield(diagnos, 'Min_salinity')
+    fprintf('\n')
+    disp('---- Max and Min salt/temp change ----')
+    if isfield(diagnos, 'Max_temperature')
+        temp_max_init = diagnos.Max_temperature(1);
+        temp_max_diff = diagnos.Max_temperature - temp_max_init;
+        fprintf('Max {Max T - Max T(0)} =  %4.2f\n',max(temp_max_diff));
+    end
+    if isfield(diagnos, 'Min_temperature')
+        temp_min_init = diagnos.Min_temperature(1);
+        temp_min_diff = diagnos.Min_temperature - temp_min_init;
+        fprintf('Max {Min T(0) - Min T} =  %4.2f\n',max(-temp_min_diff));
+    end
+    if isfield(diagnos, 'Max_salinity')
+        salt_max_init = diagnos.Max_salinity(1);
+        salt_max_diff = diagnos.Max_salinity - salt_max_init;
+        fprintf('Max {Max s - Max s(0)} =  %4.2f\n',max(salt_max_diff));
+    end
+    if isfield(diagnos, 'Min_salinity')
+        salt_min_init = diagnos.Min_salinity(1);
+        salt_min_diff = diagnos.Min_salinity - salt_min_init;
+        fprintf('Max {Min s(0) - Min s} =  %4.2f\n',max(-salt_min_diff));
+    end
 end
 
 %%%%%%%%%%% Parse and Print Energy diagnostics %%%%%%%%%%%%%%%
@@ -713,20 +731,51 @@ if make_plots
         elseif strcmp(name, 'Max_density')
             figure(fn+4)
             subplot(3,1,2), cla reset
-            plot(diagnos.Time, rho_var)
-            ylabel('$\rho_\mathrm{max}/\rho_\mathrm{max}(0) - 1$',...
-                'Interpreter','Latex','FontSize',14)
-            title('Max tracers deviation (Density, etc.)')
-        elseif strcmp(name, 'Max_temp') || strcmp(name, 'Max_salt')
-            figure(fn+4)
-            subplot(2,1,2), cla reset
-            plot(diagnos.Time, [temp_var, salt_var])
-            ylabel('Tracer ratio')
-            legend({'$\rho_\mathrm{max}/\rho_\mathrm{max}(0)$',...
-                'T_{max}/T_{max}(0)','S_{max}/S_{max}(0)'},...
-                'Interpreter','Latex','FontSize',14)
-            legend('location','best')
-            legend('boxoff')
+            if isfield(diagnos,'Min_density')
+                plot(diagnos.Time, [rho_max_diff -rho_min_diff]);
+                ylabel('Density deviation')
+                title('Max/Min density deviation')
+                legend({'$\rho_{max} - \rho_{max}(0)$','$\rho_{min}(0) - \rho_{min}$'},...
+                    'Interpreter','Latex','FontSize',12)
+                legend('location','best')
+                legend('boxoff')
+                ax = gca;
+                ax.YGrid = 'on';
+            else
+                plot(diagnos.Time, rho_var)
+                ylabel('$\rho_\mathrm{max}/\rho_\mathrm{max}(0) - 1$',...
+                    'Interpreter','Latex','FontSize',12)
+                title('Max density deviation')
+            end
+        elseif strcmp(name, 'Min_density')
+            continue
+        elseif strcmp(name, 'Max_temperature') || strcmp(name, 'Max_salinity') || ...
+                strcmp(name, 'Min_temperature') || strcmp(name, 'Min_salinity')
+            figure(fn+10)
+            if strcmp(name, 'Max_temperature')
+                subplot(2,1,1), cla reset
+                plot(diagnos.Time, [temp_max_diff -temp_min_diff])
+                ylabel('Temperature')
+                legend({'$T_{max} - T_{max}(0)$','$T_{min}(0) - T_{min}$'},...
+                    'Interpreter','Latex','FontSize',12)
+                legend('location','best')
+                legend('boxoff')
+                ax = gca;
+                ax.YGrid = 'on';
+            end
+            if strcmp(name, 'Max_salinity')
+                subplot(2,1,2), cla reset
+                plot(diagnos.Time, [salt_max_diff -salt_min_diff])
+                ylabel('Salinity')
+                xlabel('t (s)')
+                legend({'$s_{max} - s_{max}(0)$','$s_{min}(0) - s_{min}$'},...
+                    'Interpreter','Latex','FontSize',12)
+                legend('location','best')
+                legend('boxoff')
+                ax = gca;
+                ax.YGrid = 'on';
+            end
+
 
             %%%% Max Dissipation %%%%
         elseif strcmp(name, 'Max_diss')
@@ -738,7 +787,7 @@ if make_plots
                 plot(diagnos.Time(inds), diagnos.Max_diss(inds))
                 xlabel('time (s)')
                 ylabel('$\epsilon_\mathrm{max}$  (J s$^{-1}$ m$^{-3}$)',...
-                    'Interpreter','Latex','FontSize',14)
+                    'Interpreter','Latex','FontSize',12)
                 title('Max dissipation')
             end
 
@@ -804,11 +853,11 @@ if make_plots
                         [diagnos.Max_vort_x(inds), diagnos.Max_vort_y(inds), diagnos.Max_vort_z(inds)])
                     set(gca,'yscale','log');
                     leg = legend({'Max $|\omega_x|$','Max $|\omega_y|$','Max $|\omega_z|$'},...
-                        'Interpreter','Latex','FontSize',14);
+                        'Interpreter','Latex','FontSize',12);
                 else
                     plot(diagnos.Time(inds), diagnos.Max_vort_y(inds),'Color',coly)
                     set(gca,'yscale','linear');
-                    leg = legend({'Max $|\omega_y|$'}, 'Interpreter','Latex','FontSize',14);
+                    leg = legend({'Max $|\omega_y|$'}, 'Interpreter','Latex','FontSize',12);
                 end
                 leg.Location = 'best';
                 leg.Box = 'off';
@@ -830,18 +879,18 @@ if make_plots
                         [enst_x_tot(inds), enst_y_tot(inds), enst_z_tot(inds), enst_tot(inds)]/Vol)
                     set(gca,'yscale','log');
                     leg = legend({'$\Omega_x$','$\Omega_y$','$\Omega_z$','$\Omega_\mathrm{tot}$'},...
-                        'Interpreter', 'Latex','FontSize',14);
+                        'Interpreter', 'Latex','FontSize',12);
                 else
                     plot(diagnos.Time(inds), enst_y_tot(inds)/Vol, 'Color', coly)
                     set(gca,'yscale','linear');
                     leg = legend({'$\Omega_\mathrm{tot}$'},...
-                        'Interpreter', 'Latex','FontSize',14);
+                        'Interpreter', 'Latex','FontSize',12);
                 end
                 leg.Location = 'best';
                 leg.Box = 'off';
                 xlabel('time (s)')
                 ylabel('$\Omega_\mathrm{tot}/V$ (1/s$^2$)',...
-                    'Interpreter','Latex','FontSize',14)
+                    'Interpreter','Latex','FontSize',12)
                 title('Enstrophy components')
             end
         elseif strcmp(name, 'Enst_x_tot') || strcmp(name, 'Enst_z_tot')
@@ -863,7 +912,7 @@ if make_plots
                 xlabel('time (s)')
             end
             ylabel('$\epsilon_\mathrm{tot}$  (J/s)',...
-                'Interpreter','Latex','FontSize',14) 
+                'Interpreter','Latex','FontSize',12)
             title('Total dissipation')
 
             %%%% Enstrophy-Dissipation ratio %%%%
@@ -873,14 +922,14 @@ if make_plots
                 plot(diagnos.Time(inds), enst_tot(inds)/Vol);
                 xticklabels([])
                 ylabel('$\Omega_\mathrm{tot}/V$ (1/s$^2$)',...
-                    'Interpreter','Latex','FontSize',14)
+                    'Interpreter','Latex','FontSize',12)
                 title('Total enstrophy')
 
                 subplot(3,1,3), cla reset
                 plot(diagnos.Time(inds), enst_diss(inds)-1,'.')
                 xlabel('time (s)')
                 ylabel('$\epsilon_{tot}/(2 \mu \Omega_{tot})-1$',...
-                    'Interpreter','Latex','FontSize',14)
+                    'Interpreter','Latex','FontSize',12)
                 title('Enstrophy-dissipation ratio error')
             end
 
