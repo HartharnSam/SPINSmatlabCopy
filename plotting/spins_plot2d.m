@@ -344,7 +344,7 @@ opts.cmap = cmap;
 opts.filename = filename;
 opts.fig_hand = fighand;
 opts.p_hand = p_hand;
-if ~strcmpi(opts.var2, 'None')
+if ~strcmpi(opts.var2, 'None') && ~strcmp(var, var2)
     opts.p2_hand = p2_hand;
 end
 opts.nx = nx;
