@@ -42,6 +42,7 @@ function [] = figure_defaults(fig_hand)
     if ~isempty(cbar)
         for ii = 1:length(cbar)
             cbar(ii).TickLabelInterpreter = 'Latex';
+            cbar(ii).Label.Interpreter = 'Latex';
         end
     end
 
