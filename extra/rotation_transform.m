@@ -1,9 +1,17 @@
 function [x_new, z_new] = rotation_transform(x, z, theta)
-% Rotate the the point (x,z) clockwise by some angle theta (in degrees)
-% Vectors and Arrays don't work, use arrayfun with rotation_transform
-%
-% David Deepwell, 2019
+    % Rotate the the point (x,z), or an array of points,
+    % clockwise by some angle theta (in degrees)
+    %
+    % David Deepwell, 2019
 
+    if ~isscalar(x)
+        [x_new, z_new] = arrayfun(@(xx,zz) rotate_element(xx, zz, theta), x, z);
+    else
+        [x_new, z_new] = rotate_element(x, z, theta);
+    end
+end
+
+function [x_new, z_new] = rotate_element(x, z, theta)
     R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
     v = [x; z];
     v_new = R*v;

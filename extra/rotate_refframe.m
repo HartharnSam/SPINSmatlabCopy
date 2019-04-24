@@ -15,10 +15,9 @@ end
 
 % apply the rotation transformation
 if full_trnfrm
-    [x_lab, z_lab] = arrayfun(@(x, z) rotation_transform(x,z,-theta), gd.x, gd.z);
+    [x_lab, z_lab] = rotation_transform(gd.x, gd.z, -theta);
 else
-    [x_lab, z_lab] = arrayfun(@(x, z) rotation_transform(x,z,-theta), ...
-        squeeze(gd.x(:,1,:)), squeeze(gd.z(:,1,:)));
+    [x_lab, z_lab] = rotation_transform(squeeze(gd.x(:,1,:)), squeeze(gd.z(:,1,:)), -theta);
 end
 z_lab = z_lab + Lx * sind(theta);   % set bottom of tank to zero
 
