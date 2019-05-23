@@ -28,12 +28,14 @@ function [] = figure_defaults(fig_hand)
     ax = findobj(childs,'Type','Axes');
     if ~isempty(ax)
         for ii = 1:length(ax)
-            ax(ii).TickLabelInterpreter = 'Latex';
-            ax(ii).FontSize = fontsize;
-            ax(ii).XLabel.Interpreter = 'Latex';
-            ax(ii).YLabel.Interpreter = 'Latex';
-            set(ax(ii),'layer','top');
-            ax(ii).Box = 'on';
+            if ~strcmp(ax(ii).Type, 'axestoolbar')
+                ax(ii).TickLabelInterpreter = 'Latex';
+                ax(ii).FontSize = fontsize;
+                ax(ii).XLabel.Interpreter = 'Latex';
+                ax(ii).YLabel.Interpreter = 'Latex';
+                set(ax(ii),'layer','top');
+                ax(ii).Box = 'on';
+            end
         end
     end
 
