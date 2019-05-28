@@ -229,11 +229,19 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             xvarR = nearest_index(x1d, plotaxis(2));
             xvarL2 = min(xvarL,xvarR); xvarR2 = max(xvarL,xvarR);
             if params.ndims == 3
-                yvarB = max(nearest_index(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(3)));
-                yvarT = min(nearest_index(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(4)));
+                yvarB = nearest_index(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(3));
+                yvarT = nearest_index(squeeze(z(xvarL2:xvarR2,1,:))', plotaxis(4));
             elseif params.ndims == 2
-                yvarB = max(nearest_index(z(xvarL2:xvarR2,:)', plotaxis(3)));
-                yvarT = min(nearest_index(z(xvarL2:xvarR2,:)', plotaxis(4)));
+                yvarB = nearest_index(z(xvarL2:xvarR2,:)', plotaxis(3));
+                yvarT = nearest_index(z(xvarL2:xvarR2,:)', plotaxis(4));
+            end
+            % depending on grid ordering, choose the proper indices
+            if gd.z(1) > gd.z(end)
+                yvarB = max(yvarB);
+                yvarT = min(yvarT);
+            else
+                yvarB = min(yvarB);
+                yvarT = max(yvarT);
             end
             yvarB2 = min(yvarB,yvarT); yvarT2 = max(yvarB,yvarT);
             nx = xvarL2:opts.xskp:xvarR2;
