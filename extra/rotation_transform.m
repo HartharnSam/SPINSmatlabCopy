@@ -1,6 +1,6 @@
 function [x_new, z_new] = rotation_transform(x, z, theta)
     % Rotate the the point (x,z), or an array of points,
-    % clockwise by some angle theta (in degrees)
+    % counter-clockwise by some angle theta (in degrees)
     %
     % David Deepwell, 2019
 
@@ -12,7 +12,8 @@ function [x_new, z_new] = rotation_transform(x, z, theta)
 end
 
 function [x_new, z_new] = rotate_element(x, z, theta)
-    R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
+    R = [cosd(theta) -sind(theta); ...
+         sind(theta) cosd(theta)];
     v = [x; z];
     v_new = R*v;
     x_new = v_new(1);
