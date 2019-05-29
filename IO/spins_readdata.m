@@ -12,7 +12,7 @@ function data = spins_readdata(varname, ii, nx, ny, nz)
 %	'KE'               finds the local kinetic energy
 %	'speed'            finds the magnitude of the local velocity vector 
 %   'Ri'               gradient Richardson number
-%	'Streamline'       plots streamlines in the x-z plane
+%	'Streamlines'      plots streamlines in the x-z plane
 %	'Mean ...'         takes the spanwise mean of ...
 %	'SD ...'           takes the spanwise standard deviation of ...
 %	'Scaled SD ...'    scales SD ... by the maximum of ...
@@ -45,6 +45,8 @@ if strncmp(varname,'Mean',4) || strncmp(varname,'SD',2) || strncmp(varname,'Scal
         error('Mean, SD, and Scaled SD are not supported on 2D data.');
     end
 end
+
+plotting_streamlines = ~isempty(strfind(lower(varname), 'streamline'));
 
 % try different densities
 if strcmpi(varname,'Density')
@@ -142,18 +144,86 @@ elseif strcmp(varname, 'Ri')
         end
     end
 % read in data for plotting streamlines
-elseif strcmpi(varname,'Streamline')
-    if params.ndims == 3
-        ny = 1:Ny;
-        u = squeeze(mean(spins_reader('u',ii,nx,ny,nz),2));
-        w = squeeze(mean(spins_reader('w',ii,nx,ny,nz),2));
-    else
-        u = spins_reader('u',ii,nx,ny,nz);
-        w = spins_reader('w',ii,nx,ny,nz);
+elseif plotting_streamlines
+    if strcmp(params.mapped_grid, 'true') % if mapped
+
+        if exist('varorig', 'var')
+            % if asking for the spanwise mean
+            if strncmp(varorig,'Mean',4)
+                % take mean
+                ny = 1:Ny;
+                if isfield(params,'rotated_grid')
+                    if params.rotated_grid
+                        u1var = 'up';
+                        w1var = 'wp';
+                    else
+                        u1var = 'u';
+                        w1var = 'w';
+                    end
+                else
+                    u1var = 'u';
+                    w1var = 'w';
+                end
+                u1 = squeeze(mean(spins_readdata(u1var,ii,nx,ny,nz),2));
+                w1 = squeeze(mean(spins_readdata(w1var,ii,nx,ny,nz),2));
+                ny = 1; % change back to Ny=1 for the grid
+            end
+        else
+            % if only a cross-section
+            if isfield(params,'rotated_grid')
+                if params.rotated_grid
+                    u1var = 'up';
+                    w1var = 'wp';
+                else
+                    u1var = 'u';
+                    w1var = 'w';
+                end
+            else
+                u1var = 'u';
+                w1var = 'w';
+            end
+            u1 = spins_readdata(u1var,ii,nx,ny,nz);
+            w1 = spins_readdata(w1var,ii,nx,ny,nz);
+        end
+
+        % get local mapped grid
+        if params.ndims == 3
+            gd1.x = squeeze(gd.x(nx,ny,nz));
+            gd1.y = squeeze(gd.y(nx,ny,nz));
+            gd1.z = squeeze(gd.z(nx,ny,nz));
+        else
+            gd1.x = gd.x(nx,nz);
+            gd1.z = gd.z(nx,nz);
+        end
+
+        % interpolate onto rectilinear grid
+        [~, u] = interp_onto_rect_grid(gd1, u1);
+        [~, w] = interp_onto_rect_grid(gd1, w1);
+        u = squeeze(u);
+        w = squeeze(w);
+
+    else % not mapped
+
+        if exist('varorig', 'var')
+            % if asking for the spanwise mean
+            if strncmp(varorig,'Mean',4)
+                % take mean
+                ny = 1:Ny;
+                u = squeeze(mean(spins_reader('u',ii,nx,ny,nz),2));
+                w = squeeze(mean(spins_reader('w',ii,nx,ny,nz),2));
+            end
+        else
+            % in only a cross-section
+            u = spins_reader('u',ii,nx,ny,nz);
+            w = spins_reader('w',ii,nx,ny,nz);
+        end
     end
+
+    % place velocity into a single matrix
     data = ones([size(u) 2]);
     data(:,:,1) = u;
     data(:,:,2) = w;
+
 % read in data for given file name
 else
     data = spins_reader(varname, ii, nx, ny, nz);
@@ -162,7 +232,9 @@ end
 % take mean or standard deviation if asked
 if exist('varorig', 'var')
     if strncmp(varorig,'Mean',4)	 % take mean
-        data = squeeze(mean(data,2));
+        if ~plotting_streamlines
+            data = squeeze(mean(data,2));
+        end
     elseif strncmp(varorig,'SD',2)       % take standard deviation
         data = squeeze(std(data,[],2));
     elseif strncmp(varorig,'Scaled SD',9)       % take standard deviation

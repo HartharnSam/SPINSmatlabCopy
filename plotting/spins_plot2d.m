@@ -13,7 +13,7 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   'KE'            local kinetic energy
 %   'speed'         magnitude of the local velocity
 %   'Ri'            gradient Richardson number
-%   'Streamline'    streamlines in the x-z plane
+%   'Streamlines'   streamlines in the x-z plane
 %   'Mean ...'      takes the spanwise mean of ...
 %   'SD ...'        takes the spanwise standard deviation of ...
 %   'Scaled SD ...' scales SD ... by the maximum of ...
@@ -41,7 +41,7 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   colorbar:  {boolean}        - plot colorbar?
 %   trim:      {boolean}        - trims values outside clim range
 %   visible:   {boolean}        - make figure visible?
-%   speed:     {double}         - wave speed to subtract from flow in streamline plot
+%   speed:     {double}         - wave speed to subtract from flow in streamlines plot
 %   savefig:   {boolean}        - save figure in figure file?
 %   filename:  {string}         - name of file of saved figure
 %   dir:       {string}         - name of relative directory to save figure
@@ -53,8 +53,7 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 global gdpar
 
 % get grid and parameters
-gd = gdpar.gd;
-params = gdpar.params;
+split_gdpar
 if ~strcmpi(params.mapped_grid,'true') && ~isvector(gd.x)
     gd = get_vector_grid(gd);
 end
@@ -123,6 +122,7 @@ for ii = t_index
 
     % get data to plot
     data1 = spins_readdata(var, ii, nx, ny, nz);
+
     % if mapped grid and taking horizontal opts.slice, then find interpolation
     if strcmpi(opts.dimen, 'Z') && strcmpi(params.mapped_grid, 'true')
         if ~(strncmp(reverse(var), 'mottob', 6) || strncmp(reverse(var), 'pot', 3)) % not bottom or top
@@ -132,8 +132,26 @@ for ii = t_index
             yvar = squeeze(gd.y(:,:,1));
         end
     end
+    % find rectilinear grid for mapped streamlines
+    if (plotting_streamlines1 || plotting_streamlines2) && strcmpi(params.mapped_grid, 'true')
+        if params.ndims == 3
+            gd_select.x = gd.x(nx,ny,nz);
+            gd_select.y = gd.y(nx,ny,nz);
+            gd_select.z = gd.z(nx,ny,nz);
+            gd_rect = get_rectilinear_grid(gd_select);
+            xvar_slice = squeeze(gd_rect.x)';
+            yvar_slice = squeeze(gd_rect.z)';
+        else
+            gd_select.x = gd.x(nx,nz);
+            gd_select.z = gd.z(nx,nz);
+            gd_rect = get_rectilinear_grid(gd_select);
+            xvar_slice = gd_rect.x';
+            yvar_slice = gd_rect.z';
+        end
+    end
+
     % transpose unmapped data
-    if strcmpi(params.mapped_grid, 'false') && ~strcmpi(var, 'Streamline')
+    if strcmpi(params.mapped_grid, 'false') && ~plotting_streamlines1
         data1 = data1';
     end
     % remove points outside of desirable plotting range (typically from spectral aliasing)
@@ -149,10 +167,7 @@ for ii = t_index
 
     % choose plotting style (contourf may take up less memory,
     % but can be slower than pcolor)
-    if strcmpi(var,'Streamline')
-        if strcmpi(params.mapped_grid, 'true')
-            warning('Streamline has not been tested for mapped grids.')
-        end
+    if plotting_streamlines1
         if opts.speed == -1
             prompt = 'Provide a sensible wave speed in m/s: ';
             uwave = input(prompt);
@@ -162,18 +177,38 @@ for ii = t_index
         disp(['background speed = ',num2str(uwave),' m/s'])
         u1 = data1(:,:,1) - uwave;
         u2 = data1(:,:,2);
-        data1(:,:,1) = u1;
-        p_hand = streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic');
-        var2col = 'r-';
+        data1(:,:,1) = u1; % update data1
+        vel_mag = sqrt(u1.^2 + u2.^2);
+        if strcmp(params.mapped_grid, 'true')
+            if opts.streamline_heatmap
+                pcolor(xvar_slice, yvar_slice, vel_mag')
+                colorbar
+            end
+            p_hand = streamslice(xvar_slice,yvar_slice,u1',u2',opts.streamline_density,'noarrows','cubic');
+        else
+            if opts.streamline_heatmap
+                pcolor(xvar, yvar, vel_mag')
+                colorbar
+            end
+            p_hand = streamslice(xvar,      yvar,      u1',u2',opts.streamline_density,'noarrows','cubic');
+        end
+        for mm = 1:length(p_hand)
+            p_hand(mm).Color = [0.8500, 0.3250, 0.0980];
+        end
+        if opts.streamline_heatmap
+            var2col = [0.2810, 0.7250, 0.9130];
+        else
+            var2col = [0 0 0];
+        end
     elseif strcmpi(opts.style,'pcolor')
         p_hand = pcolor(xvar,yvar,data1);
-        var2col = 'k-';
+        var2col = [0 0 0];
     elseif strcmpi(opts.style,'contourf')
         [~,p_hand] = contourf(xvar,yvar,data1,opts.nlevels);
-        var2col = 'k-';
+        var2col = [0 0 0];
     elseif strcmpi(opts.style,'contour')
         [~,p_hand] = contour(xvar,yvar,data1,opts.nlevels);
-        var2col = 'k-';
+        var2col = [0 0 0];
     end
 
     % get caxis limits
@@ -192,13 +227,13 @@ for ii = t_index
     if ~strcmpi(clim, 'auto')
         caxis(clim);
     end
-    if opts.colorbar == true && ~strcmpi(var, 'Streamline')
+    if opts.colorbar == true && ~plotting_streamlines1
         colorbar
     end
 
     % add contours of another field
     if ~strcmpi(opts.var2, 'None')
-        if (strncmp(var,'Mean',4) || strncmp(var,'SD',2)) && ~strcmpi(opts.var2,'Streamline')
+        if (strncmp(var,'Mean',4) || strncmp(var,'SD',2))
             % choose Mean of field if primary field is Mean or SD
             var2 = ['Mean ',opts.var2];
         else
@@ -211,13 +246,11 @@ for ii = t_index
             if strcmpi(opts.dimen, 'Z') && strcmpi(params.mapped_grid, 'true')
                 [xvar, yvar, data2] = get_fixed_z(xvar, yvar, zvar, data2, opts.slice);
             end
-            if strcmpi(params.mapped_grid, 'false') && ~strcmpi(opts.var2, 'Streamline')
+            if strcmpi(params.mapped_grid, 'false') && ~plotting_streamlines1
                 data2 = data2';
             end
-            if strcmpi(opts.var2, 'Streamline')
-                if strcmpi(params.mapped_grid, 'true')
-                    warning('Streamline has not been tested for mapped grids.')
-                end
+            if plotting_streamlines2
+                warning('Streamlines not built for secondary variable... yet') 
                 if opts.speed == -1
                     prompt = 'Provide a sensible wave speed in m/s: ';
                     uwave = input(prompt);
@@ -230,7 +263,8 @@ for ii = t_index
                 data2(:,:,1) = u1;
                 streamslice(xvar,yvar,u1',u2',2,'noarrows','cubic')
             else
-                [~,p2_hand] = contour(xvar,yvar,data2,opts.nlevels2,var2col);
+                [~,p2_hand] = contour(xvar,yvar,data2,opts.nlevels2);
+                p2_hand.LineColor = var2col;
             end
         end
     end
@@ -351,7 +385,7 @@ opts.nx = nx;
 opts.ny = ny;
 opts.nz = nz;
 % output plotted data
-if strcmpi(params.mapped_grid, 'false') && ~strcmpi(var, 'Streamline')
+if strcmpi(params.mapped_grid, 'false') && ~plotting_streamlines1
     data1 = data1';
     if ~strcmpi(opts.var2, 'None')
         data2 = data2';

@@ -6,7 +6,7 @@
 exp_dimen = {'X','x','Y','y','Z','z'};
 exp_style = {'pcolor','contourf','contour'};
 % define defaults 
-d.dimen = 'Y';          % dimension
+d.dimen = 'y';          % dimension
 d.slice = [0 0];        % cross-section. opt. arg. must be single number
 d.axis = 0;             % axis to plot. 0 denotes use of full domain
 d.style = 'pcolor';     % plotting style
@@ -27,6 +27,8 @@ d.trim = false;         % trims values outside clim range to be within it
 d.axisstyle = 'normal'; % the axis style to use
 d.visible = true;       % make plot visible or not (bool)
 d.speed = -1;           % wave speed for streamlines
+d.streamline_heatmap= true; % Add a heatmap of the magnitude of velocity under the streamlines?
+d.streamline_density= 2;    % Density of streamlines
 d.savefig = false;      % save figure? (bool)
 d.filename = 'filename';	% name of file to save
 d.dir = 'figures';      % name of file to save
@@ -77,6 +79,8 @@ addParameter(p,'style', d.style, @(x) any(validatestring(x,exp_style)))
 addParameter(p,'var2', d.var2, @ischar)
 addParameter(p,'nlevels2', d.nlevels2, @isnumeric)
 addParameter(p,'speed', d.speed, @isnumeric)
+addParameter(p,'streamline_heatmap', d.streamline_heatmap, @islogical)
+addParameter(p,'streamline_density', d.streamline_density, @isnumeric)
 addParameter(p,'xskp', d.xskp, @isnumeric)
 addParameter(p,'yskp', d.yskp, @isnumeric)
 addParameter(p,'zskp', d.zskp, @isnumeric)
@@ -173,6 +177,10 @@ elseif strcmp(opts.style, 'contour') && opts.nlevels == 0
 elseif strcmp(opts.style, 'pcolor')
     opts.nlevels = d.npcolor;
 end
+
+% are we plotting a streamline?
+plotting_streamlines1 = ~isempty(strfind(lower(var),       'streamline'));
+plotting_streamlines2 = ~isempty(strfind(lower(opts.var2), 'streamline'));
 
 % get indices and grid for plotting
 [nx, ny, nz, xvar, yvar, zvar, plotaxis] = get_plot_points(opts);
