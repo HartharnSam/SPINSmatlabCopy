@@ -107,6 +107,11 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = unmapped_points(gd, params, 
             plotaxis = opts.axis;
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
+            elseif plotaxis(1) > xlimits(2) || ...
+                    plotaxis(2) < xlimits(1) || ...
+                    plotaxis(3) > zlimits(2) || ...
+                    plotaxis(4) < zlimits(1)
+                error('Axis window does not interect computed domain.')
             end
             xvarL = nearest_index(x, plotaxis(1));
             xvarR = nearest_index(x, plotaxis(2));
@@ -224,6 +229,11 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
             plotaxis = opts.axis;
             if plotaxis(2)<= plotaxis(1) || plotaxis(4)<=plotaxis(3)
                 error('Axis must be ordered correctly.')
+            elseif plotaxis(1) > xlimits(2) || ...
+                    plotaxis(2) < xlimits(1) || ...
+                    plotaxis(3) > zlimits(2) || ...
+                    plotaxis(4) < zlimits(1)
+                error('Axis window does not interect computed domain.')
             end
             xvarL = nearest_index(x1d, plotaxis(1));
             xvarR = nearest_index(x1d, plotaxis(2));
