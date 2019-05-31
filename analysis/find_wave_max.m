@@ -23,7 +23,7 @@ if max_ind < length(x)
     if ~isreal(y_sep)
         y_sep = x(max_ind-1+ind);
     end
-    min_pk_dist = (y_sep - x(max_ind))/3;
+    min_pk_dist = abs(y_sep - x(max_ind))/3;
     % remove locations where grid doubles back
     ni = 1;
     xmax = x(end);
