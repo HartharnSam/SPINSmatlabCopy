@@ -19,13 +19,19 @@ figure(fnum)
   xlabel('time (s)')
   ylabel('Amplitude (cm)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
   fnum = fnum+1;
 
 % wavelengths
 if n_cont == 1
 figure(fnum)
   clf
-  plot(time,[wavelength_right; wavelength_left]*100)
+  if isvector(wavelength_right)
+      plot(time,[wavelength_right wavelength_left]*100)
+  else
+      plot(time,[wavelength_right; wavelength_left]*100)
+  end
   xlabel('time (s)')
   ylabel('Wavelength (cm)')
   legend('Right','Left')
@@ -39,6 +45,8 @@ figure(fnum)
   xlabel('time (s)')
   ylabel('Right Wavelength (cm)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
   fnum = fnum+1;
 figure(fnum)
   clf
@@ -46,6 +54,8 @@ figure(fnum)
   xlabel('time (s)')
   ylabel('Left Wavelength (cm)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
   fnum = fnum+1;
 end
 
@@ -56,6 +66,8 @@ figure(fnum)
   xlabel('time (s)')
   ylabel('Wave speed (cm/s)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
   fnum = fnum+1;
 
 % wave center location
@@ -65,6 +77,8 @@ figure(fnum)
   xlabel('time (s)')
   ylabel('Wave center (m)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
   fnum = fnum+1;
 
 % background isopycnal location
@@ -74,6 +88,8 @@ figure(fnum)
   xlabel('time (s)')
   ylabel('Background isopycnal location (cm)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
   fnum = fnum+1;
 
 % wavelength vs. amplitude
@@ -95,6 +111,8 @@ figure(fnum)
   xlabel('Amplitude (cm)')
   ylabel('Wavespeed (cm/s)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
   fnum = fnum+1;
 
 % wave area
@@ -104,3 +122,5 @@ figure(fnum)
   xlabel('time (s)')
   ylabel('a*(\lambda_a + \lambda_f) (cm^2)')
   legend(leg)
+  legend('location','best')
+  legend('boxoff')
