@@ -1,4 +1,4 @@
-function all_diagnos = plot_diagnos(make_plots)
+function all_diagnos = plot_diagnos(make_plots, do_filter)
 %  PLOT_DIAGNOS  Plot diagnostics (timing, energy budget, etc) of a SPINS case
 %
 %  Info: Diagnostics are in one of two diagnostic files
@@ -16,6 +16,8 @@ function all_diagnos = plot_diagnos(make_plots)
 %  Inputs:
 %    Optional argument:
 %   make_plots      - {boolean} Do you want to make the plots? (default: true)
+%   do_filter       - {boolean} Do you want to filter BPE_tot? (default: false)
+%                               This smooths the energy budget plots
 %
 %  Outputs:
 %   'all_diagnos'   - a structure containing multiple diagnostic structures:
@@ -31,6 +33,9 @@ function all_diagnos = plot_diagnos(make_plots)
 %% set default plotting option
 if nargin == 0
     make_plots = true;
+    do_filter = false;
+elseif nargin == 1
+    do_filter = false;
 end
 
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
@@ -286,11 +291,16 @@ E_rate  = Dmat*interp1(sim_time, E_tot,  time_rate, 'pchip')';
 
 % compute APE, total Avail. Energy (AE_tot), and change in BPE, and their rates of change
 if compute_BPE
-    APE_tot = diagnos.PE_tot - diagnos.BPE_tot;
-    AE_tot  = E_tot - diagnos.BPE_tot;
+    if do_filter
+        BPE_tot = mlptdenoise(diagnos.BPE_tot, diagnos.Time, 5, 'DualMoments', 3);
+    else
+        BPE_tot = diagnos.BPE_tot;
+    end
+    APE_tot = diagnos.PE_tot - BPE_tot;
+    AE_tot  = E_tot - BPE_tot;
     E0_and_W = AE_tot(1) + F2KE_tot(end);
     AE_loss = AE_tot(1) - AE_tot;
-    BPE_change = diagnos.BPE_tot - diagnos.BPE_tot(1);
+    BPE_change = BPE_tot - BPE_tot(1);
     BPE_rate = Dmat*interp1(sim_time, BPE_change, time_rate, 'pchip')';
     APE_rate = Dmat*interp1(sim_time, APE_tot,    time_rate, 'pchip')';
     AE_rate  = Dmat*interp1(sim_time,  AE_tot,    time_rate, 'pchip')';
