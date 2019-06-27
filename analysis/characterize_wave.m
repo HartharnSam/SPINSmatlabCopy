@@ -72,6 +72,8 @@ end
 first_out = first_output();
 last_out = last_output();
 outputs = first_out:last_out;
+% and the associated times
+time = get_output_times();
 
 %% Loop through outputs
 for jj = 1:noutputs
@@ -166,7 +168,7 @@ for jj = 1:noutputs
     end
     % other stuff
     grid on
-    title(['t=',int2str(params.plot_interval*ii),'s'])
+    title(['t=',num2str(time(jj)),' s'])
     if all_conts
         leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
         legend(p_hand, leg)
@@ -200,7 +202,6 @@ for jj = 1:noutputs
 end
 
 % get other important information
-time = outputs*params.plot_interval;
 wave_speed = 0*amplitude;
 for nn = 1:n_cont
     wave_speed(:,nn) = FiniteDiff(time,1,2,false,false)*wave_center(:,nn);
