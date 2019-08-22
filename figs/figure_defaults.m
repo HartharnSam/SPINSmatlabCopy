@@ -29,12 +29,21 @@ function [] = figure_defaults(fig_hand)
     if ~isempty(ax)
         for ii = 1:length(ax)
             if ~strcmp(ax(ii).Type, 'axestoolbar')
-                ax(ii).TickLabelInterpreter = 'Latex';
+                % change font size and font
                 ax(ii).FontSize = fontsize;
+                ax(ii).TickLabelInterpreter = 'Latex';
                 ax(ii).XLabel.Interpreter = 'Latex';
                 ax(ii).YLabel.Interpreter = 'Latex';
+
+                % change axis outline
                 set(ax(ii),'layer','top');
                 ax(ii).Box = 'on';
+
+                % remove line colour on contourf plots
+                if strcmp(ax(ii).Children.Type, 'contour') ...
+                        && strcmp(ax(ii).Children.Fill, 'on')
+                    ax(ii).Children.LineStyle = 'none';
+                end
             end
         end
     end
