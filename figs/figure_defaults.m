@@ -40,9 +40,11 @@ function [] = figure_defaults(fig_hand)
                 ax(ii).Box = 'on';
 
                 % remove line colour on contourf plots
-                if strcmp(ax(ii).Children.Type, 'contour') ...
-                        && strcmp(ax(ii).Children.Fill, 'on')
-                    ax(ii).Children.LineStyle = 'none';
+                for jj = 1:length(ax(ii).Children)
+                    if strcmp(ax(ii).Children(jj).Type, 'contour') ...
+                            && strcmp(ax(ii).Children(jj).Fill, 'on')
+                        ax(ii).Children(jj).LineStyle = 'none';
+                    end
                 end
             end
         end
