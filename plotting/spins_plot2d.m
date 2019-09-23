@@ -397,4 +397,8 @@ pltinfo.data1 = data1;
 if ~strcmpi(opts.var2, 'None')
     pltinfo.data2 = data2;
 end
+if (plotting_streamlines1 || plotting_streamlines2) && strcmpi(params.mapped_grid, 'true')
+    pltinfo.xvar_slice = xvar_slice;
+    pltinfo.yvar_slice = yvar_slice;
+end
 pltinfo.opts = opts;
