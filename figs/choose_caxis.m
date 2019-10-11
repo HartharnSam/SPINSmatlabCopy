@@ -59,12 +59,7 @@ elseif ismember(var, {'u','v','w','up','wp',...
     || strncmp(var, 'vort', 4) ...
     || strncmp(reverse(var), 'mottob', 6) ...
     || strncmp(reverse(var), 'pot', 3) ...
-    clim = 'auto';
-    try
-        cmap = cmocean('balance','pivot',0);
-    catch
-        cmap = [-1 1]*max(abs(data(:)));
-    end
+    clim = [-1 1]*max(abs(data(:)));
 elseif strcmp(var, 'Ri')
     clim = [0 5];
     if ~strcmp(opts.style,'contour')
