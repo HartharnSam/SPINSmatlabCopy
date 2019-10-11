@@ -762,24 +762,38 @@ if make_plots
         elseif strcmp(name, 'Max_temperature') || strcmp(name, 'Max_salinity') || ...
                 strcmp(name, 'Min_temperature') || strcmp(name, 'Min_salinity')
             figure(fn+10)
-            if strcmp(name, 'Max_temperature')
-                subplot(2,1,1), cla reset
-                plot(diagnos.Time, [temp_max_diff -temp_min_diff])
+            if strcmp(name, 'Max_temperature') || strcmp(name, 'Min_temperature')
+                subplot(2,1,1), cla reset, hold on
+                leg_text = {};
+                if strcmp(name, 'Max_temperature')
+                    plot(diagnos.Time, temp_max_diff)
+                    leg_text = [leg_text,'$T_{max} - T_{max}(0)$'];
+                end
+                if strcmp(name, 'Min_temperature')
+                    plot(diagnos.Time, -temp_min_diff)
+                    leg_text = [leg_text,'$T_{min}(0) - T_{min}$'];
+                end
                 ylabel('Temperature')
-                legend({'$T_{max} - T_{max}(0)$','$T_{min}(0) - T_{min}$'},...
-                    'Interpreter','Latex','FontSize',12)
+                legend(leg_text, 'Interpreter','Latex','FontSize',12)
                 legend('location','best')
                 legend('boxoff')
                 ax = gca;
                 ax.YGrid = 'on';
             end
-            if strcmp(name, 'Max_salinity')
-                subplot(2,1,2), cla reset
-                plot(diagnos.Time, [salt_max_diff -salt_min_diff])
+            if strcmp(name, 'Max_salinity') || strcmp(name, 'Min_salinity')
+                subplot(2,1,2), cla reset, hold on
+                leg_text = {};
+                if strcmp(name, 'Max_salinity')
+                    plot(diagnos.Time, salt_max_diff)
+                    leg_text = [leg_text,'$s_{max} - s_{max}(0)$'];
+                end
+                if strcmp(name, 'Min_salinity')
+                    plot(diagnos.Time, -salt_min_diff)
+                    leg_text = [leg_text,'$s_{min}(0) - s_{min}$'];
+                end
                 ylabel('Salinity')
                 xlabel('t (s)')
-                legend({'$s_{max} - s_{max}(0)$','$s_{min}(0) - s_{min}$'},...
-                    'Interpreter','Latex','FontSize',12)
+                legend(leg_text, 'Interpreter','Latex','FontSize',12)
                 legend('location','best')
                 legend('boxoff')
                 ax = gca;
