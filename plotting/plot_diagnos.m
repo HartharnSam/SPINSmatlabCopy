@@ -455,6 +455,7 @@ if make_plots
     cols = get(groot,'DefaultAxesColorOrder');
     coly = cols(2,:);
     tr_ind = 0; % tracer number
+    clear_tracer = true;
 
     for name = fieldnames(diagnos)'
         if strcmp(name, 'Iter')
@@ -839,14 +840,17 @@ if make_plots
             figure(fn+6)
             tr_ind = tr_ind + 1;
             if tr_ind == 1
-                clf
-                hold on
+                if clear_tracer
+                    clf
+                end
                 leg_text = {};
             end
+            subplot(2,1,1)
+            hold on
             max_tr = diagnos.(name{1}) / diagnos.(name{1})(1) - 1;
             plot(diagnos.Time, max_tr)
             xlabel('time (s)')
-            ylabel('Tr_{max}/Tr(0) - 1')
+            ylabel('Tr_{max}/Tr_{max}(0) - 1')
             title('Maximum tracer')
 
             % Make legend
@@ -864,6 +868,22 @@ if make_plots
                 legend(leg_text)
                 legend('location','best')
             end
+
+            %%%% Minimum of Dye or Tracer %%%%
+        elseif strncmp(name, 'Min_dye',6) || strcmp(name, 'Min_tracer')
+            % initialize figure
+            figure(fn+6)
+            if tr_ind == 0
+                clf
+                clear_tracer = false;
+            end
+            subplot(2,1,2)
+            hold on
+            min_tr = (diagnos.(name{1}) - diagnos.(name{1})(1) ) / diagnos.(['Max',name{1}(4:end)])(1);
+            plot(diagnos.Time, min_tr)
+            xlabel('time (s)')
+            ylabel('(Tr_{min}-Tr_{min}(0))/Tr_{max}(0)')
+            title('Minimum tracer')
 
             %%%% Max (absolute value of) vorticity %%%%
         elseif strcmp(name, 'Max_vort_y')
