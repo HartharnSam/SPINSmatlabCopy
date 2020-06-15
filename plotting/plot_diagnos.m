@@ -1015,11 +1015,11 @@ function Vol = find_volume(gdpar)
     Vol = params.Lx * params.Ly * params.Lz;
     if strcmp(params.mapped_grid, 'true')
         if params.ndims == 3
-            bot = gd.z(:,1,1);
-            top = gd.z(:,1,params.Nz);
+            bot = gd.z(:,1,1)   - min(gd.z(:,1,1));
+            top = gd.z(:,1,end) - min(gd.z(:,1,end));
         else
-            bot = gd.z(:,1);
-            top = gd.z(:,params.Nz);
+            bot = gd.z(:,1)   - min(gd.z(:,1));
+            top = gd.z(:,end) - min(gd.z(:,end));
         end
         if strcmp(params.type_x, 'NO_SLIP')
             warning('Volume calculation is not setup for Cheb grid in x.')
