@@ -531,11 +531,7 @@ if make_plots
                 diagnos.Max_v = diagnos.Max_u*0;
             end
             plot(diagnos.Time, [diagnos.Max_u, diagnos.Max_v, diagnos.Max_w, diagnos.Max_vel])
-            if params.ndims == 3
-                set(gca,'yscale','log');
-            else
-                set(gca,'yscale','linear');
-            end
+            set(gca,'yscale','linear');
             ylabel('Velocity (m/s)')
             title('Max velocity')
             leg = legend({'Max $|u|$','Max $|v|$','Max $|w|$','Max $|\vec{u}|$'},...
@@ -551,11 +547,7 @@ if make_plots
             figure(fn+1)
             subplot(2,1,2), cla reset
             plot(diagnos.Time,[diagnos.KE_x, diagnos.KE_y, diagnos.KE_z, KE_tot])
-            if params.ndims == 3
-                set(gca,'yscale','log');
-            else
-                set(gca,'yscale','linear');
-            end
+            set(gca,'yscale','linear');
             xlabel('time (s)')
             ylabel('Kinetic Energy (J)')
             title('KE components')
