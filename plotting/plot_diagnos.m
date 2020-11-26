@@ -64,7 +64,7 @@ params = spins_params();
 if strcmp(params.mapped_grid, 'true')
     %gd.x = xgrid_reader;
     
-    gd = spins_grid('FastFull');
+    [gd.x gd.z] = spinsgrid2d();
 else
     gd = spins_grid('vector');
 end
