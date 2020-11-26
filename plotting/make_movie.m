@@ -17,8 +17,7 @@ function [] = make_movie(varname)
 %  David Deepwell, 2018
 
 % get grid and parameters
-gdpar = spins_gridparams();
-split_gdpar
+params = spins_params;
 
 % colorbar option
 if strcmp(varname,'rho')

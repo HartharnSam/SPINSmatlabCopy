@@ -1,3 +1,5 @@
+function WaveStats = characterize_wave(isTwoLayer, frame_window)
+
 % CHARACTERIZE_WAVE   track the wave core assuming
 %                     it moves from left to right
 %
@@ -10,37 +12,82 @@
 %        - from the horizontal distance for the ispycnal to
 %          drop to half-max value
 %
+% Inputs:
+%    isTwoLayer - [OPTIONAL Boolean] - is wave a two layer case or not (affects choice
+%    of isopycnal). Default false
+%    frame_window - [OPTIONAL 1x2 vector] - Frame numbers to characterize wave based on (e.g. [5
+%    50]). Default [0 last_output]
+%
+% Outputs:
+%    WaveStats - Structure containing key wave measurements (amplitude,
+%    wavelength, speed, time it hits the slope)
+%
 % David Deepwell, 2017
 
 %% Set-up
+% find which outputs exist
+first_out = first_output();
+last_out = last_output();
+init_outputs = first_out:last_out;
+%%
+if nargin <2
+    startframe = 0;
+    endframe = length(init_outputs)-1;
+else
+    startframe = frame_window(1);
+    endframe = frame_window(2);
+end
+if nargin < 1
+    isTwoLayer = false;
+end
 
+%%
+first_out = max(first_output(), startframe);
+last_out = min(last_out(), endframe);
+outputs = first_out:last_out;
+noutputs = length(outputs);
 % set filename
 filename = 'wave_characteristics';
 
 % read grid and parameters
-gdpar = spins_gridparams('Full');
-split_gdpar
+gd.z = zgrid_reader;
+gd.x = xgrid_reader;
+params = spins_params;
+%gdpar = spins_gridparams('Full');
+%split_gdpar
 % shorten parameters
-noutputs = params.noutputs;
+%noutputs = length(dir('u.*'));
+gdnames = fieldnames(gd);
+params.ndims = length(gdnames);
+
 Nx = params.Nx;
 Nz = params.Nz;
 
+% find background stratification
+if params.ndims == 3
+    strat = mean(spins_reader('rho', 0, Nx, [], []));
+elseif params.ndims == 2
+    strat = spins_reader_new('rho', 0, Nx/2, 1, []);
+end
+
 % isopycnal parameters
 %   One isopycnal:
-%contval = 0;
-%config = {'depr'};
-%   Two isopycnals: (with finding density at a particular depth)
-middepth = params.min_z + params.Lz/2;
-h = params.h_halfwidth;
-isopyc_loc = middepth - h;
-strat = spins_reader('rho', 0, Nx, 1, []);
-if isvector(gd.z)
-    val = interp1(gd.z, strat, isopyc_loc);
+contval = 0; %#ok
+config = {'depr'};
+if isTwoLayer
+    isopyc_loc = params.pyc_loc -params.h_halfwidth + 0.01;
 else
-    val = interp1(gd.z(Nx,:), strat, isopyc_loc);
+    isopyc_loc = params.pyc_loc -params.h_halfwidth; %+ 0.01;
+
 end
-contval = [-1 1]*val;
-config = {'elev', 'depr'}; % whether the isopycnals correspond
+if isvector(gd.z)
+    contval = interp1(gd.z, strat, isopyc_loc);
+else
+    contval = interp1(gd.z(Nx/2,:), strat, isopyc_loc);
+end
+
+% contval = [-1 1]*val;
+% config = {'depr'}; %{'elev', 'depr'}; % whether the isopycnals correspond
 % to waves of elevation ('elev') or depression ('depr')
 % Depression waves will be flipped to appear as elevation
 % waves. This makes characterization easier.
@@ -68,59 +115,55 @@ else
     c_map = darkjet(n_cont);
 end
 
-% find which outputs exist
-first_out = first_output();
-last_out = last_output();
-outputs = first_out:last_out;
+
 % and the associated times
-time = get_output_times();
+%time = get_output_times();
+time = (startframe:endframe)';
 
 %% Loop through outputs
+
 for jj = 1:noutputs
     if reach_end
         disp(['Wave has reached the tank end, skipping output '...
-        ,num2str(ii+1),' and all after'])
+            ,num2str(ii+1),' and all after'])
         completion(jj, noutputs)
         continue
     end
-
+    %disp(num2str(jj));
     % current output and indices to use
     ii = outputs(jj);
     x_inds = xlind:xrind;
     z_inds = zbind:ztind;
-
-    % find background stratification
-    if params.ndims == 3
-        strat = mean(spins_reader('rho', ii, Nx, [], []));
-    elseif params.ndims == 2
-        strat = spins_reader('rho', ii, Nx, 1, []);
-    end
-
+    
+    
+    
     for nn = 1:n_cont
         % find background depth of chosen isopycnal (contval)
         if isvector(gd.z)
             [strat_pos, ~] = find_position(gd.z, strat, contval(nn));
         else
-            [strat_pos, ~] = find_position(gd.z(Nx,:), strat, contval(nn));
+            [strat_pos, ~] = find_position(gd.z(Nx/2,:), strat, contval(nn));
         end
         strat_loc(jj, nn) = strat_pos;
     end
-
+    
     % read data
     if params.ndims == 3
-        rho = spins_readdata('Mean Density', ii, x_inds, 1, z_inds);
+        rho = spins_reader_new('Mean Density', ii, x_inds, 1, z_inds);
     elseif params.ndims == 2
-        rho = spins_readdata('Density', ii, x_inds, 1, z_inds);
+        rho = spins_reader_new('rho', ii, x_inds, 1, z_inds);
     end
-
+    
     % set-up the figure
     all_conts = true; % do all contours exist in the domain?
-    figure(18), clf
+    figure(1), clf
     hold on
-
+    
     % loop through the contours
+    p_hand = gobjects(1, length(n_cont));
     for nn = 1:n_cont
         if contval(nn) < max(rho(:)) && contval(nn) > min(rho(:))
+            
             % find contour (isopycnal)
             if isvector(gd.x)
                 [cont_x, cont_y] = find_contour(gd.x(x_inds), gd.z(z_inds), rho', contval(nn));
@@ -132,13 +175,13 @@ for jj = 1:noutputs
             if strcmp(config{nn}, 'depr')
                 cont_y = -cont_y;
             end
-
+            
             % find amplitudes and locations of local maxima
             [max_val, max_pos, max_ind] = find_wave_max(cont_x, cont_y);
             amplitude(jj, nn)   = max_val(1);
             wave_center(jj, nn) = max_pos(1);
             % what to do about other components?
-
+            
             % find wavelengths
             inds = max_ind(1):length(cont_x);
             if length(inds) > 1 % if wave hasn't reach tank end
@@ -154,7 +197,7 @@ for jj = 1:noutputs
                 wavelength_left(jj, nn)  = 0;
                 reach_end = true;
             end
-
+            
             % make plot to check
             p_hand(nn) = plot(cont_x, cont_y, '.', 'Color', c_map(nn,:));
             % plot wave centre and wavelengths
@@ -175,7 +218,7 @@ for jj = 1:noutputs
     end
     drawnow
     hold off
-
+    
     % update reading indices
     if jj > 1
         travel = max((wave_center(jj, :) - wave_center(jj-1, :)));
@@ -196,7 +239,7 @@ for jj = 1:noutputs
         xlind = 1;
         xrind = Nx;
     end
-
+    
     % print percentage of completion
     completion(jj, noutputs)
 end
@@ -207,6 +250,37 @@ for nn = 1:n_cont
     wave_speed(:,nn) = FiniteDiff(time,1,2,false,false)*wave_center(:,nn);
 end
 
+% calculate time means for key parameters - over flat topography
+if isfield(params, 'hill_slope')
+    end_of_slope = params.Lx-((params.hill_height/params.hill_slope)+params.hill_end_dist);
+elseif isfield(params, 'ice_length')
+    end_of_slope = params.Lx-params.ice_length;
+end
+
+read_inds = find(wave_center>(params.L_adj*1.15) & wave_center<end_of_slope);
+
+mean_amp = mean(amplitude(read_inds));
+mean_speed = mean(wave_speed(read_inds));
+end_of_slope = time(max(read_inds));
+mean_wavelength  = mean(wavelength_right(read_inds)) + mean(wavelength_left(read_inds));
+
+% Display and save data
+WaveStats = struct('meanAmp', mean_amp, 'meanWaveSpeed', mean_speed,...
+    'endSlope', end_of_slope, 'meanWavelength', mean_wavelength);
+
+disp(['Avg. Amplitude = ', num2str(mean_amp), 'm'])
+disp(['Avg. Wave Speed = ', num2str(mean_speed), 'm/s']);
+disp(['Avg. Wave Length = ', num2str(mean_wavelength), 'm']);
+if max(read_inds)<length(wave_center)
+    disp(['Wave reached slope at ', num2str(end_of_slope), 's']);
+end
+
 % save data
 save(filename,'time','amplitude','wave_center',...
-     'wavelength_right','wavelength_left','strat_loc','wave_speed','contval');
+    'wavelength_right','wavelength_left','strat_loc','wave_speed','contval', 'isopyc_loc', 'WaveStats');
+
+
+
+
+
+

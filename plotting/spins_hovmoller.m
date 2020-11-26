@@ -14,11 +14,13 @@ function [time, z, data] = spins_hovmoller(varname, loc, t_inds, varargin)
 %    data    - field data
 %
 %  %  David Deepwell, 2018
-global gdpar
+%global gdpar
 
 % get grid and parameters
-gd = gdpar.gd;
-params = gdpar.params;
+gd.x = xgrid_reader;
+gd.z = zgrid_reader;
+
+params = spins_params;
 
 % Optional arguments
 if nargin == 2
@@ -46,7 +48,7 @@ data = zeros(params.Nz, N_t);
 % read data
 for nn = 1:N_t
     ii = t_inds(nn);
-    data(:,nn) = spins_readdata(varname, ii, x_ind, 1, []);
+    data(:,nn) = spins_reader_new(varname, ii, x_ind, 1, []);
 end
 
 % create space and time variables

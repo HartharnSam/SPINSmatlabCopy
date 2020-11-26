@@ -1,4 +1,4 @@
-function all_diagnos = plot_diagnos(make_plots, do_filter)
+function all_diagnos = plot_diagnos(make_plots, do_filter, save_plots)  
 %  PLOT_DIAGNOS  Plot diagnostics (timing, energy budget, etc) of a SPINS case
 %
 %  Info: Diagnostics are in one of two diagnostic files
@@ -34,10 +34,14 @@ function all_diagnos = plot_diagnos(make_plots, do_filter)
 if nargin == 0
     make_plots = true;
     do_filter = false;
+    save_plots = true;  
 elseif nargin == 1
     do_filter = false;
+    save_plots = true; 
+elseif nargin == 2
+    save_plots = true;  
 end
-
+%% 
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
 % read diagnostic file
 diag_file_name = 'diagnostics';
@@ -58,6 +62,8 @@ end
 % load parameters and grid (read separately so that it's not a global variable)
 params = spins_params();
 if strcmp(params.mapped_grid, 'true')
+    %gd.x = xgrid_reader;
+    
     gd = spins_grid('FastFull');
 else
     gd = spins_grid('vector');
@@ -110,8 +116,8 @@ if exist('plot_times.txt', 'file')
     warning('off','all'); % suppress warning for this only
     plottimes = readtable('plot_times.txt');
     warning('on','all');
-    avg_write = mean(plottimes.WriteTime_s_);
-    tot_write =  sum(plottimes.WriteTime_s_);
+    avg_write = nanmean(plottimes.WriteTime_s_);
+    tot_write =  nansum(plottimes.WriteTime_s_);
 else
     avg_write = 0;
     tot_write = 0;
@@ -121,6 +127,9 @@ avg_sim_step = sim_time(end)/n_steps;
 avg_clk_per_sim = avg_clk_step/avg_sim_step;
 clk_per_sim = clk_step_time./sim_step_time;
 % estimated clock time required to complete simulation
+if ~isfield(params, 'final_time')
+    params.final_time = diag_txt{end, 2};
+end
 sim_time_remain = params.final_time - sim_time(end);
 if length(clk_per_sim) > 50
     clk_time_remain = sim_time_remain*mean(clk_per_sim(end-50:end));
@@ -137,7 +146,7 @@ end
 %%%%%%%%%%% Print Timing info %%%%%%%%%%%%%%%
 % functions for converting seconds into other units
 s2ms   = @(sec) datestr(datenum(0,0,0,0,0,sec),'MM:SS');
-s2hms  = @(sec) datestr(datenum(0,0,0,0,0,sec),'HH:MM:SS');
+s2hms  = @(sec) datestr(datenum(0,0,0,0,0,sec),'HH:MM:SS');%#ok
 s2dhm  = @(sec) datestr(datenum(0,0,0,0,0,sec),'DD:HH:MM');
 s2dhms = @(sec) datestr(datenum(0,0,0,0,0,sec),'DD:HH:MM:SS');
 % print info
@@ -174,18 +183,32 @@ if clk_time_remain < 60*60*24*32
 else
     fprintf('Est. clock time remaining:     01:%s (M:D:H:M:S)\n',s2dhms(clk_time_remain-60*60*24*32))
 end
+all_diagnos.diagnos.AvgClockTimePerSimSec = (avg_clk_per_sim);
+all_diagnos.diagnos.TotClockTime = (tot_clk_time);
+
 
 
 %%%%%%%%%%% Which optional diagnostics were computed? %%%%%%%%%%%%%%%
-if isfield(diagnos, 'Enst_y_tot'); compute_enstrophy = true;
-else                               compute_enstrophy = false; end
-if isfield(diagnos, 'Diss_tot'); compute_dissipation = true;
-else                             compute_dissipation = false; end
-if isfield(diagnos, 'BPE_tot'); compute_BPE = true;
-else                            compute_BPE = false; end
-if isfield(diagnos, 'BPE_from_int'); compute_BPE_from_int = true;
-else                                 compute_BPE_from_int = false; end
-
+if isfield(diagnos, 'Enst_y_tot')
+    compute_enstrophy = true;
+else
+    compute_enstrophy = false; 
+end
+if isfield(diagnos, 'Diss_tot') 
+    compute_dissipation = true;
+else
+    compute_dissipation = false; 
+end
+if isfield(diagnos, 'BPE_tot') 
+    compute_BPE = true;
+else
+    compute_BPE = false; 
+end
+if isfield(diagnos, 'BPE_from_int') 
+    compute_BPE_from_int = true;
+else
+    compute_BPE_from_int = false; 
+end
 
 %%%%%%%%%%% Shorten entstrophy variable and compare against dissipation %%%%%%%%%%%%%%%
 % from Mike Waite's Turbulence class: 
@@ -293,6 +316,7 @@ E_rate  = Dmat*interp1(sim_time, E_tot,  time_rate, 'pchip')';
 if compute_BPE
     if do_filter
         BPE_tot = mlptdenoise(diagnos.BPE_tot, diagnos.Time, 5, 'DualMoments', 3);
+        
     else
         BPE_tot = diagnos.BPE_tot;
     end
@@ -447,8 +471,7 @@ if compute_BPE
     end
 end
 
-
-%%%%%%%%%%% make plots %%%%%%%%%%%%%%%
+%% %%%%%%%%%%% make plots %%%%%%%%%%%%%%%
 if make_plots
     fn = 20;    % first figure number
     fm = fn+15; % first figure number for unknown diagnostics
@@ -459,8 +482,9 @@ if make_plots
     for name = fieldnames(diagnos)'
         if strcmp(name, 'Iter')
             continue
-
+            
             %%%% Clock Time per Step %%%%
+        %% %% Diag_SimRunRate %% %%
         elseif strcmp(name, 'Clock_time')
             figure(fn), clf
             subplot(3,1,1), cla reset
@@ -501,7 +525,8 @@ if make_plots
             end
             box on
             hold off
-
+            
+            
             %%%% Clock Time per Simulation Time per Step %%%%
             subplot(3,1,3), cla reset
             hold on
@@ -520,9 +545,9 @@ if make_plots
             ylim([0 1.1*max_clk_per_sim]);
             box on
             hold off
-
-
-            %%%% Maximum (absolute value of) Velocities %%%%
+    
+            
+            %% %% Maximum (absolute value of) Velocities %% %%
         elseif strcmp(name, 'Max_u')
             figure(fn+1)
             subplot(2,1,1), cla reset
@@ -561,7 +586,7 @@ if make_plots
             leg = legend({'KE_x','KE_y','KE_z','KE_{tot}'});
             leg.Location = 'best';
             leg.Box = 'off';
-
+            
             %% Plot all energy components
             %(KE, APE, Change in internal, Change in BPE, and numerical)
             figure(fn+2)
@@ -572,12 +597,12 @@ if make_plots
             % Add APE, AE, and change in BPE, if calculated
             if compute_BPE
                 plot(diagnos.Time, [APE_tot, AE_tot, BPE_change])
-                energy_label = [energy_label, {'APE','AE','\Delta{BPE}'}];
+                energy_label = [energy_label, {'APE','AE','\Delta{BPE}'}]; %#ok
             end
             % Add change in internal energy if calculated
             if compute_dissipation && compute_BPE_from_int
                 plot(diagnos.Time, Int_change,'k')
-                energy_label = [energy_label, '\Delta{Int}'];
+                energy_label = [energy_label, '\Delta{Int}'];%#ok
             end
             % add energy created/removed by numerics (filter and numerical errors/scheme etc.)
             % only if dissipation, BPE, and BPE_from_int were calculated
@@ -585,11 +610,11 @@ if make_plots
                 plot(diagnos.Time, NumE_tot)
                 %plot([0 diagnos.Time(end)],[1 1]*AE_tot(1),'k')
                 %energy_label = [energy_label, {'Numerics','BPE from int','AE(0)'}];
-                energy_label = [energy_label, {'Numerics'}];
+                energy_label = [energy_label, {'Numerics'}]; %#ok
             end
             if KE_forcing
                 plot(diagnos.Time, -F2KE_tot)
-                energy_label = [energy_label, {'- Work'}];
+                energy_label = [energy_label, {'- Work'}]; %#ok
             end
             grid on
             box on
@@ -608,22 +633,22 @@ if make_plots
             % Add APE, AE, and change in BPE, if calculated
             if compute_BPE
                 plot(time_rate(inds), [APE_rate(inds), AE_rate(inds), BPE_rate(inds)])
-                energy_label = [energy_label, {'APE','AE','BPE (\phi_d)'}];
+                energy_label = [energy_label, {'APE','AE','BPE (\phi_d)'}]; %#ok
             end
             % Add change in internal energy if calculated
             if compute_dissipation && compute_BPE_from_int
                 plot(diagnos.Time(10:end), Int_rate(10:end),'k')
-                energy_label = [energy_label, 'Internal'];
+                energy_label = [energy_label, 'Internal']; %#ok
             end
             % add energy created/removed by numerics (filter and numerical errors/scheme etc.)
             % only if dissipation, BPE, and BPE_from_int were calculated
             if compute_dissipation && compute_BPE && compute_BPE_from_int
                 plot(time_rate(inds), NumE_rate(inds))
-                energy_label = [energy_label, {'Numerics'}];
+                energy_label = [energy_label, {'Numerics'}];%#ok
             end
             if KE_forcing
                 plot(diagnos.Time, -F2KE_rate)
-                energy_label = [energy_label, {'- Work'}];
+                energy_label = [energy_label, {'- Work'}]; %#ok
             end
             grid on
             box on
@@ -633,7 +658,8 @@ if make_plots
             legend(energy_label)
             legend('location','best')
             legend('boxoff')
-
+            
+            
             %% Plot all energy component rates (KE, APE, Diss, Change in BPE)
             figure(fn+3)
             subplot(2,1,1), cla reset
@@ -647,25 +673,25 @@ if make_plots
             % Add APE if calculated
             if compute_BPE && compute_BPE_from_int
                 plot(diagnos.Time, APE2BPE_tot)
-                energy_label = [energy_label, {'APE to BPE (\int \phi_m dt)'}];
+                energy_label = [energy_label, {'APE to BPE (\int \phi_m dt)'}];%#ok
             end
             % Add energy converted from internal energy
             if compute_BPE_from_int
                 plot(diagnos.Time, Int2BPE_tot,'Color',cols(4,:))
-                energy_label = [energy_label, 'Int to BPE (\int \phi_i dt)'];
+                energy_label = [energy_label, 'Int to BPE (\int \phi_i dt)'];%#ok
             end
             % Add dissipation if calculated
             if compute_dissipation
                 plot(diagnos.Time(8:end), KE2Int_tot(8:end),'k')
-                energy_label = [energy_label, 'KE to Int (diss, \int \epsilon dt)'];
+                energy_label = [energy_label, 'KE to Int (diss, \int \epsilon dt)'];%#ok
             end
             if compute_dissipation && compute_BPE && compute_BPE_from_int
                 plot(diagnos.Time, NumE_tot,'Color',cols(5,:))
-                energy_label = [energy_label, 'to Numerics'];
+                energy_label = [energy_label, 'to Numerics'];%#ok
             end
             if KE_forcing
                 plot(diagnos.Time, F2KE_tot)
-                energy_label = [energy_label, {'Work to KE'}];
+                energy_label = [energy_label, {'Work to KE'}];%#ok
             end
             grid on
             ylabel('Energy (J)')
@@ -688,25 +714,25 @@ if make_plots
             % Add APE if calculated
             if compute_BPE && compute_BPE_from_int
                 plot(time_rate(inds), APE2BPE_rate(inds))
-                energy_label = [energy_label, {'APE to BPE (\phi_m)'}];
+                energy_label = [energy_label, {'APE to BPE (\phi_m)'}];%#ok
             end
             % Add energy converted from internal energy
             if compute_BPE_from_int
                 plot(diagnos.Time, diagnos.BPE_from_int,'Color',cols(4,:))
-                energy_label = [energy_label, 'Int to BPE (\phi_i)'];
+                energy_label = [energy_label, 'Int to BPE (\phi_i)']; %#ok
             end
             % Add dissipation if calculated
             if compute_dissipation
                 plot(diagnos.Time(15:end), diagnos.Diss_tot(15:end),'k')
-                energy_label = [energy_label, 'KE  to Int (diss, \epsilon)'];
+                energy_label = [energy_label, 'KE  to Int (diss, \epsilon)'];%#ok
             end
             if compute_dissipation && compute_BPE && compute_BPE_from_int
                 plot(time_rate(inds), NumE_rate(inds),'Color',cols(5,:))
-                energy_label = [energy_label, 'to Numerics'];
+                energy_label = [energy_label, 'to Numerics'];%#ok
             end
             if KE_forcing
                 plot(diagnos.Time, F2KE_rate)
-                energy_label = [energy_label, {'Work to KE'}];
+                energy_label = [energy_label, {'Work to KE'}];%#ok
             end
             grid on
             xlabel('time (s)')
@@ -717,7 +743,7 @@ if make_plots
             legend('boxoff')
             box on
             hold off
-
+            
         elseif strcmp(name, 'KE_y') || strcmp(name, 'KE_z') || strcmp(name, 'BPE_tot') ||...
                 strcmp(name, 'PE_tot') || strcmp(name, 'BPE_from_int') || strcmp(name, 'KE_from_forcing')
             continue
@@ -767,11 +793,11 @@ if make_plots
                 leg_text = {};
                 if strcmp(name, 'Max_temperature')
                     plot(diagnos.Time, temp_max_diff)
-                    leg_text = [leg_text,'$T_{max} - T_{max}(0)$'];
+                    leg_text = [leg_text,'$T_{max} - T_{max}(0)$'];%#ok
                 end
                 if strcmp(name, 'Min_temperature')
                     plot(diagnos.Time, -temp_min_diff)
-                    leg_text = [leg_text,'$T_{min}(0) - T_{min}$'];
+                    leg_text = [leg_text,'$T_{min}(0) - T_{min}$'];%#ok
                 end
                 ylabel('Temperature')
                 legend(leg_text, 'Interpreter','Latex','FontSize',12)
@@ -785,11 +811,11 @@ if make_plots
                 leg_text = {};
                 if strcmp(name, 'Max_salinity')
                     plot(diagnos.Time, salt_max_diff)
-                    leg_text = [leg_text,'$s_{max} - s_{max}(0)$'];
+                    leg_text = [leg_text,'$s_{max} - s_{max}(0)$'];%#ok
                 end
                 if strcmp(name, 'Min_salinity')
                     plot(diagnos.Time, -salt_min_diff)
-                    leg_text = [leg_text,'$s_{min}(0) - s_{min}$'];
+                    leg_text = [leg_text,'$s_{min}(0) - s_{min}$'];%#ok
                 end
                 ylabel('Salinity')
                 xlabel('t (s)')
@@ -858,7 +884,7 @@ if make_plots
             else
                 tr_num = {};
             end
-            leg_text = [leg_text,tr_num];
+            leg_text = [leg_text,tr_num];%#ok
             % add legend
             if ~isempty(leg_text)
                 legend(leg_text)
@@ -984,13 +1010,36 @@ if make_plots
         leg.Location = 'best';
         leg.Box = 'off';
     end
+    %%
+    if save_plots
+        FigNames = {'SimRunRate', 'MaxVelsKE_Components', 'AllEnergyComponents', ...
+            'AllEnergyComponentRates', 'MassDensityMaxDiss', 'AreaDeltaRho', ...
+            'DyeTracer', 'MaxVortyTotEnstrophy', 'TotDissipation_Enstrophy',...
+            'MixEfficiency'};
+        
+        for figs = 1:9
+            if ishandle(fn+figs)
+                figure(fn+figs);
+                print(['Diag_', FigNames{figs}, '.png'], '-dpng');
+            end
+        end
+    end
+                
 end
 fprintf('\n')
+
+
+all_diagnos.EnergeticChange.APE_Lost = AE_loss(end)/E0_and_W*100;
+all_diagnos.EnergeticChange.APE_toMix = APE2BPE_tot(end)/E0_and_W*100;
+all_diagnos.EnergeticChange.APE_toDiss = KE2Int_tot(end)/E0_and_W*100;
+
+save('all_diagnos.mat', 'all_diagnos')
 end
 
 %% Volume of domain
 function Vol = find_volume(gdpar)
-    split_gdpar
+    gd = gdpar.gd;
+    params = gdpar.params;
     gdvec = get_vector_grid(gd);
     Vol = params.Lx * params.Ly * params.Lz;
     if strcmp(params.mapped_grid, 'true')
@@ -1014,11 +1063,12 @@ function kappa_min = find_min_diffu(params)
     diffu_types = {'kappa','kappa_rho','kappa_tracer',...
         'kappa_dye','kappa_dye1','kappa_dye2',...
         'kappa_T','kappa_S','kappa_t','kappa_s'};
+    kappa = nan(1, length(diffu_types));
     for ii = 1:length(diffu_types)
         if isfield(params, diffu_types{ii})
-            kappa(ii) = params.(diffu_types{ii});
+            kappa(ii) = params.(diffu_types{ii}); 
         else
-            kappa(ii) = NaN;
+            kappa(ii) = NaN; 
         end
     end
     kappa_min = min(kappa(:));

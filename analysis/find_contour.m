@@ -1,5 +1,5 @@
 function [cont_x, cont_y] = find_contour(x, y, field, val, cont_ind)
-% FIND_CONTOUR     Find the contour where field=val.
+% FIND_CONTOUR     Find the contour where field == val.
 %
 %  Usage:
 %    [cont_x, cont_y] = find_contour(gd.x, gd.z, rho, rho_0)
@@ -14,6 +14,11 @@ function [cont_x, cont_y] = find_contour(x, y, field, val, cont_ind)
 %  Outputs:
 %    'cont_x' - the x positions of the contour
 %    'cont_y' - the y positions of the contour
+%
+% Example:
+%    [cont_x, cont_y] = find_contour(x, y, rho, 1026); % would require
+%    readjusted rho to be used
+%
 %
 %  David Deepwell, 2016
 

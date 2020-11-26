@@ -1,4 +1,4 @@
-function ar = spins_reader(varname, varargin);
+function ar = spins_reader_old(varname, varargin);
 % SPINS data reader with slab support and a user defined name
 % Opens and reads a slab of SPINS data, optionally
 % loading only a portion of the total array. This
@@ -34,6 +34,8 @@ function ar = spins_reader(varname, varargin);
 % courtesy of Michael Dunphy (mdunphy@uwaterloo.ca), adapted
 % for SPINS by Christopher Subich (csubich@uwaterloo.ca)
 % and David Deewell (ddeepwel@uwaterloo.ca).
+%% 
+
 
 %% Find dimensions
 params = spins_params();

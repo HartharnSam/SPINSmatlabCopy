@@ -46,17 +46,17 @@ if strncmp(varname,'Mean',4) || strncmp(varname,'SD',2) || strncmp(varname,'Scal
     end
 end
 
-plotting_streamlines = ~isempty(strfind(lower(varname), 'streamline'));
+plotting_streamlines = contains(lower(varname), 'streamline');
 
 % try different densities
 if strcmpi(varname,'Density')
     rhofiles = dir('rho.*');
     if ~isempty(rhofiles)
-        data = spins_reader('rho',ii,nx,ny,nz);
+        data = spins_reader_new('rho',ii,nx,ny,nz);
     else
         try
-            s = spins_reader('s',ii,nx,ny,nz);
-            t = spins_reader('t',ii,nx,ny,nz);
+            s = spins_reader_new('s',ii,nx,ny,nz);
+            t = spins_reader_new('t',ii,nx,ny,nz);
             data = eqn_of_state(t,s);
         catch
             error('Density could not be computed.');
@@ -64,37 +64,37 @@ if strcmpi(varname,'Density')
     end
 % read in kinetic energy
 elseif strcmpi(varname,'KE')
-    u = spins_reader('u',ii,nx,ny,nz);
+    u = spins_reader_new('u',ii,nx,ny,nz);
     if params.ndims == 3
-        v = spins_reader('v',ii,nx,ny,nz);
+        v = spins_reader_new('v',ii,nx,ny,nz);
     else
         v = 0;
     end
-    w = spins_reader('w',ii,nx,ny,nz);
+    w = spins_reader_new('w',ii,nx,ny,nz);
     data = 0.5*params.rho_0*(u.^2 + v.^2 + w.^2);
     clearvars u v w
 % plot speed (magnitude of velocity vector)
 elseif strcmpi(varname,'speed')
-    u = spins_reader('u',ii,nx,ny,nz);
+    u = spins_reader_new('u',ii,nx,ny,nz);
     if params.ndims == 3
-        v = spins_reader('v',ii,nx,ny,nz);
+        v = spins_reader_new('v',ii,nx,ny,nz);
     else
         v = 0;
     end
-    w = spins_reader('w',ii,nx,ny,nz);
+    w = spins_reader_new('w',ii,nx,ny,nz);
     data = sqrt(u.^2 + v.^2 + w.^2);
     clearvars u  v w
 % rotate horizontal velocity vectors (for tilted tank cases)
 elseif strcmpi(varname,'up')
-    u = spins_reader('u',ii,nx,ny,nz);
-    w = spins_reader('w',ii,nx,ny,nz);
+    u = spins_reader_new('u',ii,nx,ny,nz);
+    w = spins_reader_new('w',ii,nx,ny,nz);
     theta = params.tilt_angle;
     data = u*cosd(theta) + w*sind(theta);
     clearvars u w
 % rotate horizontal velocity vectors (for tilted tank cases)
 elseif strcmpi(varname,'wp')
-    u = spins_reader('u',ii,nx,ny,nz);
-    w = spins_reader('w',ii,nx,ny,nz);
+    u = spins_reader_new('u',ii,nx,ny,nz);
+    w = spins_reader_new('w',ii,nx,ny,nz);
     theta = params.tilt_angle;
     data = w*cosd(theta) - u*sind(theta);
     clearvars u w
@@ -125,8 +125,8 @@ elseif strcmp(varname, 'Ri')
         error('Gradient Richardson number must be plotted in x-z plane.')
     else
         % read in data
-        rho_z = spins_reader('rho_z',ii,nx,ny,nz)';
-        u_z   = spins_reader('u_z',ii,nx,ny,nz)';
+        rho_z = spins_reader_new('rho_z',ii,nx,ny,nz)';
+        u_z   = spins_reader_new('u_z',ii,nx,ny,nz)';
         g = params.g;
         if params.delta_rho < 1
             rho_0 = 1;
@@ -209,13 +209,13 @@ elseif plotting_streamlines
             if strncmp(varorig,'Mean',4)
                 % take mean
                 ny = 1:Ny;
-                u = squeeze(mean(spins_reader('u',ii,nx,ny,nz),2));
-                w = squeeze(mean(spins_reader('w',ii,nx,ny,nz),2));
+                u = squeeze(mean(spins_reader_new('u',ii,nx,ny,nz),2));
+                w = squeeze(mean(spins_reader_new('w',ii,nx,ny,nz),2));
             end
         else
             % in only a cross-section
-            u = spins_reader('u',ii,nx,ny,nz);
-            w = spins_reader('w',ii,nx,ny,nz);
+            u = spins_reader_new('u',ii,nx,ny,nz);
+            w = spins_reader_new('w',ii,nx,ny,nz);
         end
     end
 
@@ -226,7 +226,7 @@ elseif plotting_streamlines
 
 % read in data for given file name
 else
-    data = spins_reader(varname, ii, nx, ny, nz);
+    data = spins_reader_new(varname, ii, nx, ny, nz);
 end
 
 % take mean or standard deviation if asked

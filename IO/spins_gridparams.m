@@ -38,7 +38,7 @@ global gdpar
         gd = spins_grid(varargin{1});
     elseif nargin == 0
         check_grid = true;
-        gd = spins_grid('Vector');
+        [gd.x gd.z] = spinsgrid2d();
     end
 
     % Add other information into params structure

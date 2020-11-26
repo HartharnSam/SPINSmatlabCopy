@@ -1,4 +1,4 @@
-function all_stress = plot_stress(make_plots)
+function all_stress = plot_stress(make_plots, save_plots)
 %  PLOT_STRESS  Plot surface stresses and surface forces
 %
 %  David Deepwell, 2019
@@ -90,10 +90,11 @@ if make_plots
         lab = {'$\int t_x dA$','$\int t_y dA$','$\int |t_x| dA$','$\int |t_y| dA$'};
         ylab = 'Stress (N/m^2)';
     end
-
+    
     % plot
-    figure(19), clf
     if compute_top
+        figure(19), clf
+        
         subplot(2,1,1)
         if par.Ny == 1
             plot(Top_time,[Top_fx_tot, Top_fx_abs]);
@@ -107,37 +108,8 @@ if make_plots
         %legend('location','best')
         %legend('boxoff')
         grid on
-    end
-
-    if compute_bottom
+        
         subplot(2,1,2)
-        if par.Ny == 1
-            plot(Bot_time,[Bot_fx_tot, Bot_fx_abs]);
-        else
-            plot(Bot_time,[Bot_fx_tot, Bot_fy_tot, Bot_fx_abs, Bot_fy_abs]);
-        end
-        xlabel('t (s)')
-        ylabel('Force (N)')
-        title('Bottom Forces')
-        legend(lab,'Interpreter','Latex','FontSize',12)
-        legend('location','best')
-        legend('boxoff')
-        grid on
-    end
-
-
-    %% extrema values
-    % create legends
-    if par.Ny == 1
-        lab = {'max $t_x$','min $t_x$'};
-    else
-        lab = {'max $t_x$','max $t_y$','min $t_x$','min $t_y$','max $t_s$'};
-    end
-
-    % plot
-    figure(18), clf
-    if compute_top
-        subplot(2,1,1)
         if par.Ny == 1
             plot(Top_time,[Top_tx_max, Top_tx_min]);
         else
@@ -150,9 +122,36 @@ if make_plots
         %legend('location','best')
         %legend('boxoff')
         grid on
+        if save_plots
+            print('TopStresses.png', '-dpng');
+        end
     end
-
+    
+    %% extrema values
+    % create legends
+    if par.Ny == 1
+        lab = {'max $t_x$','min $t_x$'};
+    else
+        lab = {'max $t_x$','max $t_y$','min $t_x$','min $t_y$','max $t_s$'};
+    end
+    
+    % plot
+    figure(18), clf
     if compute_bottom
+        subplot(2,1,1)
+        if par.Ny == 1
+            plot(Bot_time,[Bot_fx_tot, Bot_fx_abs]);
+        else
+            plot(Bot_time,[Bot_fx_tot, Bot_fy_tot, Bot_fx_abs, Bot_fy_abs]);
+        end
+        xlabel('t (s)')
+        ylabel('Force (N)')
+        title('Bottom Forces')
+        legend(lab,'Interpreter','Latex','FontSize',12)
+        legend('location','best')
+        legend('boxoff')
+        grid on
+        
         subplot(2,1,2)
         if par.Ny == 1
             plot(Bot_time,[Bot_tx_max, Bot_tx_min]);
@@ -166,5 +165,9 @@ if make_plots
         legend('location','best')
         legend('boxoff')
         grid on
+        
+        if save_plots
+            print('BottomStresses.png', '-dpng');
+        end
     end
 end

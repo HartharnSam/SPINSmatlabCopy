@@ -20,7 +20,7 @@ try
             lin = strtrim(strsplit(tline,'='));
             nam = lin{1};
             val = lin{2};
-            if is_str_numeric(val);
+            if is_str_numeric(val)
                 val = str2double(val);
             end
             params.(nam) = val;

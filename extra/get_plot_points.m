@@ -172,19 +172,21 @@ function [nx, ny, nz, xvar, yvar, zvar, plotaxis] = mapped_points(gd, params, op
         x = gd.x;
         x1d = gdvec.x;
         Nx = params.Nx;
-        xlimits = params.xlim;
+        
+        xlimits = [min(gd.x, [], 'all') max(gd.x, [], 'all')];
     end
     if isfield(gd, 'y')
         y = gd.y;
         y1d = gdvec.y;
         Ny = params.Ny;
-        ylimits = params.ylim;
+        ylimits = [min(gd.y, [], 'all') max(gd.y, [], 'all')];
+
     end
     if isfield(gd, 'z')
         z = gd.z;
         z1d = gdvec.z;
         Nz = params.Nz;
-        zlimits = params.zlim;
+        zlimits = [min(gd.z, [], 'all') max(gd.z, [], 'all')];
     end
 
     % find grid points to read in

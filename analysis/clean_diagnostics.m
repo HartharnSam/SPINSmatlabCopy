@@ -1,8 +1,9 @@
-function [] = clean_diagnostics()
-% clean_diagnostics reads in the diagnostic file and removed repeated times
+function [new_diagnos] = clean_diagnostics()
+% clean_diagnostics reads in the diagnostic file and removed repeated
+% times, and saves clean version as a .mat file
 
 files_to_clean = {'diagnostics','stresses_top','stresses_bottom'}; % without file extensions (all are .txt)
-
+%%
 for nn = 1:length(files_to_clean)
     % read analysis file (if it exists
     diag_file = [files_to_clean{nn},'.txt'];
@@ -16,8 +17,16 @@ for nn = 1:length(files_to_clean)
 
         % find indices to keep
         time = diagnos.Time;
-        keep_inds = find_inds(time);
-
+        %%
+        [~, uniqs] = unique(time);
+        uniqlogical = zeros(size(time));
+        uniqlogical(uniqs) = 1;
+        findinds = zeros(size(time));
+        findinds(find_inds(time)) = 1;
+        %%
+        keep_inds = findinds' & (isfinite(time))' & (uniqlogical)';
+%%        
+        
         % clean up diagnostics file
         names = fieldnames(diagnos);
         N_fields = length(names) - 1;
@@ -58,5 +67,5 @@ function keep_inds = find_inds(time)
             keep_inds = [old_inds add_inds];
         end
     end
-
+    %keep_inds = keep_inds';
 end % end of function

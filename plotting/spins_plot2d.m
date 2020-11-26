@@ -51,6 +51,15 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %
 %  David Deepwell, 2015
 global gdpar
+if isempty(gdpar)
+    gd.x = xgrid_reader();
+    gd.z = zgrid_reader();
+    params = spins_params;
+    gdpar.gd = gd;
+    gdpar.params = params;
+    gdpar.params.ndims = ndims(gd.x);
+
+end
 
 % get grid and parameters
 split_gdpar

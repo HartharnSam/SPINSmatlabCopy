@@ -55,7 +55,10 @@ for jj = 1:length(fields)
     fprintf('Changing field: %-8s ...',field)
 
     % read and expand field
-    data = spins_reader(field, ii);
+    data = spins_reader_new(field, ii);
+    if Ny_old == 1
+        data = reshape(data, Nx, Ny_old, Nz);
+    end
     data = resize_y(field, data, Ny_new);
 
     % write new field in new directory
