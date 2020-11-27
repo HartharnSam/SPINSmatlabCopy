@@ -71,7 +71,7 @@ for ii = 1:length(RunDirectoryName)
     end
     
     %% Calculate Reynolds statistics
-    [maxRe, startRe] = calc_reynolds;
+    [maxRe, startRe] = calc_reynolds(2);
     
     %% Collate stats to be pasted into appropriate index sheet
     outputs_names = {'HillHeight', 'HillSlope', 'PycAdjLoc', 'Nx', 'Ny', 'Nz', 'NumProcessors', 'TotalComputationTime',...
