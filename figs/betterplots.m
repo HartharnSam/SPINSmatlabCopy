@@ -10,6 +10,6 @@ if nargin<1
 end
 fields = fieldnames(settings);
 for i = 1:length(fields)
-    str = join(['settings.', fields(i),';'], '');
+    str = strjoin(['settings.', fields(i),';'], '');
     set(target, fields{i}, eval(str{1}));
 end
