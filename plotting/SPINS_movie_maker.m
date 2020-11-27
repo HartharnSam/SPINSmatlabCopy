@@ -63,7 +63,7 @@ if nargin<5
     savefnm = 'v2.mp4';
 end
 
-if isfile('diagnostics.mat')
+if exist('diagnostics.mat', 'file') == 2
     load diagnostics.mat Max_u Max_w
     umaxabs = max(Max_u);
     wmaxabs = max(Max_w);
@@ -140,7 +140,7 @@ max_t = length(dir('u.*'))-1;
 time = round(get_output_times());
 
 if nargin<4
-    if isfile('wave_characteristics.mat')
+    if exist('wave_characteristics.mat', 'file') == 2
         %load('wave_characteristics.mat', 'wave_center')
         loc_ind = find(wave_center>xlimits(1));
         if ~isempty(loc_ind)
