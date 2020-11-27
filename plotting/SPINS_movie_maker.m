@@ -60,7 +60,11 @@ if nargin<4
     savevideo = false;
 end
 if nargin<5
-    savefnm = 'v2.mp4';
+    if ispc
+        savefnm = 'v2.mp4';
+    else
+        savefnm = 'v2.avi';
+    end
 end
 
 if exist('diagnostics.mat', 'file') == 2
@@ -92,7 +96,11 @@ positioning.tracer = find(strcmp(parameters, 'tracer'));
 
 %% Begin Video and set figure settings
 if savevideo % Open videowriter class
-    vid = VideoWriter(savefnm, 'MPEG-4');
+    if ispc
+        vid = VideoWriter(savefnm, 'MPEG-4');
+    else
+        vid = VideoWriter(savefnm);
+    end
     vid.FrameRate = 1;
     open(vid);
 end

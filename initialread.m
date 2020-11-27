@@ -63,7 +63,11 @@ for ii = 1:length(RunDirectoryName)
     
     %% plot movie
     if isVideo 
-        SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, [pathname, params.name, '.mp4']);
+        if ispc
+            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, [pathname, params.name, '.mp4']);
+        else
+            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, [pathname, params.name, '.avi']);
+        end
     end
     
     %% Calculate Reynolds statistics
