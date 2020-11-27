@@ -115,7 +115,9 @@ clf
 set(gcf, 'Units', 'centimeters'); set(gcf, 'Position', [1 1 44 20]);
 set(gcf, 'PaperUnits','centimeters'); set(gcf, 'Position', [1 1 44 20]);
 
-sgtitle(params.name, 'Interpreter','none');
+if ispc
+    sgtitle(params.name, 'Interpreter','none');
+end
 %% Set spatial extent of plots
 if strcmp(xlimits, 'slopeonly')
     if isfield(params, 'hill_height')
@@ -124,7 +126,7 @@ if strcmp(xlimits, 'slopeonly')
         slope_length = params.ice_length;
     end
     
-    inds_free_wave = find(x(:, 1)>params.L_adj*1.15 & x(:, 1)<(Lx - slope_length*1.15)); % Identifies region where wave on flat bed and outside of gate influence
+    inds_free_wave = find(x(:, 1)>params.L_adj*1.15 & x(:, 1)<(params.Lx - slope_length*1.15)); % Identifies region where wave on flat bed and outside of gate influence
     
     inds =  [inds_free_wave(round(length(inds_free_wave)/6)), ...
         inds_free_wave(round(length(inds_free_wave)/2)),...
@@ -261,12 +263,14 @@ for ii=min_t:max_t
         if isfield(params, 'hill_height')
             plot([params.Lx, params.Lx-params.hill_height/params.hill_slope]-params.L_adj, params.min_z+[params.hill_height 0], 'k-', 'linewidth', .2);
         end
-        set(gca, 'caxis', [-1 1]*6);
+        caxis([-1 1]*6);
         colormap(gca, bluewhitered);
         q_scale = 1.2;
         linespec = struct('Color', 'k', 'LineWidth', .2);
         vekplot2(Xuv, Zuv, u_small, w_small, q_scale, linespec);
-        vekLeg('SouthWest', q_scale, .1, linespec);
+        if ispc
+            vekLeg('SouthWest', q_scale, .1, linespec);
+        end
         title('Vorticity/Velocity')
         
     end
