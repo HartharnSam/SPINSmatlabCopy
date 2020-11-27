@@ -6,7 +6,7 @@
 % David Deepwell, 2017
 
 % Set-up
-if ~isfile('wave_characteristics.mat')
+if exist('wave_characteristics.mat', 'file') == 0 %
     characterize_wave;
 end
 load('wave_characteristics.mat')
