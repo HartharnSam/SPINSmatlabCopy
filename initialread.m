@@ -29,7 +29,7 @@ RunDirectoryName = {'091020_45'
 pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
 
 %% Run loops
-outputs = nans(length(RunDirectoryName), 16);
+outputs = NaN(length(RunDirectoryName), 16);
 for ii = 1:length(RunDirectoryName)
     cd(['../', RunDirectoryName{ii}]);
     
@@ -38,7 +38,7 @@ for ii = 1:length(RunDirectoryName)
     disp(RunDirectoryName{ii});
          
     %% Calculate/Load wave characteristics
-    if ~isfile('wave_characteristics.mat') % Has characterize_wave been run before for this experiment?
+    if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
         WaveStats = characterize_wave(isTwoLayer, [0 50]); % runs the script to find wavelengths, amplitudes, wave position, speed etc.
         plot_wave_char; % Plots the outputs and saves them
         close all
@@ -47,11 +47,11 @@ for ii = 1:length(RunDirectoryName)
     end
     
     %% Clean/Plot diagnostics
-    if ~isfile('diagnostics.mat') % checks for file created by clean_diagnostics
+    if exist('diagnostics.mat', 'file') == 0 % checks for file created by clean_diagnostics
         clean_diagnostics(); % Cleans diagnostics files
     end
     
-    if ~isfile('all_diagnos.mat')% checks for file created by plot_diagnos
+    if exist('all_diagnos.mat', 'file') == 0% checks for file created by plot_diagnos
         diagnos = plot_diagnos(isPlotDiagnostics, false, isPlotDiagnostics);
         close all
         plot_stress(isPlotDiagnostics, isPlotDiagnostics); % Also plot stresses

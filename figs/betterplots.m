@@ -11,5 +11,5 @@ end
 fields = fieldnames(settings);
 for i = 1:length(fields)
     str = strjoin(['settings.', fields(i),';'], '');
-    set(target, fields{i}, eval(str{1}));
+    set(target, fields{i}, eval(str));
 end
