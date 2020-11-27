@@ -54,7 +54,7 @@ subplot(2, 2, 1)
 title('density')
 pcolor(x, z, rho);
 colormap(gca, flip(plasma));
-xlim(xlimits);
+set(gca, 'xlim', xlimits);
 shading flat
 xlabel('x'); ylabel('z')
 
@@ -64,7 +64,7 @@ title('u/c')
 [~, h] = contourf(x, z, u./c, 25);
 colormap(gca, flip(cmocean('curl')));
 set(h,'LineColor','none');
-xlim(xlimits);
+set(gca, 'xlim', xlimits);
 shading flat
 xlabel('x'); ylabel('z')
 caxis([-1 1])
@@ -75,7 +75,7 @@ title('w/c')
 [~, h] = contourf(x, z, w./c, 11);
 colormap(gca, flip(cmocean('curl')));
 set(h,'LineColor','none')
-xlim(xlimits);
+set(gca, 'xlim', xlimits);
 shading flat
 xlabel('x'); ylabel('z')
 caxis([-1 1])

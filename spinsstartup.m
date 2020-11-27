@@ -10,7 +10,7 @@
 sm_loc = genpath(['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Project\Shoal_Core\scripts\Model\SPINSmatlab']);
 addpath(sm_loc);
 
-all_subs =  strsplit(sm_loc,';');
+all_subs =  strsplit(sm_loc,':');
 for ii = 1:length(all_subs)
     if ~isempty(strfind(all_subs{ii},'.'))
         rmpath(all_subs{ii});
@@ -30,13 +30,7 @@ end
 
 %% Set plotting variables as per "betterplots"
 figure
-struc = betterplots;
-
-fields = fieldnames(struc);
-for i = 1:length(fields)
-    str = join(['struc.', fields(i),';'], '');
-    set(groot,fields{i}, eval(str{1}));
-end
+betterplots(groot);
 
 %% Clear workspace
 

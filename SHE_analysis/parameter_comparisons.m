@@ -43,9 +43,9 @@ print('C:\Users\samha\OneDrive - Newcastle University\Project\Shoal_Core\figures
 WaveSteepness = DATA.meanAmp./DATA.meanWavelength;
 figure
 plot(WaveSteepness, DATA.hill_slope, 'bx')
-xlim([0 0.2])
+set(gca, 'xlim', [0 0.2]);
 xlabel('$S_w$', 'interpreter', 'latex')
-ylim([0 0.35])
+set(gca, 'ylim', [0 0.35]);
 ylabel('$S$', 'interpreter', 'latex');
 
 load 'Aghsaee2010.mat'
@@ -65,9 +65,9 @@ plot(Aghsaee2010.Amp./Aghsaee2010.Wavelength, Aghsaee2010.Slope, 'x', 'color', [
 WaveIr = DATA.hill_slope./sqrt(DATA.meanAmp./DATA.meanWavelength);
 figure
 plot(WaveIr, DATA.hill_slope, 'bx')
-xlim([0 0.2])
+set(gca, 'xlim', [0 0.2]);
 xlabel('$S_w$', 'interpreter', 'latex')
-ylim([0 0.35])
+set(gca, 'ylim', [0 0.35]);
 ylabel('$S$', 'interpreter', 'latex');
 
 load 'Aghsaee2010.mat'

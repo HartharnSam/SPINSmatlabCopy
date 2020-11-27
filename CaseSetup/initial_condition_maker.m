@@ -88,6 +88,7 @@ plot(x, topo(:, 1), 'k-');
 ylabel('z (m)');
 title('Height of topography above base')
 colorbar
+set(gca, 'xlim', [min_x Lx]);
 
 subplot(4, 1, 2)
 pcolor(squeeze(xx), squeeze(zz), squeeze(min_z + 0.5*Lx*(1+zz))); shading flat; colorbar

@@ -501,7 +501,7 @@ if make_plots
             title('Clock time step')
             if max(clk_step_time)/mean(clk_step_time) > 10
                 yl = ylim();
-                ylim([yl(1) prctile(clk_step_time,99.98)])
+                set(gca, 'YLim', [yl(1) prctile(clk_step_time,99.98)]);
             end
             legend(run_label)
             legend('location','best')
@@ -521,7 +521,7 @@ if make_plots
             ylabel('\Delta T_s (s)')
             title('Simulation time step')
             if length(sim_step_time) > 500
-                ylim([0 1.2*max(sim_step_time(500:end))])
+                set(gca, 'YLim', [0 1.2*max(sim_step_time(500:end))]);
             end
             box on
             hold off
@@ -542,7 +542,7 @@ if make_plots
             catch
                 max_clk_per_sim = max(clk_per_sim);
             end
-            ylim([0 1.1*max_clk_per_sim]);
+            set(gca, 'YLim', [0 1.1*max_clk_per_sim]);
             box on
             hold off
     
@@ -957,7 +957,7 @@ if make_plots
             subplot(3,1,2), cla reset
             plot(diagnos.Time(inds), diagnos.Diss_tot(inds))
             if compute_enstrophy
-                xticklabels([])
+                set(gca, 'xticklabels', []);
             else
                 xlabel('time (s)')
             end
@@ -970,7 +970,7 @@ if make_plots
                 figure(fn+8)
                 subplot(3,1,1), cla reset
                 plot(diagnos.Time(inds), enst_tot(inds)/Vol);
-                xticklabels([])
+                set(gca, 'xticklabels', []);
                 ylabel('$\Omega_\mathrm{tot}/V$ (1/s$^2$)',...
                     'Interpreter','Latex','FontSize',12)
                 title('Total enstrophy')
@@ -1005,7 +1005,7 @@ if make_plots
         ylabel('Mixing')
         title('Mixing')
         yl = ylim;
-        ylim([0 yl(2)])
+        set(gca, 'YLim', [0 yl(2)]);
         leg = legend({'Mixing eff.','Mixing coeff.'});
         leg.Location = 'best';
         leg.Box = 'off';

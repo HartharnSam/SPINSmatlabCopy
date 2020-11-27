@@ -7,9 +7,8 @@
 % spins_params
 %% Case Setup Scripts
 % Scripts to help produce spins.conf files
-% hillreader    -   Script to plot various things linked to topography/z
-%                       grid to assist setting these up in spins.conf
-% initial_conditions_maker - Like hillreader, but also sorts out density
+%
+% initial_condition_maker - Like hillreader, but also sorts out density
 %                       and tracer fields 
 %
 % density_profile_comparisons - Plots initial density field behind gate,

@@ -1,4 +1,4 @@
-function [maxRe, initialRe, pos_maxRe] = calc_reynolds(n_layers, isplotting);
+function [maxRe, initialRe, pos_maxRe] = calc_reynolds(n_layers, isplotting)
 %CALC_REYNOLDS - Calculates how the Reynolds changes as wave shoals for 2 layer case.
 % Based on Nakayama et al., 2019 definition of Re_{isw}, sets h_1 as
 % pycnocline width, h_2 as bottom layer thickness.
@@ -32,7 +32,7 @@ if nargin<2
     isplotting = false;
 end
 %% Load in wave properties
-spinsgrid2d;
+[x, z] = spinsgrid2d;
 params = spins_params;
 load('wave_characteristics.mat', 'WaveStats');
 
@@ -78,7 +78,7 @@ if isplotting
     figure
     plot(x(:, 1)-params.L_adj, Re*1e-3);
     xlabel('x (m)');
-    xlim([x(1, 1)-params.L_adj x(end, 1)-params.L_adj]);
+    set(gca, 'xlim', [x(1, 1)-params.L_adj x(end, 1)-params.L_adj]);
     ylabel('Re \times 10^{3}');
     set(gca, 'XDir', 'reverse');
 end

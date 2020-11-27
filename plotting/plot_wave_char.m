@@ -12,7 +12,7 @@ end
 load('wave_characteristics.mat')
 load('wavestats.mat', 'WaveStats'); endslope = WaveStats.endSlope;
 if isempty(endslope)
-    endslope = length(time)
+    endslope = length(time);
 end
 
 leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
@@ -32,7 +32,7 @@ plot(time,amplitude*100)
 hold on
 plot([time(endslope) time(endslope)], [0 max(amplitude)*100], 'k-')
 %xlabel('time (s)')
-xticks([]);
+set(gca, 'xticks', []);
 ylabel({'Amplitude', '(cm)'})
 legend(leg)
 legend('location','best')
@@ -52,7 +52,7 @@ if n_cont == 1
     hold on
     plot([time(endslope) time(endslope)], [0 max(wavelength_right)*100], 'k-')
     %xlabel('time (s)')
-    xticks([]);
+    set(gca, 'xticks', []);
     ylabel({'Wavelength', '(cm)'})
     legend('Right','Left')
     legend('location','best')
@@ -98,7 +98,7 @@ if n_cont == 1
     hold on
     plot([time(endslope) time(endslope)], [0 max(wavelength_right+wavelength_left)*100], 'k-')
     %xlabel('time (s)')
-    xticks([]);
+    set(gca, 'xticks', []);
     ylabel({'Wavelength', '(cm)'})
     legend('Right','Left')
     legend('location','best')
@@ -140,7 +140,7 @@ hold on
 plot([time(endslope) time(endslope)], [-1 1]*max(wave_speed)*100, 'k-')
 
 xlabel('time (s)')
-ylim([-1 1]*max(wave_speed)*100);
+set(gca, 'ylim', [-1 1]*max(wave_speed)*100);
 ylabel({'Wave speed', '(cm/s)'})
 legend(leg)
 legend('location','best')
@@ -155,7 +155,7 @@ plot(time, wave_center)
 hold on
 plot([time(endslope) time(endslope)], [0 max(wave_center)], 'k-')
 %xlabel('time (s)')
-xticks([]);
+set(gca, 'xticks', []);
 ylabel({'Wave center', '(m)'})
 legend(leg)
 legend('location','best')

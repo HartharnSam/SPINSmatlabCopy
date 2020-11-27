@@ -167,8 +167,7 @@ for ii=min_t:max_t
         colormap darkjet
         caxis(gca, rholimits);
         title('Density')
-        
-        
+                
     end
     %% U Velocity
     if ~isempty(positioning.u)
@@ -187,12 +186,12 @@ for ii=min_t:max_t
         u = spins_reader_new('u', ii, xlimits_ind, []);
         c = wave_speed;
         u_normalised = u./c;
-        
         ax(positioning.u_normalised) = subaxis(n_rows, n_columns, positioning.u_normalised, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x, z, u_normalised), shading flat
         colormap darkjet
         caxis(gca, [-1.1 1.1]);
         title('u/c')
+        
     end
     %% V Velocity
     if ~isempty(positioning.v)
@@ -254,7 +253,7 @@ for ii=min_t:max_t
         if isfield(params, 'hill_height')
             plot([params.Lx, params.Lx-params.hill_height/params.hill_slope]-params.L_adj, params.min_z+[params.hill_height 0], 'k-', 'linewidth', .2);
         end
-        caxis([-1 1]*6)
+        set(gca, 'caxis', [-1 1]*6);
         colormap(gca, bluewhitered);
         q_scale = 1.2;
         linespec = struct('Color', 'k', 'LineWidth', .2);
