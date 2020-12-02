@@ -34,7 +34,7 @@ RunDirectoryName = {'28_121120',
 pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
 
 %% Run loops
-outputs = NaN(length(RunDirectoryName), 16);
+outputs = NaN(length(RunDirectoryName), 21);
 for ii = 1:length(RunDirectoryName)
     cd(['../', RunDirectoryName{ii}]);
     
@@ -43,7 +43,7 @@ for ii = 1:length(RunDirectoryName)
     disp(RunDirectoryName{ii});
     
     %% Calculate/Load wave characteristics
-    if n_layers == 1 % exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
+    if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
         if n_layers == 1
             WaveStats = wave_characteriser([10 30]); % Less robust script for use with continuous stratification
         else
@@ -83,19 +83,34 @@ for ii = 1:length(RunDirectoryName)
     [maxRe, startRe] = calc_reynolds(2);
     
     %% Collate stats to be pasted into appropriate index sheet
+    slope_condition_tmp = num2str(round(params.hill_slope*1.5 *1000));
+    if params.Lx>7
+        slope_condition_tmp = [slope_condition_tmp, 'mm_b'];
+    else
+        slope_condition_tmp = [slope_condition_tmp, 'mm'];
+    end 
+    slope_condition{ii} = slope_condition_tmp;
     
-    outputs(ii, :) = [params.hill_height, params.hill_slope, params.pyc_adj_loc, params.Nx,...
-        params.Ny, params.Nz, 16, diagnos.diagnos.TotClockTime/3600,...
-        diagnos.diagnos.AvgClockTimePerSimSec, WaveStats.meanAmp, ...
-        WaveStats.meanWaveSpeed, WaveStats.meanWavelength...
-        WaveStats.meanAmp/WaveStats.meanWavelength,...
-        params.hill_slope/sqrt(WaveStats.meanAmp/WaveStats.meanWavelength), maxRe, startRe];
+    outputs(ii, :) = [params.hill_height, params.hill_slope, params.pyc_adj_loc, ...
+        params.h_halfwidth, (params.Lz + (params.pyc_loc - params.h_halfwidth)),...
+        WaveStats.meanAmp, WaveStats.meanWaveSpeed, WaveStats.meanWavelength... % Wave amplitude, speed, wavelength
+        WaveStats.meanAmp/WaveStats.meanWavelength,... % wAve steepness
+        params.hill_slope/sqrt(WaveStats.meanAmp/WaveStats.meanWavelength),... % Ir
+        NaN, NaN, params.Nx, params.Ny, params.Nz, params.Lx, params.Ly, params.Lz,... % Resolution
+        params.Lx./params.Nx, params.Ly./params.Ny, params.Lz./params.Nz ...% More resolution
+        ];
     %% Clean up
-    clearvars -except is* RunDirectoryName pathname outputs* n_layers
+    clearvars -except is* RunDirectoryName pathname outputs* n_layers slope_condition
     close all
 end
-outputs_names = {'HillHeight', 'HillSlope', 'PycAdjLoc', 'Nx', 'Ny', 'Nz', 'NumProcessors', 'TotalComputationTime',...
-    'ComputationSpeed (clock time per sim second)', 'Amplitude', 'Wave Speed', 'Wavelength', 'Wave Steepness', 'Ir', 'Max Re', 'Initial Re'};
+outputs_names = {'HillHeight', 'HillSlope', 'PycAdjLoc', 'pyc_thickness', ...
+    'h1', 'amplitude', 'speed', 'wavelength', 'Wave Steepness', 'Ir', 'Classification', ' ',...
+    'Nx', 'Ny', 'Nz', 'Lx', 'Ly', 'Lz', 'Lx/Nx', 'Ly/Ny', 'Lz/Nz'};
 
 Outputs = array2table(outputs, 'VariableNames', outputs_names);
+% Outputs.FileNames = RunDirectoryName;
+% Outputs.SlopeCondition = slope_condition;
+% Outputs.InitialWaveCond = zeros(length(RunDirectoryName), 0);
+% Outputs = Outputs(:, [end-2:end 1:end-3]);
+
 clear outputs*

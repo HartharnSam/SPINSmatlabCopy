@@ -15,6 +15,8 @@ plot(all_diagnos.EnergyBudget.Time(EnergyBudget_inds), all_diagnos.EnergyBudget.
  ylabel('Energy Converted (J)');
  set(gca, 'XDir', 'normal');
  legend('Dissipated', 'Mixed', 'Location', 'northwest');
+ 
+ %%
  %%
 %  subplot(2, 1, 2)
 %  plot(all_diagnos.Mixing.Time(Mixing_inds), all_diagnos.Mixing.mix_eff_cum(Mixing_inds), 'r-');
