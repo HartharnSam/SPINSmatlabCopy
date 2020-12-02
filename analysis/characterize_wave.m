@@ -1,4 +1,4 @@
-function WaveStats = characterize_wave(isTwoLayer, frame_window)
+function WaveStats = characterize_wave(isTwoLayer, time_window)
 
 % CHARACTERIZE_WAVE   track the wave core assuming
 %                     it moves from left to right
@@ -15,7 +15,7 @@ function WaveStats = characterize_wave(isTwoLayer, frame_window)
 % Inputs:
 %    isTwoLayer - [OPTIONAL Boolean] - is wave a two layer case or not (affects choice
 %    of isopycnal). Default false
-%    frame_window - [OPTIONAL 1x2 vector] - Frame numbers to characterize wave based on (e.g. [5
+%    time_window - [OPTIONAL 1x2 vector] - Frame numbers to characterize wave based on (e.g. [5
 %    50]). Default [0 last_output]
 %
 % Outputs:
@@ -34,8 +34,8 @@ if nargin <2
     startframe = 0;
     endframe = length(init_outputs)-1;
 else
-    startframe = frame_window(1);
-    endframe = frame_window(2);
+    startframe = time_window(1);
+    endframe = time_window(2);
 end
 if nargin < 1
     isTwoLayer = false;

@@ -1,4 +1,4 @@
-%%INITIAL_READ - for initial processing of a SPINS output 
+%%INITIAL_READ - for initial processing of a SPINS output
 % also useful for a function directory
 %
 % Other m-files required: loads
@@ -20,10 +20,15 @@ clc; clearvars; close all;
 
 %% Set user options
 isPlotDiagnostics = true; %Switch to plot diagnostics
-isVideo = true; % Switch to make movie
-isTwoLayer = false; % Switch for if two layer (affects isopycnal chosen for characterize wave)
-RunDirectoryName = {'091020_45'
-     }; % List of directories to process files from
+isVideo = false; % Switch to make movie
+n_layers = 3;
+if n_layers == 2;
+    isTwoLayer = true; % Switch for if two layer (affects isopycnal chosen for characterize wave)
+else
+    isTwoLayer = false;
+end
+RunDirectoryName = {'28_121120', 
+    }; % List of directories to process files from
 
 %% Set location for video file to be saved to
 pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
@@ -36,10 +41,14 @@ for ii = 1:length(RunDirectoryName)
     params = spins_params;
     disp(params.name);
     disp(RunDirectoryName{ii});
-         
+    
     %% Calculate/Load wave characteristics
-    if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
-        WaveStats = characterize_wave(isTwoLayer, [0 50]); % runs the script to find wavelengths, amplitudes, wave position, speed etc.
+    if n_layers == 1 % exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
+        if n_layers == 1
+            WaveStats = wave_characteriser([10 30]); % Less robust script for use with continuous stratification
+        else
+            WaveStats = characterize_wave(isTwoLayer, [0 50]); % runs the script to find wavelengths, amplitudes, wave position, speed etc.
+        end
         plot_wave_char; % Plots the outputs and saves them
         close all
     else % If this has already been run before, just need to load it
@@ -62,7 +71,7 @@ for ii = 1:length(RunDirectoryName)
     end
     
     %% plot movie
-    if isVideo 
+    if isVideo
         if ispc
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, [pathname, params.name, '.mp4']);
         else
@@ -74,8 +83,6 @@ for ii = 1:length(RunDirectoryName)
     [maxRe, startRe] = calc_reynolds(2);
     
     %% Collate stats to be pasted into appropriate index sheet
-    outputs_names = {'HillHeight', 'HillSlope', 'PycAdjLoc', 'Nx', 'Ny', 'Nz', 'NumProcessors', 'TotalComputationTime',...
-        'ComputationSpeed (clock time per sim second)', 'Amplitude', 'Wave Speed', 'Wavelength', 'Wave Steepness', 'Ir', 'Max Re', 'Initial Re'};
     
     outputs(ii, :) = [params.hill_height, params.hill_slope, params.pyc_adj_loc, params.Nx,...
         params.Ny, params.Nz, 16, diagnos.diagnos.TotClockTime/3600,...
@@ -83,8 +90,12 @@ for ii = 1:length(RunDirectoryName)
         WaveStats.meanWaveSpeed, WaveStats.meanWavelength...
         WaveStats.meanAmp/WaveStats.meanWavelength,...
         params.hill_slope/sqrt(WaveStats.meanAmp/WaveStats.meanWavelength), maxRe, startRe];
-    
     %% Clean up
-    clearvars -except is* RunDirectoryName pathname outputs
+    clearvars -except is* RunDirectoryName pathname outputs* n_layers
     close all
 end
+outputs_names = {'HillHeight', 'HillSlope', 'PycAdjLoc', 'Nx', 'Ny', 'Nz', 'NumProcessors', 'TotalComputationTime',...
+    'ComputationSpeed (clock time per sim second)', 'Amplitude', 'Wave Speed', 'Wavelength', 'Wave Steepness', 'Ir', 'Max Re', 'Initial Re'};
+
+Outputs = array2table(outputs, 'VariableNames', outputs_names);
+clear outputs*

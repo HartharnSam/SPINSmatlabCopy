@@ -10,7 +10,7 @@ if exist('wave_characteristics.mat', 'file') == 0 %
     characterize_wave;
 end
 load('wave_characteristics.mat')
-load('wavestats.mat', 'WaveStats'); endslope = WaveStats.endSlope;
+endslope = WaveStats.endSlope;
 if isempty(endslope)
     endslope = length(time);
 end
@@ -30,9 +30,9 @@ clf
 subplot(n_plots, 1, 1)
 plot(time,amplitude*100)
 hold on
-plot([time(endslope) time(endslope)], [0 max(amplitude)*100], 'k-')
+plot([endslope endslope], [0 max(amplitude)*100], 'k-')
 %xlabel('time (s)')
-set(gca, 'xticks', []);
+set(gca, 'XTick', []);
 ylabel({'Amplitude', '(cm)'})
 legend(leg)
 legend('location','best')
@@ -50,9 +50,9 @@ if n_cont == 1
         plot(time,[wavelength_right; wavelength_left]*100)
     end
     hold on
-    plot([time(endslope) time(endslope)], [0 max(wavelength_right)*100], 'k-')
+    plot([endslope endslope], [0 max(wavelength_right)*100], 'k-')
     %xlabel('time (s)')
-    set(gca, 'xticks', []);
+    set(gca, 'XTick', []);
     ylabel({'Wavelength', '(cm)'})
     legend('Right','Left')
     legend('location','best')
@@ -65,7 +65,7 @@ else
     subplot(n_plots, 1, 2)
     plot(time,wavelength_right*100)
        hold on
-    plot([time(endslope) time(endslope)], [0 max(wavelength_right)*100], 'k-')
+    plot([endslope endslope], [0 max(wavelength_right)*100], 'k-')
 
     xlabel('time (s)')
     %ylabel('Right Wavelength (cm)')
@@ -96,9 +96,9 @@ if n_cont == 1
         plot(time,[wavelength_right+wavelength_left]*100)
     end
     hold on
-    plot([time(endslope) time(endslope)], [0 max(wavelength_right+wavelength_left)*100], 'k-')
+    plot([endslope endslope], [0 max(wavelength_right+wavelength_left)*100], 'k-')
     %xlabel('time (s)')
-    set(gca, 'xticks', []);
+    set(gca, 'XTick', []);
     ylabel({'Wavelength', '(cm)'})
     legend('Right','Left')
     legend('location','best')
@@ -111,7 +111,7 @@ else
     subplot(n_plots, 1, 3)
     plot(time,wavelength_right*100)
        hold on
-    plot([time(endslope) time(endslope)], [0 max(wavelength_right)*100], 'k-')
+    plot([endslope endslope], [0 max(wavelength_right)*100], 'k-')
 
     xlabel('time (s)')
     %ylabel('Right Wavelength (cm)')
@@ -137,7 +137,7 @@ end
 subplot(n_plots, 1, 4)
 plot(time,wave_speed*100)
 hold on
-plot([time(endslope) time(endslope)], [-1 1]*max(wave_speed)*100, 'k-')
+plot([endslope endslope], [-1 1]*max(wave_speed)*100, 'k-')
 
 xlabel('time (s)')
 set(gca, 'ylim', [-1 1]*max(wave_speed)*100);
@@ -153,9 +153,9 @@ fnum = fnum+1;
 subplot(n_plots, 1, 5)
 plot(time, wave_center)
 hold on
-plot([time(endslope) time(endslope)], [0 max(wave_center)], 'k-')
+plot([endslope endslope], [0 max(wave_center)], 'k-')
 %xlabel('time (s)')
-set(gca, 'xticks', []);
+set(gca, 'XTick', []);
 ylabel({'Wave center', '(m)'})
 legend(leg)
 legend('location','best')
