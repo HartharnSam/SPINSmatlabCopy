@@ -4,7 +4,8 @@
 %                        - Process diagnostics
 %                        - Calculate Wave Statistics
 %                        - Plot movie of density, u, w, vorticity
-% spins_params
+% spins_params  -   Outputs structure of parameters passed in spins.conf
+%                   file
 %% Case Setup Scripts
 % Scripts to help produce spins.conf files
 %

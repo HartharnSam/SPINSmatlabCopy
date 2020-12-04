@@ -15,7 +15,7 @@ function [maxRe, initialRe, pos_maxRe] = calc_reynolds(n_layers, isplotting)
 %
 % Other m-files required: spinsgrid2d, spins_params
 % Subfunctions: none
-% MAT-files required: wavestats.mat
+% MAT-files required: wave_characteristics.mat
 %
 % Author: Sam Hartharn-Evans
 % School of Mathematics, Statistics and Physics, Newcastle University
@@ -47,7 +47,7 @@ A = WaveStats.meanAmp;  % Wave amplitude
 if n_layers == 2
     h_1 = params.h_halfwidth*2; % upper layer thickness
 elseif n_layers == 3
-    h_1 = -params.pyc_loc + h_halfwidth; % upper layer thickness
+    h_1 = -params.pyc_loc + params.h_halfwidth; % upper layer thickness
 else 
     error('This stratification set needs setting up');
 end

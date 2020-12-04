@@ -27,8 +27,9 @@ if n_layers == 2;
 else
     isTwoLayer = false;
 end
-RunDirectoryName = {'28_121120', 
+RunDirectoryName = {'28_121120', '29_131120'
     }; % List of directories to process files from
+RunDirectoryName = run_directory_names('3 Layer');
 
 %% Set location for video file to be saved to
 pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
@@ -44,6 +45,7 @@ for ii = 1:length(RunDirectoryName)
     
     %% Calculate/Load wave characteristics
     if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
+    delete WaveStats.mat
         if n_layers == 1
             WaveStats = wave_characteriser([10 30]); % Less robust script for use with continuous stratification
         else
@@ -73,9 +75,9 @@ for ii = 1:length(RunDirectoryName)
     %% plot movie
     if isVideo
         if ispc
-            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, [pathname, params.name, '.mp4']);
+            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
         else
-            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, [pathname, params.name, '.avi']);
+            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.avi']));
         end
     end
     

@@ -29,7 +29,7 @@ params = spins_params;
 [x, z] = spinsgrid2d;
 x = x-params.L_adj;
 if nargin<2
-    xlimits = [min(x(1, :)) max(x(1, :))];
+    xlimits = [min(x(:, 1)) max(x(:, 1))];
 end
     
 %% Read in Data

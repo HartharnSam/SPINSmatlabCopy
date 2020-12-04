@@ -1,6 +1,5 @@
 clc; clearvars; close all; 
 
-list_filename =  'file_list.txt';
 DATA = SPINS_parameter_collator(list_filename);
 set(groot, 'DefaultAxesXDir', 'normal');
 %% Look at generation vs amplitude

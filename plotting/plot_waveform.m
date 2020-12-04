@@ -33,7 +33,7 @@ time_i = 38;
 
 %% Load in data
 % Data statistics files
-if ~isfile('wave_characteristics.mat')
+if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
     characterize_wave(0,50); 
 end
 load wave_characteristics wave_center wavelength_left wavelength_right WaveStats 
@@ -83,9 +83,9 @@ caxis([-1 1])
 % Plot Density profiles
 subplot(2, 2, 3)
 [~, ii] = min(abs(x(:, 1) - wave_center(time_i).'))
-plot(rho(ii , :), z(2048,:), 'r-')
+plot(rho(ii , :), z(512,:), 'r-')
 hold on
-plot(rho(ii+400, :), z(2048, :), 'b-');
+plot(rho(ii+400, :), z(512, :), 'b-');
 set(gca, 'xdir', 'normal');
 xlabel('\rho')
 grid on
