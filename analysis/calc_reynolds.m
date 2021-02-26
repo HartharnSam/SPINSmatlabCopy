@@ -44,13 +44,13 @@ rho_2 = params.rho_0*(1+params.delta_rho); % lower layer density
 A = WaveStats.meanAmp;  % Wave amplitude
 
 %% Calculate h parameters
-if n_layers == 2
-    h_1 = params.h_halfwidth*2; % upper layer thickness
-elseif n_layers == 3
-    h_1 = -params.pyc_loc + params.h_halfwidth; % upper layer thickness
-else 
-    error('This stratification set needs setting up');
-end
+%if n_layers == 2
+    %h_1 = params.h_halfwidth*2; % upper layer thickness
+%elseif n_layers == 3
+    h_1 = -params.pyc_loc; % upper layer thickness
+%else 
+%    error('This stratification set needs setting up');
+%end
 h_2 = max(abs(z),[],  2) - h_1; % lower layer thickness
 H = max(abs(z),[],  2); % Total thickness
 

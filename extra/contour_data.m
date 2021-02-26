@@ -56,3 +56,8 @@ for nn = 1:c_num
     end
     ii = idx(end) + 1; % next starting index
 end
+
+if isempty(c_data)
+    Cout = [];
+    warning(['No contour found for val = ', num2str(val(1)) ]);
+end

@@ -16,6 +16,17 @@ function [max_val, pos, ind] = find_wave_max(x, y)
 %  David Deepwell, 2016
 
 % set parameters for findpeaks
+if isempty(x)
+            max_val = NaN;
+        ind = NaN;
+        pos = NaN;
+        %max_val = y_max;
+        %ind = nearest_index(y, y_max);
+        %pos = x(ind);
+        warning('No peaks found');%, using largest value as peak.')
+      return  
+end
+
 [y_max, max_ind] = max(y);
 min_height = y_max/3;
 if max_ind < length(x)
@@ -63,7 +74,7 @@ if max_ind < length(x)
         max_val = y_max;
         ind = nearest_index(y, y_max);
         pos = x(ind);
-        warning('No peaks found, using largest value as peak.')
+        warning('No peaks found');%, using largest value as peak.')
     else
         % improve location and max given by pks
         % by fitting three points near peak with a quadratic (y = ax^2 + bx + c)

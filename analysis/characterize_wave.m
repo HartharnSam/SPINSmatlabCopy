@@ -78,7 +78,7 @@ if isTwoLayer
     isopyc_loc = params.pyc_loc -params.h_halfwidth + 0.01;
 else
     isopyc_loc = params.pyc_loc -params.h_halfwidth; %+ 0.01;
-
+    
 end
 if isvector(gd.z)
     contval = interp1(gd.z, strat, isopyc_loc);
@@ -170,6 +170,11 @@ for jj = 1:noutputs
             else
                 [cont_x, cont_y] = find_contour(gd.x(x_inds,z_inds), gd.z(x_inds,z_inds), rho, contval(nn));
             end
+            if isempty(cont_x) 
+                if jj > noutputs*.75
+                    reach_end = true;
+                end
+            end
             cont_y = cont_y - strat_loc(jj, nn); % shift so that cont_y=0 at far field
             % if wave is a depression, then flip vertically
             if strcmp(config{nn}, 'depr')
@@ -193,26 +198,36 @@ for jj = 1:noutputs
                 [back_loc, ~] = find_half_max(cont_x(inds), cont_y(inds));
                 wavelength_left(jj, nn) = max_pos(1) - back_loc;
             else % wave has reached tank end
-                wavelength_right(jj, nn) = 0;
-                wavelength_left(jj, nn)  = 0;
+                wavelength_right(jj, nn) = NaN;
+                wavelength_left(jj, nn)  = NaN;
+                if jj > noutputs*.75
                 reach_end = true;
+                end
             end
             
+            if isempty(cont_x)
+                continue
+            end
             % make plot to check
             p_hand(nn) = plot(cont_x, cont_y, '.', 'Color', c_map(nn,:));
             % plot wave centre and wavelengths
-            plot([1 1]*max_pos(1), [0 max_val(1)],'-', 'Color', c_map(nn,:))
-            plot([1 1]*front_loc,  [0 max_val(1)],'-', 'Color', c_map(nn,:))
-            plot([1 1]*back_loc,   [0 max_val(1)],'-', 'Color', c_map(nn,:))
+            if ~isnan(max_pos)
+                plot([1 1]*max_pos(1), [0 max_val(1)],'-', 'Color', c_map(nn,:))
+                plot([1 1]*front_loc,  [0 max_val(1)],'-', 'Color', c_map(nn,:))
+                plot([1 1]*back_loc,   [0 max_val(1)],'-', 'Color', c_map(nn,:))
+            end
         else
             warning(['contour ',num2str(contval(nn)),' is not in the data set, skipping.'])
             all_conts = false;
         end
     end
     % other stuff
+    if isempty(cont_x)
+        continue
+    end
     grid on
     title(['t=',num2str(time(jj)),' s'])
-    if all_conts
+    if all_conts 
         leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
         legend(p_hand, leg)
     end
@@ -220,7 +235,7 @@ for jj = 1:noutputs
     hold off
     
     % update reading indices
-    if jj > 1
+    if jj > 1 && ~isnan(wave_center(jj, 1))
         travel = max((wave_center(jj, :) - wave_center(jj-1, :)));
         xr = max(wave_center(jj, :)) + travel + mult*max(wavelength_right(jj,:));
         xl = min(wave_center(jj, :))      - 0.5*mult*max(wavelength_left(jj, :));

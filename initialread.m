@@ -19,20 +19,20 @@
 clc; clearvars; close all;
 
 %% Set user options
-isPlotDiagnostics = true; %Switch to plot diagnostics
-isVideo = false; % Switch to make movie
-n_layers = 3;
-if n_layers == 2;
+isPlotDiagnostics = false; %Switch to plot diagnostics
+isVideo = true; % Switch to make movie
+n_layers = 1;
+if n_layers == 2
     isTwoLayer = true; % Switch for if two layer (affects isopycnal chosen for characterize wave)
 else
     isTwoLayer = false;
 end
-RunDirectoryName = {'28_121120', '29_131120'
-    }; % List of directories to process files from
-RunDirectoryName = run_directory_names('3 Layer');
-
+%RunDirectoryName = run_directory_names("3 Layer", false); %{'28_121120', '29_131120'   }; % List of directories to process files from
+%run_directory_names('Continuous', "Full");
+RunDirectoryName = {'101120_49','270720_33'};
 %% Set location for video file to be saved to
 pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
+%pathname = ['D:\Sam\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
 
 %% Run loops
 outputs = NaN(length(RunDirectoryName), 21);
@@ -44,17 +44,26 @@ for ii = 1:length(RunDirectoryName)
     disp(RunDirectoryName{ii});
     
     %% Calculate/Load wave characteristics
-    if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
-    delete WaveStats.mat
+    try 
+        lastwarn('');
+        load('wave_characteristics.mat', 'WaveStats');
+        msg = lastwarn; 
+        if ~isempty(msg)
+            error('h')
+        end
+    catch
+        warning('off', 'MATLAB:DELETE:FileNotFound');
+        delete('wave_characteristics.mat'); delete('wavestats.mat')
+    %if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
         if n_layers == 1
-            WaveStats = wave_characteriser([10 30]); % Less robust script for use with continuous stratification
+            WaveStats = wave_characteriser([10 45]); % Less robust script for use with continuous stratification
         else
             WaveStats = characterize_wave(isTwoLayer, [0 50]); % runs the script to find wavelengths, amplitudes, wave position, speed etc.
         end
         plot_wave_char; % Plots the outputs and saves them
         close all
-    else % If this has already been run before, just need to load it
-        load('wave_characteristics.mat', 'WaveStats');
+    %else % If this has already been run before, just need to load it
+    %    load('wave_characteristics.mat', 'WaveStats');
     end
     
     %% Clean/Plot diagnostics
@@ -66,8 +75,9 @@ for ii = 1:length(RunDirectoryName)
         diagnos = plot_diagnos(isPlotDiagnostics, false, isPlotDiagnostics);
         close all
         plot_stress(isPlotDiagnostics, isPlotDiagnostics); % Also plot stresses
-        close all
     else
+        close all
+
         diagnos = load('all_diagnos.mat');
         diagnos = diagnos.all_diagnos;
     end
@@ -76,13 +86,15 @@ for ii = 1:length(RunDirectoryName)
     if isVideo
         if ispc
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
+            %SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, ['numerics_example', '.mp4']));
+
         else
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.avi']));
         end
     end
     
     %% Calculate Reynolds statistics
-    [maxRe, startRe] = calc_reynolds(2);
+    [maxRe, startRe(ii)] = calc_reynolds(n_layers);
     
     %% Collate stats to be pasted into appropriate index sheet
     slope_condition_tmp = num2str(round(params.hill_slope*1.5 *1000));
@@ -102,12 +114,12 @@ for ii = 1:length(RunDirectoryName)
         params.Lx./params.Nx, params.Ly./params.Ny, params.Lz./params.Nz ...% More resolution
         ];
     %% Clean up
-    clearvars -except is* RunDirectoryName pathname outputs* n_layers slope_condition
+    clearvars -except is* RunDirectoryName pathname outputs* n_layers slope_condition start*
     close all
 end
 outputs_names = {'HillHeight', 'HillSlope', 'PycAdjLoc', 'pyc_thickness', ...
-    'h1', 'amplitude', 'speed', 'wavelength', 'Wave Steepness', 'Ir', 'Classification', ' ',...
-    'Nx', 'Ny', 'Nz', 'Lx', 'Ly', 'Lz', 'Lx/Nx', 'Ly/Ny', 'Lz/Nz'};
+    'h1', 'amplitude', 'speed', 'wavelength', 'Wave Steepness', 'Ir', 'Classification', 'empty ',...
+    'Nx', 'Ny', 'Nz', 'Lx', 'Ly', 'Lz', 'LxNx', 'LyNy', 'LzNz'};
 
 Outputs = array2table(outputs, 'VariableNames', outputs_names);
 % Outputs.FileNames = RunDirectoryName;

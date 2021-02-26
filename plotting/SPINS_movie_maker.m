@@ -114,9 +114,8 @@ figure(1);
 clf
 set(gcf, 'Units', 'centimeters'); set(gcf, 'Position', [1 1 44 20]);
 set(gcf, 'PaperUnits','centimeters'); set(gcf, 'Position', [1 1 44 20]);
-
 if ispc
-    sgtitle(params.name, 'Interpreter','none');
+    %sgtitle(params.name, 'Interpreter','none');
 end
 %% Set spatial extent of plots
 if strcmp(xlimits, 'slopeonly')
@@ -164,9 +163,9 @@ if nargin<4
 end
 
 %% Run video code
+ax = gobjects(1, n_plots);
+for ii = min_t:max_t
 
-for ii=min_t:max_t
-    ax = gobjects(1, n_plots);
     %% Rho
     if ~isempty(positioning.rho)
         rho = rho_converter(spins_reader_new('rho',ii, xlimits_ind, [])); % Read in density and convert to real units
@@ -174,9 +173,13 @@ for ii=min_t:max_t
         
         ax(positioning.rho) = subaxis(n_rows,n_columns, positioning.rho, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,rho),shading flat
-        colormap darkjet
+        %colormap darkjet
+        c = colorbar(ax(positioning.rho));
+        ylabel(c, '$\rho (kg m^{-3})$');
+        cmocean('dense');
         caxis(gca, rholimits);
-        title('Density')
+        %title('Density')
+        title(subplot_labels(positioning.rho, 2))
                 
     end
     %% U Velocity
@@ -187,6 +190,7 @@ for ii=min_t:max_t
         ax(positioning.u) = subaxis(n_rows,n_columns, positioning.u, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,u),shading flat
         colormap darkjet
+        
         caxis(gca, umaxabs*[-1 1]);
         title('u (m/s)')
         
@@ -198,10 +202,14 @@ for ii=min_t:max_t
         u_normalised = u./c;
         ax(positioning.u_normalised) = subaxis(n_rows, n_columns, positioning.u_normalised, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x, z, u_normalised), shading flat
-        colormap darkjet
+        %colormap darkjet
+        cmocean('delta');
+        c = colorbar(ax(positioning.u_normalised));
+        ylabel(c, '$u / c$');
         caxis(gca, [-1.1 1.1]);
-        title('u/c')
-        
+        %title('u/c')
+        title(subplot_labels(positioning.u_normalised, 2))
+
     end
     %% V Velocity
     if ~isempty(positioning.v)
@@ -211,6 +219,7 @@ for ii=min_t:max_t
         ax(positioning.v) = subaxis(n_rows,n_columns, positioning.v, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,v),shading flat
         colormap darkjet
+        
         caxis(gca, vmaxabs*[-1 1]);
         title('v (m/s)')
         
@@ -235,9 +244,14 @@ for ii=min_t:max_t
         
         ax(positioning.w_normalised) = subaxis(n_rows, n_columns, positioning.w_normalised, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x, z, w_normalised), shading flat
-        colormap darkjet
+        %colormap darkjet
+        cmocean('delta');
+        c = colorbar(ax(positioning.w_normalised));
+        ylabel(c, '$w / c$');
         caxis(gca, [-1.1 1.1]);
-        title('w/c')
+        %title('w/c')
+                title(subplot_labels(positioning.w_normalised, 2))
+
     end
     %% Dissipation
     if ~isempty(positioning.diss)
@@ -249,7 +263,6 @@ for ii=min_t:max_t
         colormap darkjet
         caxis(gca, disslimits);
         title('dissipation')
-        
         
     end
     %% Vorticity
@@ -264,15 +277,18 @@ for ii=min_t:max_t
             plot([params.Lx, params.Lx-params.hill_height/params.hill_slope]-params.L_adj, params.min_z+[params.hill_height 0], 'k-', 'linewidth', .2);
         end
         caxis([-1 1]*6);
-        colormap(gca, bluewhitered);
+        colormap(gca, newbluewhitered);
         q_scale = 1.2;
         linespec = struct('Color', 'k', 'LineWidth', .2);
         vekplot2(Xuv, Zuv, u_small, w_small, q_scale, linespec);
         if ispc
             vekLeg('SouthWest', q_scale, .1, linespec);
         end
-        title('Vorticity/Velocity')
-        
+        c = colorbar(ax(positioning.vorty));
+        ylabel(c, '$\omega (s^{-1}$');
+        %title('Vorticity/Velocity')
+                        title(subplot_labels(positioning.vorty, 2))
+
     end
     %% Tracer
     if ~isempty(positioning.tracer)
@@ -304,13 +320,13 @@ for ii=min_t:max_t
         end
         ax(ai).YLim = [params.min_z params.min_z+params.Lz];
         set(ax(ai), 'XDir', 'reverse');
-        colorbar(ax(ai));
         ax(ai).XLim = xlimits;
         %daspect(ax(ai), [1 1 1]);
         
         
     end
     if savevideo
+        figure_print_format(gcf);
         F = getframe(gcf);
         writeVideo(vid, F);
     end

@@ -45,7 +45,7 @@ clf
 colormap darkjet
 
 %% Plot density first 
-subaxis(1,2,1)
+subaxis(2,1,1)
 pcolor(x,z,rho),shading flat; caxis(rhoRange);
 title('Density (upper panel) and u (lower panel)')
 %contourf(x,z,rho),shading flat % This is better for printed figures
@@ -54,7 +54,7 @@ set(gca, 'xticklabels', {});
 set(gca, 'xlim', xlimits);
 
 %% Plot Horizontal Velocity Next
-subaxis(1,2,2)
+subaxis(2,1,2)
 pcolor(x,z,u),shading flat,caxis([-1 1]*umaxabs)
 ylabel('z (m)')
 xlabel('x (m)')

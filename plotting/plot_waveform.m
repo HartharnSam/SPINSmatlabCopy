@@ -29,12 +29,12 @@
 %% BEGIN CODE %%
 %---------------------------------------------------
 clearvars; close all; clc;
-time_i = 38;
+time_i = 47;
 
 %% Load in data
 % Data statistics files
 if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
-    characterize_wave(0,50); 
+    characterize_wave(true, [0 50]); 
 end
 load wave_characteristics wave_center wavelength_left wavelength_right WaveStats 
 
@@ -45,7 +45,7 @@ c = WaveStats.meanWaveSpeed; % Wave Speed
 rho = spins_reader_new('rho', time_i); 
 u = spins_reader_new('u', time_i);
 w = spins_reader_new('w', time_i);
-
+params = spins_params;
 %% Plot 
 xlimits = [wave_center(time_i)-1 wave_center(time_i)+1]+.1; % Set xlim 1m either side of wave center
 
@@ -53,7 +53,7 @@ xlimits = [wave_center(time_i)-1 wave_center(time_i)+1]+.1; % Set xlim 1m either
 subplot(2, 2, 1)
 title('density')
 pcolor(x, z, rho);
-colormap(gca, flip(plasma));
+colormap(gca, flip(cmocean('dense')));
 set(gca, 'xlim', xlimits);
 shading flat
 xlabel('x'); ylabel('z')
@@ -83,9 +83,9 @@ caxis([-1 1])
 % Plot Density profiles
 subplot(2, 2, 3)
 [~, ii] = min(abs(x(:, 1) - wave_center(time_i).'))
-plot(rho(ii , :), z(512,:), 'r-')
+plot(rho(ii , :), z(params.Nx/2,:), 'r-')
 hold on
-plot(rho(ii+400, :), z(512, :), 'b-');
+plot(rho(ii+params.Nx/4, :), z(params.Nx/2, :), 'b-');
 set(gca, 'xdir', 'normal');
 xlabel('\rho')
 grid on

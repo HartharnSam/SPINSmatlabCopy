@@ -47,6 +47,7 @@ function [cont_x, cont_y] = find_contour(x, y, field, val, cont_ind)
         cont_x = cont(cont_ind).X;
         cont_y = cont(cont_ind).Y;
     else
+        cont_x = []; cont_y = [];
         disp('No contours found for top isopycnal'), return
     end
 end

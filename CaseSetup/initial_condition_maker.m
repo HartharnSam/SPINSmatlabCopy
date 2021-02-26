@@ -1,3 +1,4 @@
+
 %INITIAL_CONDITION_MAKER - sets up grids etc as in SPINS, based on input like spins.conf
 % outputs a figure equivalent to running the first frame of SPINS
 %
@@ -74,7 +75,7 @@ d1 = hill_trans;
 a2 = Lx-hill_end_dist;
 d2 = hill_trans;
 
-topo = hill_slope*((.5*(xx-a1+(d1*log(2*cosh((xx-a1)/d1))))) - ...
+topo = hill_slope*((.5*(xx-a1+(d1*log(2*cosh((xx-a1)/d1))))) + 0.01*sin(2*xx) - ...
     (0.5*(xx-a2 +(d2*log(2*cosh((xx-a2)/d2))))));
 
 zg = min_z + 0.5*Lz*(1+zz) + 0.5*(1-zz).*topo;

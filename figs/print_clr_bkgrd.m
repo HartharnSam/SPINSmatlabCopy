@@ -9,7 +9,7 @@ function print_clr_bkgrd(bkgrd_clr, fname)
 [~, ~, ext] = fileparts(fname); % Identify file type
 
 % Collect axes handles (including colorbars)
-gfigs = findall(gcf,'type','ColorBar', '-or', 'type', 'axes'); 
+gfigs = findall(gcf,'type','ColorBar', '-or', 'type', 'axes', '-or', 'type', 'title'); 
 
 % Change axes properties
 set(gfigs, 'YColor', 'w'); %Set x axis and labels etc to white

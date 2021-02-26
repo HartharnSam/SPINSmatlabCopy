@@ -62,8 +62,8 @@ switch length(Args.NumericArguments)
        return % no arguments but rows/cols.... 
    case 1
        if numel(Args.NumericArguments{1}) > 1 % restore subplot(m,n,[x y]) behaviour
-           [x1 y1] = ind2sub([Args.cols Args.rows],Args.NumericArguments{1}(1)); % subplot and ind2sub count differently (column instead of row first) --> switch cols/rows
-           [x2 y2] = ind2sub([Args.cols Args.rows],Args.NumericArguments{1}(end));
+           [x1, y1] = ind2sub([Args.cols Args.rows],Args.NumericArguments{1}(1)); % subplot and ind2sub count differently (column instead of row first) --> switch cols/rows
+           [x2, y2] = ind2sub([Args.cols Args.rows],Args.NumericArguments{1}(end));
        else
            x1=mod((Args.NumericArguments{1}-1),Args.cols)+1; x2=x1;
            y1=floor((Args.NumericArguments{1}-1)/Args.cols)+1; y2=y1;
@@ -96,11 +96,11 @@ end
 
 
 set(h,'box','on');
-%h=axes('position',[x1 1-y2 x2-x1 y2-y1]);
+h=axes('position',[x1 1-y2 x2-x1 y2-y1]);
 set(h,'units',get(gcf,'defaultaxesunits'));
 set(h,'tag','subaxis');
 
 
 
-if (nargout==0), clear h; end;
+if (nargout==0), clear h; end
 

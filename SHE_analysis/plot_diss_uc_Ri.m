@@ -30,7 +30,7 @@ if nargin<2
     xlimits = [-slope_length 0]+(params.Lx - params.L_adj);
 end
 %% Set up x and y grids
-spinsgrid2d;
+[x z] = spinsgrid2d;
 x = x-params.L_adj;
 xlim_inds = find(x(:, 1)>xlimits(1) & x(:, 1)<xlimits(2));
 
@@ -64,13 +64,13 @@ xticklabels([]);
 xlim(xlimits)
 
 %% Plot Dissipation
-% subaxis(2,2,2)
-% pcolor(x,z, log10(diss)); shading flat; caxis([-10 0]);
-% c = colorbar;
-% ylabel(c, 'log_10 (disssipation)')
-% ylabel('z (m)')
-% xlabel('x (m)')
-% xlim(xlimits)
+subaxis(2,2,2)
+pcolor(x,z, log10(diss)); shading flat; caxis([-10 0]);
+c = colorbar;
+ylabel(c, 'log_10 (disssipation)')
+ylabel('z (m)')
+xlabel('x (m)')
+xlim(xlimits)
 
 %% Plot Horizontal Velocity Next
 subaxis(2,2,3)
@@ -90,19 +90,19 @@ xlabel('x (m)')
 xlim(xlimits)
 
 %% Plot Richardson
-% subaxis(2,2,4)
-% g = params.g;
-% Ri = (g./params.rho_0) *drho_dz./(du_dz.^2);
-% 
-% pcolor(x,z,Ri); shading flat; caxis([0 .5]);
-% c = colorbar;
-% hold on 
-% %contour(x, z, Ri, [0 .25], 'k-');
-% 
-% ylabel(c, 'Ri')
-% ylabel('z (m)')
-% xlabel('x (m)')
-% xlim(xlimits)
+subaxis(2,2,4)
+g = params.g;
+Ri = (g./params.rho_0) *drho_dz./(du_dz.^2);
+
+pcolor(x,z,Ri); shading flat; caxis([0 .5]);
+c = colorbar;
+hold on 
+%contour(x, z, Ri, [0 .25], 'k-');
+
+ylabel(c, 'Ri')
+ylabel('z (m)')
+xlabel('x (m)')
+xlim(xlimits)
 
 %---------------------------------------------------
 %% END OF CODE %%
