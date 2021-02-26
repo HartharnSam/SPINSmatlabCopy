@@ -30,6 +30,7 @@ end
 %RunDirectoryName = run_directory_names("3 Layer", false); %{'28_121120', '29_131120'   }; % List of directories to process files from
 %run_directory_names('Continuous', "Full");
 RunDirectoryName = {'101120_49','270720_33'};
+
 %% Set location for video file to be saved to
 pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
 %pathname = ['D:\Sam\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
