@@ -70,13 +70,17 @@ clear data
 % create grids
 fprintf('Creating / writing grids ...')
 tic
-dy_new = Ly/Ny_new;
-x1d = dx/2:dx:Lx;
-z1d = dz/2:dz:Lz;
-y1d = dy_new/2:dy_new:Ly;
-xg = bsxfun(@times, ones(Nx, Ny_new, Nz), x1d');
-yg = bsxfun(@times, ones(Nx, Ny_new, Nz), y1d);
-zg = bsxfun(@times, ones(Nx, Ny_new, Nz), reshape(z1d,1,1,Nz));
+% dy_new = Ly/Ny_new;
+% x1d = dx/2:dx:Lx;
+% z1d = dz/2:dz:Lz;
+% y1d = dy_new/2:dy_new:Ly;
+% xg = bsxfun(@times, ones(Nx, Ny_new, Nz), x1d');
+% yg = bsxfun(@times, ones(Nx, Ny_new, Nz), y1d);
+% zg = bsxfun(@times, ones(Nx, Ny_new, Nz), reshape(z1d,1,1,Nz));
+
+xg = generate_xgrid([Lx Ly Lz],[Nx Ny_new Nz],params.type_z);
+yg = generate_ygrid([Lx Ly Lz],[Nx Ny_new Nz],params.type_z);
+zg = generate_zgrid([Lx Ly Lz],[Nx Ny_new Nz],params.type_z);
 
 % write grids in new directory
 cd(new_dir)

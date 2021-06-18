@@ -21,7 +21,7 @@ function field = resize_z(field_name, field, Nz_new, varargin)
 %  Outputs:
 %    'field'        - the resized field
 %
-%  David Deepwell, 2018
+%  David Deepwell, 2018, Adapted for cheb grids by Andrew Grace, 2021
 
 % get number of points in each dimension
 sz     = size(field);
@@ -113,52 +113,103 @@ if ~strcmp(type_z,'NO_SLIP')
         field = reshape(field,[Nx Nz_new]);
     end
 else 
-    
+ 
+     %BC must be NO_SLIP. 
+     %We have to generate grids in order to interpolate on CHEB grid
+     
+     if Ny~=1
+         x_old = generate_xgrid([Lx Ly Lz],[Nx Ny Nz_old],'NO_SLIP');
+         y_old = generate_ygrid([Lx Ly Lz],[Nx Ny Nz_old],'NO_SLIP');
+         z_old = generate_zgrid([Lx Ly Lz],[Nx Ny Nz_old],'NO_SLIP');
 
-    %BC must be NO_SLIP. 
-    
-    %Make new Cheb grid
-    [~,z1d_new] = cheb(Nz_new-1);
-    
-    %Make old Cheb grid
-    [~,z1d_old] = cheb(Nz_old-1);
-    
-    %Move to physical space
-    z1d_old = Lz/2*(1 + z1d_old);
-    z1d_new = Lz/2*(1 + z1d_new);
-    
-    %If data is 3D, we must use interp3
-    if Ny ~= 1
-        dx = Lx/Nx;
-        dy = Ly/Ny;
-        field = permute(field, [2 1 3]); %Permute so data agrees with meshgrid
-        %Make old grid
-        [x_old,y_old,z_old] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
-            linspace(dy/2,Ly - dy/2,Ny),z1d_old);   
-        %Make new grid
-        [x_new,y_new,z_new] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
-            linspace(dy/2,Ly - dy/2,Ny),z1d_new); 
-        %Do interpolation
-        field = interp3(x_old,y_old,z_old,field,x_new,y_new,z_new);
-        %Permute back
-        field = permute(field, [2 1 3]);
-        %clear grids
-        clear x_old y_old z_old x_new y_new z_new;
-    else
-        dx = Lx/Nx;
-        %field = reshape(field, [Nx Nz_old]);
-        %Make old grid
-        [x_old,z_old] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
-            z1d_old); 
-        %Make new grid
-        [x_new,z_new] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
-            z1d_new); 
-        %Interpolate and transpose
-        field = (interp2(x_old,z_old,field',x_new,z_new))';
-        %Clear grids
-        clear x_old z_old x_new z_new;
-        
-    end
+         x_new = generate_xgrid([Lx Ly Lz],[Nx Ny Nz_new],'NO_SLIP');
+         y_new = generate_ygrid([Lx Ly Lz],[Nx Ny Nz_new],'NO_SLIP');
+         z_new = generate_zgrid([Lx Ly Lz],[Nx Ny Nz_new],'NO_SLIP');
+         
+         %generate_xgrid etc give grids back for use with SPINS data, must
+         %permute for use with interp      
+         x_old = permute(x_old,[2 1 3]);
+         y_old = permute(y_old,[2 1 3]);
+         z_old = permute(z_old,[2 1 3]);
+         
+         x_new = permute(x_new,[2 1 3]);
+         y_new = permute(y_new,[2 1 3]);
+         z_new = permute(z_new,[2 1 3]);
+         
+         field = permute(field,[2 1 3]);
+
+         %Do interpolation
+         field = interp3(x_old,y_old,z_old,field,x_new,y_new,z_new);
+         %Permute back
+         field = permute(field, [2 1 3]);
+         %clear grids
+         clear x_old y_old z_old x_new y_new z_new;
+     else
+         x_old = generate_xgrid([Lx Lz],[Nx_old Nz_old],'NO_SLIP');
+         z_old = generate_zgrid([Lx Lz],[Nx_old Nz_old],'NO_SLIP');
+
+         x_new = generate_xgrid([Lx Lz],[Nx_new Nz_new],'NO_SLIP');
+         z_new = generate_zgrid([Lx Lz],[Nx_new Nz_new],'NO_SLIP');
+         
+         %generate_xgrid etc give grids back for use with SPINS data, must
+         %permute for use with interp      
+         x_old = permute(x_old,[2 1 3]);
+         z_old = permute(z_old,[2 1 3]);
+         
+         x_new = permute(x_new,[2 1 3]);
+         z_new = permute(z_new,[2 1 3]);
+
+         %Interpolate and transpose
+         field = (interp2(x_old,z_old,field',x_new,z_new))';
+         %Clear grids
+         clear x_old z_old x_new z_new;
+
+     end
+     
+     
+%     
+%     %Make new Cheb grid
+%     [~,z1d_new] = cheb(Nz_new-1);
+%     
+%     %Make old Cheb grid
+%     [~,z1d_old] = cheb(Nz_old-1);
+%     
+%     %Move to physical space
+%     z1d_old = Lz/2*(1 + z1d_old);
+%     z1d_new = Lz/2*(1 + z1d_new);
+%     
+%     %If data is 3D, we must use interp3
+%     if Ny ~= 1
+%         dx = Lx/Nx;
+%         dy = Ly/Ny;
+%         field = permute(field, [2 1 3]); %Permute so data agrees with meshgrid
+%         %Make old grid
+%         [x_old,y_old,z_old] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
+%             linspace(dy/2,Ly - dy/2,Ny),z1d_old);   
+%         %Make new grid
+%         [x_new,y_new,z_new] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
+%             linspace(dy/2,Ly - dy/2,Ny),z1d_new); 
+%         %Do interpolation
+%         field = interp3(x_old,y_old,z_old,field,x_new,y_new,z_new);
+%         %Permute back
+%         field = permute(field, [2 1 3]);
+%         %clear grids
+%         clear x_old y_old z_old x_new y_new z_new;
+%     else
+%         dx = Lx/Nx;
+%         %field = reshape(field, [Nx Nz_old]);
+%         %Make old grid
+%         [x_old,z_old] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
+%             z1d_old); 
+%         %Make new grid
+%         [x_new,z_new] = meshgrid(linspace(dx/2,Lx - dx/2,Nx),...
+%             z1d_new); 
+%         %Interpolate and transpose
+%         field = (interp2(x_old,z_old,field',x_new,z_new))';
+%         %Clear grids
+%         clear x_old z_old x_new z_new;
+%         
+%     end
 
 end
 %

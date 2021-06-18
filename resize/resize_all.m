@@ -17,7 +17,7 @@ function resize_all(ii, new_grid)
 %  Outputs:
 %    n/a
 %
-%  David Deepwell, 2018, Adapted by Andrew Grace 2021
+%  Andrew Grace, 2021. Generalization of scripts by David Deepwell.
 
 
 %Check size of new_grid to infer dimensionality of data
