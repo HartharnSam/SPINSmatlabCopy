@@ -260,7 +260,7 @@ for ii = min_t:max_t
         
         ax(positioning.diss) = subaxis(n_rows,n_columns, positioning.diss, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,log10(diss)),shading flat
-        colormap darkjet
+        cmocean('amp');
         caxis(gca, disslimits);
         title('dissipation')
         
@@ -273,9 +273,8 @@ for ii = min_t:max_t
         
         ax(positioning.vorty) = subaxis(n_rows,n_columns, positioning.vorty, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,vorty),shading flat; hold on
-        if isfield(params, 'hill_height')
-            plot([params.Lx, params.Lx-params.hill_height/params.hill_slope]-params.L_adj, params.min_z+[params.hill_height 0], 'k-', 'linewidth', .2);
-        end
+        plot(x(:, 1), z(:,1), 'k-');
+        
         caxis([-1 1]*6);
         colormap(gca, newbluewhitered);
         q_scale = 1.2;
@@ -296,7 +295,7 @@ for ii = min_t:max_t
         
         ax(positioning.tracer) = subaxis(n_rows,n_columns, positioning.tracer, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,tracer),shading flat
-        colormap darkjet
+        cmocean('turbid');
         caxis(gca, [0 1]);
         title('tracer concentration')
     end

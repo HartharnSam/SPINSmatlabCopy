@@ -6,6 +6,7 @@
 %                        - Plot movie of density, u, w, vorticity
 % spins_params  -   Outputs structure of parameters passed in spins.conf
 %                   file
+
 %% Case Setup Scripts
 % Scripts to help produce spins.conf files
 %
@@ -39,8 +40,6 @@
 % spins_plot2d          - Plots a range of variables, including things like
 %                           KE, Ri, , fairly complex options 
 % 
-
-
 %% In depth analysis
 
 

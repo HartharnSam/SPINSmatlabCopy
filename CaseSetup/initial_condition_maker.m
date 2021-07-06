@@ -71,12 +71,12 @@ zz = -cos(ii.*pi./(Nz-1));
 hill_length = hill_height/hill_slope;
 
 a1 = Lx-hill_length-hill_end_dist;
-d1 = hill_trans;
+d = hill_trans;
 a2 = Lx-hill_end_dist;
-d2 = hill_trans;
 
-topo = hill_slope*((.5*(xx-a1+(d1*log(2*cosh((xx-a1)/d1))))) + 0.01*sin(2*xx) - ...
-    (0.5*(xx-a2 +(d2*log(2*cosh((xx-a2)/d2))))));
+topo = hill_slope/2 *(hill_length + d*(log(2*cosh((xx - a1)/d)) - log(2*cosh((xx-a2)/d))));
+
+%((.5*(xx-a1+(d1*log(2*cosh((xx-a1)/d1))))));
 
 zg = min_z + 0.5*Lz*(1+zz) + 0.5*(1-zz).*topo;
 
@@ -168,14 +168,17 @@ set(gca, 'XDir', 'normal')
 % set(gca, 'XDir', 'reverse')
 % 
 % 
-% % Set up dye strong in top layer
-% dye = 0.5 + 0.5*tanh((zg-pyc_adj_loc)/(h_adj_halfwidth));
-% dye = 0.5*dye.*(1+tanh((L_adj-xx)/delta_x));
+% Set up dye strong in top layer
+dye_thickness = .05; 
+dye_halfwidth = .01;
+dye = -.5 * tanh((zg-(min_z + dye_thickness))/h_halfwidth);
+
 % 
 % 
-%  subplot(2, 2, [3 4])
-% pcolor(xx, zg, dye), shading flat;
-% colorbar
-% title('Dye')
+figure
+subplot(2, 2, [3 4])
+pcolor(xx, zg, dye), shading flat;
+colorbar
+title('Dye')
 
 

@@ -19,17 +19,16 @@
 clc; clearvars; close all;
 
 %% Set user options
-isPlotDiagnostics = false; %Switch to plot diagnostics
-isVideo = true; % Switch to make movie
-n_layers = 1;
+isPlotDiagnostics = true; %Switch to plot diagnostics
+isVideo = false; % Switch to make movie
+n_layers = 3;
 if n_layers == 2
     isTwoLayer = true; % Switch for if two layer (affects isopycnal chosen for characterize wave)
 else
     isTwoLayer = false;
 end
-%RunDirectoryName = run_directory_names("3 Layer", false); %{'28_121120', '29_131120'   }; % List of directories to process files from
+RunDirectoryName = {'010721_10'}; %{'28_121120', '29_131120'   }; % List of directories to process files from
 %run_directory_names('Continuous', "Full");
-RunDirectoryName = {'101120_49','270720_33'};
 
 %% Set location for video file to be saved to
 pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
@@ -45,17 +44,17 @@ for ii = 1:length(RunDirectoryName)
     disp(RunDirectoryName{ii});
     
     %% Calculate/Load wave characteristics
-    try 
-        lastwarn('');
-        load('wave_characteristics.mat', 'WaveStats');
-        msg = lastwarn; 
-        if ~isempty(msg)
-            error('h')
-        end
-    catch
-        warning('off', 'MATLAB:DELETE:FileNotFound');
-        delete('wave_characteristics.mat'); delete('wavestats.mat')
-    %if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
+     try 
+         lastwarn('');
+         load('wave_characteristics.mat', 'WaveStats');
+         msg = lastwarn; 
+         if ~isempty(msg)
+             error('h')
+         end
+     catch
+                  warning('off', 'MATLAB:DELETE:FileNotFound');
+         delete('wave_characteristics.mat'); delete('wavestats.mat')
+     %if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
         if n_layers == 1
             WaveStats = wave_characteriser([10 45]); % Less robust script for use with continuous stratification
         else

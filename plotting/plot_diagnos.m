@@ -64,7 +64,7 @@ params = spins_params();
 if strcmp(params.mapped_grid, 'true')
     %gd.x = xgrid_reader;
     
-    [gd.x gd.z] = spinsgrid2d();
+    [gd.x, gd.z] = spinsgrid2d();
 else
     gd = spins_grid('vector');
 end
@@ -116,8 +116,8 @@ if exist('plot_times.txt', 'file')
     warning('off','all'); % suppress warning for this only
     plottimes = readtable('plot_times.txt');
     warning('on','all');
-    avg_write = nanmean(plottimes.WriteTime_s_);
-    tot_write =  nansum(plottimes.WriteTime_s_);
+    avg_write = mean(plottimes.WriteTime_s_, 'omitnan');
+    tot_write =  sum(plottimes.WriteTime_s_, 'omitnan');
 else
     avg_write = 0;
     tot_write = 0;
