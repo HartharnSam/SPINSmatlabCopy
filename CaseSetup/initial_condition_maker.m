@@ -74,9 +74,18 @@ a1 = Lx-hill_length-hill_end_dist;
 d = hill_trans;
 a2 = Lx-hill_end_dist;
 
-topo = hill_slope/2 *(hill_length + d*(log(2*cosh((xx - a1)/d)) - log(2*cosh((xx-a2)/d))));
+% Jacks rough slope
+t1 = .5*(xx-a1+(d1*log(2*cosh((xx-a1)/d1))));
+t2 = -0.5*(xx-a2 +(d2*log(2*cosh((xx-a2)/d2))));
+exp_decay_fun = exp(-R_s*(-(xx - ((2*Lx - hill_length)/2))/.5).^2);
+rough_function = amp*sin(frq*pi*(xx));
 
-%((.5*(xx-a1+(d1*log(2*cosh((xx-a1)/d1))))));
+topo = hill_slope* (t1 - t2) +...
+    rough_function.*exp_decay_fun;
+
+% Smooth Slope
+%topo = hill_slope/2 *(hill_length + d*(log(2*cosh((xx - a1)/d)) - log(2*cosh((xx-a2)/d))));
+
 
 zg = min_z + 0.5*Lz*(1+zz) + 0.5*(1-zz).*topo;
 
@@ -168,14 +177,17 @@ set(gca, 'XDir', 'normal')
 % set(gca, 'XDir', 'reverse')
 % 
 % 
-% % Set up dye strong in top layer
-% dye = 0.5 + 0.5*tanh((zg-pyc_adj_loc)/(h_adj_halfwidth));
-% dye = 0.5*dye.*(1+tanh((L_adj-xx)/delta_x));
+% Set up dye strong at bottom
+dye_thickness = .05; 
+dye_halfwidth = .01;
+dye = -.5 * tanh((zg-(min_z + dye_thickness))/h_halfwidth);
+
 % 
 % 
-%  subplot(2, 2, [3 4])
-% pcolor(xx, zg, dye), shading flat;
-% colorbar
-% title('Dye')
+figure
+subplot(2, 2, [3 4])
+pcolor(xx, zg, dye), shading flat;
+colorbar
+title('Dye')
 
 
