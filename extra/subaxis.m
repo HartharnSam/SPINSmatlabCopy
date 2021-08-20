@@ -96,7 +96,7 @@ end
 
 
 set(h,'box','on');
-h=axes('position',[x1 1-y2 x2-x1 y2-y1]);
+%h=axes('position',[x1 1-y2 x2-x1 y2-y1]);
 set(h,'units',get(gcf,'defaultaxesunits'));
 set(h,'tag','subaxis');
 

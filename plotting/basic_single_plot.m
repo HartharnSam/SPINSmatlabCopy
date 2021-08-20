@@ -27,7 +27,7 @@ params = spins_params;
 
 %% Set up x and y grids
 [x, z] = spinsgrid2d;
-x = x-params.L_adj;
+%x = x-params.L_adj;
 if nargin<2
     xlimits = [min(x(:, 1)) max(x(:, 1))];
 end
@@ -42,23 +42,24 @@ umaxabs = max(abs(u(:)));
 %% Set up figure
 figure
 clf
-colormap darkjet
 
 %% Plot density first 
-subaxis(2,1,1)
+s = subaxis(2,1,1);
 pcolor(x,z,rho),shading flat; caxis(rhoRange);
 title('Density (upper panel) and u (lower panel)')
 %contourf(x,z,rho),shading flat % This is better for printed figures
 ylabel('z (m)')
 set(gca, 'xticklabels', {});
 set(gca, 'xlim', xlimits);
+colormap(s, cmocean('dense'))
 
 %% Plot Horizontal Velocity Next
-subaxis(2,1,2)
+s = subaxis(2,1,2);
 pcolor(x,z,u),shading flat,caxis([-1 1]*umaxabs)
 ylabel('z (m)')
 xlabel('x (m)')
 set(gca, 'xlim', xlimits);
+colormap(s, cmocean('balance'));
 %---------------------------------------------------
 %% END OF CODE %%
 % --------------------------------------------------

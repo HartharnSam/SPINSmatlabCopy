@@ -154,10 +154,13 @@ function gd = spins_grid(varargin)
 % end
 
 
-spinsgrid2d;
+[gd.x gd.z] = spinsgrid2d;
+if isfile('ygrid')
+    gd.y = ygrid_reader;
+end
 
-gd.x = x; 
-gd.z = z;
+%gd.x = x; 
+%gd.z = z;
 % gd.z1d = squeeze(z(1,:));
 % gd.x1d = squeeze(x(:,1));
 % sz = size(x);

@@ -64,7 +64,7 @@ params = spins_params();
 if strcmp(params.mapped_grid, 'true')
     %gd.x = xgrid_reader;
     
-    [gd.x gd.z] = spinsgrid2d();
+    [gd.x, gd.z] = spinsgrid2d();
 else
     gd = spins_grid('vector');
 end
@@ -116,8 +116,8 @@ if exist('plot_times.txt', 'file')
     warning('off','all'); % suppress warning for this only
     plottimes = readtable('plot_times.txt');
     warning('on','all');
-    avg_write = nanmean(plottimes.WriteTime_s_);
-    tot_write =  nansum(plottimes.WriteTime_s_);
+    avg_write = mean(plottimes.WriteTime_s_, 'omitnan');
+    tot_write =  sum(plottimes.WriteTime_s_, 'omitnan');
 else
     avg_write = 0;
     tot_write = 0;
@@ -187,7 +187,7 @@ all_diagnos.diagnos.AvgClockTimePerSimSec = (avg_clk_per_sim);
 all_diagnos.diagnos.TotClockTime = (tot_clk_time);
 
 
-
+%% Switches for computed optional diagnostics
 %%%%%%%%%%% Which optional diagnostics were computed? %%%%%%%%%%%%%%%
 if isfield(diagnos, 'Enst_y_tot')
     compute_enstrophy = true;
@@ -210,7 +210,7 @@ else
     compute_BPE_from_int = false; 
 end
 
-%%%%%%%%%%% Shorten entstrophy variable and compare against dissipation %%%%%%%%%%%%%%%
+%% Shorten Enstrophy Variable and compare against dissipation
 % from Mike Waite's Turbulence class: 
 %   total diss. = 2*mu*(total enstrophy)
 %   when boundary conditions are not no-slip (ie. free-slip or periodic on all sides)
@@ -234,11 +234,11 @@ if compute_enstrophy
     all_diagnos.diagnos.Enst_tot  = enst_tot; % place into output structure
 end
 
-%%%%%%%%%%% Print Kolmogorov and Batchelor scales %%%%%%%%%%%%%%%
+%% Calculate/Print Kolmogorov and Batchelor scales %%%%%%%%%%%%%%%
 Scales = find_Kolm_Batch(diagnos, gdpar, kappa_min);
 all_diagnos.Scales = Scales; % place into output structure
 
-%%%%%%%%%%% Max density variation %%%%%%%%%%%%%%%
+%% Calculate/Print Max density variation %%%%%%%%%%%%%%%
 if isfield(diagnos, 'Max_density')
     rho_init = diagnos.Max_density(1);
     rho_var = diagnos.Max_density/rho_init - 1;
@@ -285,7 +285,8 @@ if isfield(diagnos, 'Max_temperature') || isfield(diagnos, 'Max_salinity') || ..
     end
 end
 
-%%%%%%%%%%% Parse and Print Energy diagnostics %%%%%%%%%%%%%%%
+%% Parse and Compute Energy diagnostics %%
+
 % compute total KE
 if ~isfield(diagnos, 'KE_y')
     diagnos.KE_y = diagnos.KE_x*0;
@@ -304,10 +305,11 @@ else
 end
 
 % total energy
-E_tot  = KE_tot + diagnos.PE_tot;
+E_tot  = KE_tot + diagnos.PE_tot; 
 E_loss = E_tot(1) - E_tot;
+
 % compute rates
-time_rate = linspace(sim_time(1), sim_time(end),round(length(sim_time)/2));
+time_rate = linspace(sim_time(1), sim_time(end),round(length(sim_time)/2)); % Linear spaced simulation times 
 Dmat = FiniteDiff(time_rate, 1, 2, true);
 KE_rate = Dmat*interp1(sim_time, KE_tot, time_rate, 'pchip')';
 E_rate  = Dmat*interp1(sim_time, E_tot,  time_rate, 'pchip')';
@@ -316,7 +318,6 @@ E_rate  = Dmat*interp1(sim_time, E_tot,  time_rate, 'pchip')';
 if compute_BPE
     if do_filter
         BPE_tot = mlptdenoise(diagnos.BPE_tot, diagnos.Time, 5, 'DualMoments', 3);
-        
     else
         BPE_tot = diagnos.BPE_tot;
     end
@@ -386,7 +387,7 @@ if compute_dissipation && compute_BPE && compute_BPE_from_int
     fprintf('Change in BPE:           %6.2f %%\n',BPE_change(end)/E0_and_W*100)
 end
 
-% place into output structure
+%% Place into output structure
 %  Energy budget
 all_diagnos.EnergyBudget.Time       = diagnos.Time;
 all_diagnos.EnergyBudget.E_tot      =   E_tot;
@@ -441,7 +442,7 @@ if compute_BPE_from_int
     all_diagnos.EnergyRates.Int2BPE_rate = interp1(sim_time, diagnos.BPE_from_int, time_rate, 'pchip')'; % note, should use original data
 end
 
-% compute mixing efficiencies (see Gregg 2018)
+%% compute mixing efficiencies (see Gregg 2018)
 if compute_BPE
     fprintf('\n')
     fprintf('---- Mixing efficiency ----\n')
@@ -1076,6 +1077,8 @@ end
 
 %% Kolmogorov and Batchelor Scales
 function Scales = find_Kolm_Batch(diagnos, gdpar, kappa_min)
+    % Prints the Kolmogorov and Batchelor Scales and their relation to
+    % dx & dz
     % Kolmogorov Scale: eta = (rho_0 nu^3/epsilon)^(1/4)
     % Batchelor Scale:  lambda_B = eta * sqrt(kappa/nu)
     % rho_0 is included to make epsilon the dissipation per unit mass (makes dimensions work)

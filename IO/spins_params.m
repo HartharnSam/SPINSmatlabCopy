@@ -28,6 +28,7 @@ try
         tline = fgetl(fileID);
     end
     fclose(fileID);
+    %%
 catch
     warning('spins.conf was not found or has a parameter with no value.')
     params = struct();

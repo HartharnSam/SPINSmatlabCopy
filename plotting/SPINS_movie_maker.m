@@ -17,7 +17,7 @@ function SPINS_movie_maker(parameters, xlimits, min_t, savevideo, savefnm)
 %               diss
 %               vorty
 %               tracer
-%    xlimits - [OPTIONAL] Horizontal region to be plotted - can be either [lowerx higherx]m (in wcs), or 
+%    xlimits - [OPTIONAL] Horizontal region to be plotted - can be either [lowerx higherx]m (in wcs), or
 %              'slopeonly' to plot the slope (as identified within the
 %              wavestats slopehit parameter. Defaults to whole tank. If set
 %              to [], goes to default
@@ -52,7 +52,7 @@ rho_0 = params.rho_0;
 delta_rho = params.delta_rho;
 
 [x, z] = spinsgrid2d;
-x = x-params.L_adj; 
+x = x-params.L_adj;
 if nargin<2 || isempty(xlimits)
     xlimits = [min(min(x)) max(max(x))];
 end
@@ -93,6 +93,13 @@ positioning.w = find(strcmp(parameters, 'w'));
 positioning.diss = find(strcmp(parameters, 'diss'));
 positioning.vorty = find(strcmp(parameters, 'vorty'));
 positioning.tracer = find(strcmp(parameters, 'tracer'));
+positioning.bot_stresses = find(strcmp(parameters, 'bot_stresses'));
+positioning.timeseries_dissipation = find(strcmp(parameters, 'timeseries_dissipation'));
+positioning.timeseries_tracer = find(strcmp(parameters, 'timeseries_tracer'));
+
+pcolor_plots = zeros(n_columns, n_rows);
+
+
 
 %% Begin Video and set figure settings
 if savevideo % Open videowriter class
@@ -114,9 +121,7 @@ figure(1);
 clf
 set(gcf, 'Units', 'centimeters'); set(gcf, 'Position', [1 1 44 20]);
 set(gcf, 'PaperUnits','centimeters'); set(gcf, 'Position', [1 1 44 20]);
-if ispc
-    %sgtitle(params.name, 'Interpreter','none');
-end
+
 %% Set spatial extent of plots
 if strcmp(xlimits, 'slopeonly')
     if isfield(params, 'hill_height')
@@ -140,7 +145,7 @@ end
 xspac = params.Nx/128;
 zspac = params.Nz/8;
 Xuv = x(xlimits_ind(1:xspac:end), 1:zspac:params.Nz);
-Zuv = z(xlimits_ind(1:xspac:end), 1:zspac:params.Nz); 
+Zuv = z(xlimits_ind(1:xspac:end), 1:zspac:params.Nz);
 
 x = x(xlimits_ind, :);
 z = z(xlimits_ind, :);
@@ -155,17 +160,17 @@ if nargin<4
         if ~isempty(loc_ind)
             min_t = time(loc_ind(1));
         else
-            min_t = time(end); 
+            min_t = time(end);
         end
     else
         min_t = 0;
     end
 end
-
+bot_stresses = nan(length(x(:, 1)), length(time));
 %% Run video code
 ax = gobjects(1, n_plots);
 for ii = min_t:max_t
-
+    
     %% Rho
     if ~isempty(positioning.rho)
         rho = rho_converter(spins_reader_new('rho',ii, xlimits_ind, [])); % Read in density and convert to real units
@@ -180,7 +185,7 @@ for ii = min_t:max_t
         caxis(gca, rholimits);
         %title('Density')
         title(subplot_labels(positioning.rho, 2))
-                
+        pcolor_plots(positioning.rho) = 1;
     end
     %% U Velocity
     if ~isempty(positioning.u)
@@ -193,6 +198,7 @@ for ii = min_t:max_t
         
         caxis(gca, umaxabs*[-1 1]);
         title('u (m/s)')
+        pcolor_plots(positioning.u) = 1;
         
     end
     %% Normalised U Velocity
@@ -209,7 +215,8 @@ for ii = min_t:max_t
         caxis(gca, [-1.1 1.1]);
         %title('u/c')
         title(subplot_labels(positioning.u_normalised, 2))
-
+        pcolor_plots(positioning.u_normalised) = 1;
+        
     end
     %% V Velocity
     if ~isempty(positioning.v)
@@ -222,6 +229,7 @@ for ii = min_t:max_t
         
         caxis(gca, vmaxabs*[-1 1]);
         title('v (m/s)')
+        pcolor_plots(positioning.v) = 1;
         
     end
     %% W Velocity
@@ -234,9 +242,10 @@ for ii = min_t:max_t
         colormap darkjet
         caxis(gca, wmaxabs*[-1 1]);
         title('w (m/s)')
+        pcolor_plots(positioning.w) = 1;
         
     end
-        %% Normalised W Velocity
+    %% Normalised W Velocity
     if ~isempty(positioning.w_normalised)
         w = spins_reader_new('w', ii, xlimits_ind, []);
         c = wave_speed;
@@ -250,8 +259,9 @@ for ii = min_t:max_t
         ylabel(c, '$w / c$');
         caxis(gca, [-1.1 1.1]);
         %title('w/c')
-                title(subplot_labels(positioning.w_normalised, 2))
-
+        title(subplot_labels(positioning.w_normalised, 2))
+        pcolor_plots(positioning.w_normalised) = 1;
+        
     end
     %% Dissipation
     if ~isempty(positioning.diss)
@@ -260,9 +270,10 @@ for ii = min_t:max_t
         
         ax(positioning.diss) = subaxis(n_rows,n_columns, positioning.diss, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,log10(diss)),shading flat
-        colormap darkjet
+        cmocean('amp');
         caxis(gca, disslimits);
         title('dissipation')
+        pcolor_plots(positioning.diss) = 1;
         
     end
     %% Vorticity
@@ -273,9 +284,8 @@ for ii = min_t:max_t
         
         ax(positioning.vorty) = subaxis(n_rows,n_columns, positioning.vorty, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,vorty),shading flat; hold on
-        if isfield(params, 'hill_height')
-            plot([params.Lx, params.Lx-params.hill_height/params.hill_slope]-params.L_adj, params.min_z+[params.hill_height 0], 'k-', 'linewidth', .2);
-        end
+        plot(x(:, 1), z(:,1), 'k-');
+        
         caxis([-1 1]*6);
         colormap(gca, newbluewhitered);
         q_scale = 1.2;
@@ -287,8 +297,9 @@ for ii = min_t:max_t
         c = colorbar(ax(positioning.vorty));
         ylabel(c, '$\omega (s^{-1}$');
         %title('Vorticity/Velocity')
-                        title(subplot_labels(positioning.vorty, 2))
-
+        title(subplot_labels(positioning.vorty, 2))
+        pcolor_plots(positioning.vorty) = 1;
+        
     end
     %% Tracer
     if ~isempty(positioning.tracer)
@@ -296,35 +307,104 @@ for ii = min_t:max_t
         
         ax(positioning.tracer) = subaxis(n_rows,n_columns, positioning.tracer, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,tracer),shading flat
-        colormap darkjet
+        cmocean('turbid');
         caxis(gca, [0 1]);
-        title('tracer concentration')
+        c = colorbar(ax(positioning.tracer));
+        ylabel(c, 'Tracer');
+        title(subplot_labels(positioning.tracer, 2))
+        pcolor_plots(positioning.tracer) = 1;
+        
     end
     
-    %% Correct axis titles etc.
-    
-    for ai = 1:n_plots
-        if mod(ai, n_columns) ~= 1
-            
-            ax(ai).YLabel = [];
-            ax(ai).YTickLabel = {};
-        else
-            ax(ai).YLabel.String = 'z (m)';
-        end
+    %% Dissipation Timeseries
+    if ~isempty(positioning.timeseries_dissipation)
+        load('all_diagnos')
+        [~, timeind] = min(abs(ii - all_diagnos.EnergyBudget.Time));
+        dissip = all_diagnos.EnergyBudget.KE2Int_tot(1:timeind);
         
-        if ceil(ai/n_rows) ~= n_rows
+        ax(positioning.timeseries_dissipation) = subaxis(n_rows,n_columns, positioning.timeseries_dissipation, 'SpacingVert', SpacingVert, 'Margin', Margin);
+        plot(all_diagnos.EnergyBudget.Time(1:timeind), dissip, 'k-');
+        xlim([min_t max_t]);
+        ylim([min(all_diagnos.EnergyBudget.KE2Int_tot) max(all_diagnos.EnergyBudget.KE2Int_tot)])
+        
+        xlabel('Time (s)'); ylabel('Energy Dissipated (J)');
+        c = colorbar;
+        ax_pos = get(ax(positioning.timeseries_dissipation), 'Position');
+        delete(c);
+        set(ax(positioning.timeseries_dissipation),'Position', ax_pos);
+        set(gca, 'XDir', 'normal');
+        pcolor_plots(positioning.timeseries_dissipation) = 0;
+        
+    end
+    %% Dissipation Timeseries
+    if ~isempty(positioning.timeseries_tracer)
+        rho = spins_reader_new('rho', ii);
+        tracer_volume(ii) = density_tracer(rho, 6.5);
+        
+        ax(positioning.timeseries_tracer) = subaxis(n_rows,n_columns, positioning.timeseries_tracer, 'SpacingVert', SpacingVert, 'Margin', Margin);
+        plot(1:ii, tracer_volume)
+        xlim([min_t max_t]);
+        ylim([0 .05])
+        
+        xlabel('Time (s)'); ylabel('Tracer beyond 6.5m ($m^3$)');
+        c = colorbar;
+        ax_pos = get(ax(positioning.timeseries_tracer), 'Position');
+        delete(c);
+        set(ax(positioning.timeseries_tracer),'Position', ax_pos);
+        set(gca, 'XDir', 'normal');
+        pcolor_plots(positioning.timeseries_tracer) = 0;
+        
+    end
+    %% Hovmoller of bed stress
+    if ~isempty(positioning.bot_stresses)
+        tmp_bot_stresses = calc_bot_stress(ii);
+        bot_stresses(:, ii) = tmp_bot_stresses(xlimits_ind);
+        
+        ax(positioning.bot_stresses) = subaxis(n_rows,n_columns, positioning.bot_stresses, 'SpacingVert', SpacingVert, 'Margin', Margin);
+        pcolor(x(:, 1), time, bot_stresses'); shading flat;
+        cmocean('curl');
+        caxis(ax(positioning.bot_stresses), [-.1 .1]);
+        c = colorbar(ax(positioning.bot_stresses));
+        ylabel(c, '$t_x$');
+        title(subplot_labels(positioning.bot_stresses, 2))
+        pcolor_plots(positioning.bot_stresses) = 1;
+    end
+    %% Correct axis titles etc.
+
+    for i = 1:n_columns
+        [~, last_in_column(i)] = find((pcolor_plots(i,:) == 1), 1, 'last');
+    end
+    for ai = 1:n_plots
+        if pcolor_plots(ai)
+            if mod(ai, n_columns) ~= 1
+                
+                ax(ai).YLabel = [];
+                ax(ai).YTickLabel = {};
+            else
+                ax(ai).YLabel.String = 'z (m)';
+            end
+            ax(ai).YLim = [params.min_z params.min_z+params.Lz];
+            set(ax(ai), 'XDir', 'reverse');
+            ax(ai).XLim = xlimits;
+        col_num = mod(ai-1, n_columns)+1;
+        if ceil(ai/n_columns) == last_in_column(col_num)
+            ax(ai).XLabel.String = 'x (m)';
+        else
             ax(ai).XLabel = [];
             ax(ai).XTickLabel = {};
-        else
-            ax(ai).XLabel.String = 'x (m)';
         end
-        ax(ai).YLim = [params.min_z params.min_z+params.Lz];
-        set(ax(ai), 'XDir', 'reverse');
-        ax(ai).XLim = xlimits;
+        end
         %daspect(ax(ai), [1 1 1]);
-        
+    end
+    
+    if ~isempty(positioning.bot_stresses)
+        ax(positioning.bot_stresses).YLim = [min_t max_t];
+        ax(positioning.bot_stresses).YLabel.String = 't (s)';
+        ax(positioning.bot_stresses).YTickLabelMode = 'auto';
+        ax(positioning.bot_stresses).XLabel.String = 'x (m)';
         
     end
+    
     if savevideo
         figure_print_format(gcf);
         F = getframe(gcf);

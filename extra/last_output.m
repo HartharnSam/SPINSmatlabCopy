@@ -20,12 +20,12 @@ function num = last_output(var)
         files = dir('u.*');
     end
     nfiles = length(files);
-    table = struct2dataset(files);
+%    table = struct2dataset(files);
 
     % find all extensions
     outputs = zeros(1,nfiles);
     for ii = 1:nfiles
-        filename = table{ii,1};
+        filename = files(ii).name;
         [~, dot_num] = strtok(filename, '.');
         ext_num = str2num(dot_num(2:end));
         if isempty(ext_num)

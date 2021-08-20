@@ -66,7 +66,8 @@ while diff(limits)/tick_space > upp_limit
 end
 
 % Set tick locations
-tick_locs = round((limits(1):tick_space:limits(2))/tick_space)*tick_space;
+tick_locs = round((limits(1):tick_space:limits(2))/tick_space, 4);
+tick_locs = round(tick_locs)*tick_space;
 set(ax, axesticks, tick_locs);
 
 end

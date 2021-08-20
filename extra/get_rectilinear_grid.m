@@ -19,6 +19,9 @@ if Ndims == 2
     [Nx Nz] = size(gd.x);
 elseif Ndims == 3
     [Nx Ny Nz] = size(gd.x);
+    min_y = min(gd.y(:));
+    max_y = max(gd.y(:));
+    
 end
 
 % grid limits

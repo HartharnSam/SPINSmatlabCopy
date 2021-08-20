@@ -30,7 +30,7 @@ function ar = xz_reader(varname, seq, varargin);
 %% Find dimensions
 params = spins_params();
 Nx = params.Nx;
-Ny = 1;
+Ny = params.Ny;
 Nz = params.Nz;
 
 %% Get ranges

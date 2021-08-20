@@ -170,10 +170,10 @@ for jj = 1:noutputs
             else
                 [cont_x, cont_y] = find_contour(gd.x(x_inds,z_inds), gd.z(x_inds,z_inds), rho, contval(nn));
             end
-            if isempty(cont_x) 
-                if jj > noutputs*.75
-                    reach_end = true;
-                end
+            if isempty(cont_x)
+                %if jj > noutputs*.30
+                reach_end = true;
+                %end
             end
             cont_y = cont_y - strat_loc(jj, nn); % shift so that cont_y=0 at far field
             % if wave is a depression, then flip vertically
@@ -201,7 +201,7 @@ for jj = 1:noutputs
                 wavelength_right(jj, nn) = NaN;
                 wavelength_left(jj, nn)  = NaN;
                 if jj > noutputs*.75
-                reach_end = true;
+                    reach_end = true;
                 end
             end
             
@@ -227,7 +227,7 @@ for jj = 1:noutputs
     end
     grid on
     title(['t=',num2str(time(jj)),' s'])
-    if all_conts 
+    if all_conts
         leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
         legend(p_hand, leg)
     end
@@ -248,6 +248,9 @@ for jj = 1:noutputs
             xlind = nearest_index(gd.x(:,1), xl);
             xrind = nearest_index(gd.x(:,1), xr);
             %ztind = nearest_index(gd.z(Nz,:), zt);
+        end
+        if xr >=params.Lx
+            reach_end = true;
         end
         %zbind = 1;
     else
@@ -270,6 +273,8 @@ if isfield(params, 'hill_slope')
     end_of_slope = params.Lx-((params.hill_height/params.hill_slope)+params.hill_end_dist);
 elseif isfield(params, 'ice_length')
     end_of_slope = params.Lx-params.ice_length;
+else
+    end_of_slope = params.Lx;
 end
 
 read_inds = find(wave_center>(params.L_adj*1.15) & wave_center<end_of_slope);

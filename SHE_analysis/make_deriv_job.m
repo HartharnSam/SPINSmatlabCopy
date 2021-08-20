@@ -36,7 +36,7 @@ A{25} = ['final_sequence = ' num2str(timestep)];
 A{23} = 'deriv_files = u rho';
 A{27} = 'deriv_x = false';
 A{28} = 'deriv_y = false';
-A{29} = 'deriv_z = true';
+A{29} = 'deriv_z = false';
 A{30} = 'do_vor_x = false';
 A{31} = 'do_vor_y = false';
 A{32} = 'do_vor_z = false';
