@@ -39,8 +39,13 @@ elseif nargin == 1
 end
 
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
-% read diagnostic file
 diag_file_name = 'diagnostics';
+
+% error check if multiple runs have been completed in this directory
+check_txt_file([diag_file_name,'.txt'], 'Iter')
+check_txt_file('plot_times.txt', 'Output')
+
+% read diagnostic file
 if exist([diag_file_name,'.mat'], 'file') == 2
     % load cleaned data, if it exists
     diag_file = [diag_file_name,'.mat'];
@@ -1076,5 +1081,16 @@ function Scales = find_Kolm_Batch(diagnos, gdpar, kappa_min)
         Scales.dx_Batch = dx_Batch;
     else
         Scales = 'N/A';
+    end
+end
+
+function check_txt_file(filename, header_ptrn)
+    % error check if multiple runs have been completed in this directory
+    file_txt = fileread(filename);
+    file_lines = regexp(file_txt, '\r\n|\r|\n', 'split');
+    if sum(contains(file_lines, header_ptrn)) > 1
+        error('%s file has too many headers\n%s',...
+            filename,...
+            'Remove headers and outputs from previous runs before continuing')
     end
 end
