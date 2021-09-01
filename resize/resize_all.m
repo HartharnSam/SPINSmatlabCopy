@@ -1,9 +1,8 @@
-
 function resize_all(ii, new_grid)
 % RESIZE_ALL  Adjust the resolution in all dimensions of all fields.
 %
 %  Assumptions:
-%    - For 3D data only
+%    - if 2D, data must be in x-z plane
 %    - spins.conf file must be present
 %
 %  Usage:
@@ -18,24 +17,33 @@ function resize_all(ii, new_grid)
 %  Outputs:
 %    n/a
 %
-%  David Deepwell, 2018, Adapted by Andrew Grace 2021
+%  Andrew Grace, 2021. Generalization of scripts by David Deepwell.
+
+
+%Check size of new_grid to infer dimensionality of data
+if length(new_grid) == 3
+    %Data is 3D. Do nothing
+elseif length(new_grid) == 2
+    new_grid(3) = new_grid(2);
+    new_grid(2) = 1;
+else
+    fprintf('new_grid must be of length 2 or 3');
+    return;
+end
 
 % read parameters
 params = spins_params();
 
 % shorten some parameters
 dt = params.plot_interval;
+
 Nx_old = params.Nx;
-Nz_old = params.Nz;
 Ny_old = params.Ny;
+Nz_old = params.Nz;
 
 Lx = params.Lx;
 Ly = params.Ly;
 Lz = params.Lz;
-
-%dx = Lx/Nx;
-%dy = Ly/Ny;
-%dz = Lz/Nz;
 
 Nx_new = new_grid(1);
 Ny_new = new_grid(2);
@@ -43,9 +51,6 @@ Nz_new = new_grid(3);
 
 % find which fields exist at output ii
 fields = find_fields(ii);
-
-% make directory to store resized data
-
 
 % check x sizes
 mult = Nx_new/Nx_old;
@@ -65,20 +70,25 @@ else
 end
 
 % check y sizes
-mult = Ny_new/Ny_old;
-if mult > 1
-    ignore_y = false;
-    change = 'Increasing';
-    fac_y = mult;
-    fprintf('%s y resolution by factor of %d\n',change,fac_y)
-elseif mult < 1
-    ignore_y = false;
-    change = 'Decreasing';
-    fac_y = 1/mult;
-    fprintf('%s y resolution by factor of %d\n',change,fac_y)
+
+if Ny_old ~= 1
+    mult = Ny_new/Ny_old;
+    if mult > 1
+        ignore_y = false;
+        change = 'Increasing';
+        fac_y = mult;
+        fprintf('%s y resolution by factor of %d\n',change,fac_y)
+    elseif mult < 1
+        ignore_y = false;
+        change = 'Decreasing';
+        fac_y = 1/mult;
+        fprintf('%s y resolution by factor of %d\n',change,fac_y)
+    else
+        ignore_y = true;
+        fprintf('y resolution unchanged\n')
+    end
 else
     ignore_y = true;
-    fprintf('y resolution unchanged\n')
 end
 
 % check z sizes
@@ -103,10 +113,9 @@ if ignore_x && ignore_y && ignore_z
         return;
 end
 
+%Make new directory to store resized data
 new_dir = 'resized';
 mkdir(new_dir)
-
-
 
 for jj = 1:length(fields)
     tic
@@ -137,6 +146,7 @@ for jj = 1:length(fields)
         data = resize_z(field, data, new_grid(3));
     else
         fprintf('I must have missed this case');
+        return;
     end
 
     % write new field in new directory
@@ -151,24 +161,25 @@ clear data
 % create grids
 fprintf('Creating / writing grids ...')
 tic
-dx_new = Lx/Nx_new;
-dy_new = Ly/Ny_new;
-dz_new = Lz/Nz_new;
 
-x1d = dx_new/2:dx_new:Lx;
-y1d = dy_new/2:dy_new:Ly;
-z1d = dz_new/2:dz_new:Lz;
 
-xg = bsxfun(@times, ones(Nx_new, Ny_new, Nz_new), x1d');
-yg = bsxfun(@times, ones(Nx_new, Ny_new, Nz_new), y1d);
-zg = bsxfun(@times, ones(Nx_new, Ny_new, Nz_new), reshape(z1d,1,1,Nz_new));
+if Ny_old == 1
+    xg = generate_xgrid([Lx Lz],[Nx_new Nz_new],params.type_z);
+    zg = generate_zgrid([Lx Lz],[Nx_new Nz_new],params.type_z);
+else
+    xg = generate_xgrid([Lx Ly Lz],[Nx_new Ny_new Nz_new],params.type_z);
+    yg = generate_ygrid([Lx Ly Lz],[Nx_new Ny_new Nz_new],params.type_z);
+    zg = generate_zgrid([Lx Ly Lz],[Nx_new Ny_new Nz_new],params.type_z);
+end
 
 
 % write grids in new directory
 cd(new_dir)
 spins_writer('xgrid', xg);
 spins_writer('zgrid', zg);
+if Ny_old ~=1
 spins_writer('ygrid', yg);
+end
 
 cd('..')
 fprintf(' took %.4g s\n',toc)
@@ -183,7 +194,7 @@ try
     system(['cp submit.sh ',new_dir]);
 end
 
-% Replace old Nx size and restarting information in spins.conf
+% Replace old Nx, Ny, and Nz sizes and restarting information in spins.conf
 cd(new_dir)
 comp = computer();
 restart_time = params.plot_interval*ii;

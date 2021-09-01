@@ -85,27 +85,47 @@ clear data
 % create grids
 fprintf('Creating / writing grids ...')
 tic
-dx_new = Lx/Nx_new;
-dz_new = Lz/Nz_new;
-x1d = dx_new/2:dx_new:Lx;
-z1d = dz_new/2:dz_new:Lz;
-if Ny ~= 1
-    y1d = dy/2:dy:Ly;
-    xg = bsxfun(@times, ones(Nx_new, Ny, Nz_new), x1d');
-    yg = bsxfun(@times, ones(Nx_new, Ny, Nz_new), y1d);
-    zg = bsxfun(@times, ones(Nx_new, Ny, Nz_new), reshape(z1d,1,1,Nz_new));
+
+
+if Ny == 1
+    xg = generate_xgrid([Lx Lz],[Nx_new Nz_new],params.type_z);
+    zg = generate_zgrid([Lx Lz],[Nx_new Nz_new],params.type_z);
 else
-    xg = bsxfun(@times, ones(Nx_new, Nz_new), x1d');
-    zg = bsxfun(@times, ones(Nx_new, Nz_new), z1d);
+    xg = generate_xgrid([Lx Ly Lz],[Nx_new Ny Nz_new],params.type_z);
+    yg = generate_ygrid([Lx Ly Lz],[Nx_new Ny Nz_new],params.type_z);
+    zg = generate_zgrid([Lx Ly Lz],[Nx_new Ny Nz_new],params.type_z);
 end
+
 
 % write grids in new directory
 cd(new_dir)
 spins_writer('xgrid', xg);
 spins_writer('zgrid', zg);
-if Ny ~= 1
-    spins_writer('ygrid', yg);
+if Ny ~=1
+spins_writer('ygrid', yg);
 end
+
+% dx_new = Lx/Nx_new;
+% dz_new = Lz/Nz_new;
+% x1d = dx_new/2:dx_new:Lx;
+% z1d = dz_new/2:dz_new:Lz;
+% if Ny ~= 1
+%     y1d = dy/2:dy:Ly;
+%     xg = bsxfun(@times, ones(Nx_new, Ny, Nz_new), x1d');
+%     yg = bsxfun(@times, ones(Nx_new, Ny, Nz_new), y1d);
+%     zg = bsxfun(@times, ones(Nx_new, Ny, Nz_new), reshape(z1d,1,1,Nz_new));
+% else
+%     xg = bsxfun(@times, ones(Nx_new, Nz_new), x1d');
+%     zg = bsxfun(@times, ones(Nx_new, Nz_new), z1d);
+% end
+% 
+% % write grids in new directory
+% cd(new_dir)
+% spins_writer('xgrid', xg);
+% spins_writer('zgrid', zg);
+% if Ny ~= 1
+%     spins_writer('ygrid', yg);
+% end
 cd('..')
 fprintf(' took %.4g s\n',toc)
 
