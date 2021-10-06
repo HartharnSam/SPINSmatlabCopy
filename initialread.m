@@ -92,7 +92,8 @@ end
     %% plot movie
     if isVideo
         if ispc
-            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
+            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised', 'tracer', 'diss', 'timeseries_tracer', 'timeseries_dissipation', 'bot_stresses'},...
+                'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
 
             %SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'tracer'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
             %SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, ['numerics_example', '.mp4']));

@@ -21,8 +21,6 @@ stress_x = 2*Hprime .* (-dudx + dwdz);
 temp = (1-(Hprime.^2)).*(dudz + dwdx);
 stress_x = stress_x + temp;
 
-coeff =params.visco./(sqrt(1+(Hprime.^2)));
-
 stress_x = params.visco.*params.rho_0./(1+Hprime.^2) .*stress_x;
 stress_x = stress_x(:, 1);
 end

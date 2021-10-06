@@ -1,4 +1,4 @@
-function ar = spins_reader_new(varname, varargin);
+function ar = spins_reader_new(varname, varargin)
 % SPINS data reader with slab support and a user defined name
 % Opens and reads a slab of SPINS data, optionally
 % loading only a portion of the total array. This
@@ -47,7 +47,7 @@ end
 
 % a grid doesn't have an extension
 var_list = dir([varname,'.*']);
-if length(var_list) == 0
+if isempty(var_list)
     is_grid = true;
 else
     is_grid = false;
@@ -91,9 +91,9 @@ elseif (is_grid && nargin>1) || (~is_grid && nargin>2)
 end
 
 % Sanitize the ranges:
-if (~exist('xrange') || isempty(xrange) || strcmp(xrange,':')) xrange = [1:Nx]; end;
-if (~exist('yrange') || isempty(yrange) || strcmp(yrange,':')) yrange = [1:Ny]; end;
-if (~exist('zrange') || isempty(zrange) || strcmp(zrange,':')) zrange = [1:Nz]; end;
+if (~exist('xrange') || isempty(xrange) || strcmp(xrange,':')) xrange = [1:Nx]; end
+if (~exist('yrange') || isempty(yrange) || strcmp(yrange,':')) yrange = [1:Ny]; end
+if (~exist('zrange') || isempty(zrange) || strcmp(zrange,':')) zrange = [1:Nz]; end
 xrange(xrange < 1) = []; xrange(xrange > Nx) = [];
 yrange(yrange < 1) = []; yrange(yrange > Ny) = [];
 zrange(zrange < 1) = []; zrange(zrange > Nz) = [];

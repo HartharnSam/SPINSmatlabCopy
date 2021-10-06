@@ -17,6 +17,10 @@ function SPINS_movie_maker(parameters, xlimits, min_t, savevideo, savefnm)
 %               diss
 %               vorty
 %               tracer
+%               bot_stresses
+%               timeseries_dissipation
+%               timeseries_tracer
+%
 %    xlimits - [OPTIONAL] Horizontal region to be plotted - can be either [lowerx higherx]m (in wcs), or
 %              'slopeonly' to plot the slope (as identified within the
 %              wavestats slopehit parameter. Defaults to whole tank. If set
@@ -274,7 +278,8 @@ for ii = min_t:max_t
         caxis(gca, disslimits);
         title('dissipation')
         pcolor_plots(positioning.diss) = 1;
-        
+        c = colorbar(ax(positioning.diss));
+        ylabel(c, '$\epsilon (m^2s^{-3})$');
     end
     %% Vorticity
     if ~isempty(positioning.vorty)
@@ -295,7 +300,7 @@ for ii = min_t:max_t
             vekLeg('SouthWest', q_scale, .1, linespec);
         end
         c = colorbar(ax(positioning.vorty));
-        ylabel(c, '$\omega (s^{-1}$');
+        ylabel(c, '$\omega (s^{-1})$');
         %title('Vorticity/Velocity')
         title(subplot_labels(positioning.vorty, 2))
         pcolor_plots(positioning.vorty) = 1;
@@ -321,13 +326,15 @@ for ii = min_t:max_t
         load('all_diagnos')
         [~, timeind] = min(abs(ii - all_diagnos.EnergyBudget.Time));
         dissip = all_diagnos.EnergyBudget.KE2Int_tot(1:timeind);
-        
+        mixing = all_diagnos.EnergyBudget.APE2BPE_tot(1:timeind);
         ax(positioning.timeseries_dissipation) = subaxis(n_rows,n_columns, positioning.timeseries_dissipation, 'SpacingVert', SpacingVert, 'Margin', Margin);
         plot(all_diagnos.EnergyBudget.Time(1:timeind), dissip, 'k-');
+        hold on
+        plot(all_diagnos.EnergyBudget.Time(1:timeind), mixing, 'b-');
         xlim([min_t max_t]);
         ylim([min(all_diagnos.EnergyBudget.KE2Int_tot) max(all_diagnos.EnergyBudget.KE2Int_tot)])
         
-        xlabel('Time (s)'); ylabel('Energy Dissipated (J)');
+        xlabel('Time (s)'); ylabel('Energy (J)');
         c = colorbar;
         ax_pos = get(ax(positioning.timeseries_dissipation), 'Position');
         delete(c);
@@ -336,15 +343,17 @@ for ii = min_t:max_t
         pcolor_plots(positioning.timeseries_dissipation) = 0;
         
     end
-    %% Dissipation Timeseries
+    %% Tracer Concentration Timeseries
     if ~isempty(positioning.timeseries_tracer)
         rho = spins_reader_new('rho', ii);
-        tracer_volume(ii) = density_tracer(rho, 6.5);
+        x_start = nearest_index(z(:, 1), params.pyc_loc);
+
+        [tracer_volume(ii) weightings] = density_tracer(rho, x(x_start, 1));
         
         ax(positioning.timeseries_tracer) = subaxis(n_rows,n_columns, positioning.timeseries_tracer, 'SpacingVert', SpacingVert, 'Margin', Margin);
         plot(1:ii, tracer_volume)
         xlim([min_t max_t]);
-        ylim([0 .05])
+        ylim([0 sum(weightings(:))/2])
         
         xlabel('Time (s)'); ylabel('Tracer beyond 6.5m ($m^3$)');
         c = colorbar;

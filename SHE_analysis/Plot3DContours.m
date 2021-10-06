@@ -11,9 +11,13 @@ open(vid)
 set(gcf, 'Units', 'centimeters'); set(gcf, 'Position', [1 1 44 20]);
 set(gcf, 'PaperUnits','centimeters'); set(gcf, 'Position', [1 1 44 20]);
 
+%x_limits = [6.2 6.8]; % For _49
+x_limits = [6 6.4];
 %% Run the thing
-for t = 83:90
-    x = xgrid_reader; xinds = find(x(:, 1)>6.2 & x(:, 1)<6.8);
+%for t = 85:91 % For _46
+% for t = 95:100 % For _48
+ for t = 83:90 % For _49
+    x = xgrid_reader; xinds = find(x(:, 1)>x_limits(1) & x(:, 1)<x_limits(2));
     x = x(xinds,:, :);
     y = ygrid_reader; y = y(xinds,:, :);
     z = zgrid_reader; z = z(xinds,:, :);
@@ -39,7 +43,7 @@ for t = 83:90
         
         faces = isosurface(xi, yi, zi, field_rect, isos(j));
         p(j) = patch(faces);
-        zlim([-.3 0]); ylim([0 .128]); xlim([6.0 6.5])
+        zlim([-.3 0]); ylim([0 .128]); xlim(x_limits)
         view(-28.1486,  23.4330); daspect([1 1 1]);
         axis tight
         p(j).FaceAlpha = .7;
