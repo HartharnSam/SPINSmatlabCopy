@@ -1,6 +1,22 @@
 function extend_all(ii, Ly, Ny)
-%EXTEND_all Extends all 2D SPINS data (including grids) and saves in a 
-%           new directory. spins.conf is copied to new directory and updated.
+%EXTEND_ALL  Adjust the resolution in all dimensions of all fields.
+%
+%  Assumptions:
+%    - spins.conf file must be present
+%
+%  Usage:
+%    extend_all(output, spanwise_width, spanwise_gridpoints)
+%
+%  Inputs:
+%    'output'            - output number to extend
+%    'spanwise_width'    - Width of the extended dimension
+%    'Ny'                - number of gridpoints in the extended dimension
+
+%
+%  Outputs:
+%    n/a
+%
+%  Andrew Grace, 2021.
 
 fields = find_fields(ii);
 
