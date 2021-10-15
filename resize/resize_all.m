@@ -1,5 +1,5 @@
 function resize_all(ii, new_grid)
-% RESIZE_ALL  Adjust the resolution in all dimensions of all fields.
+%RESIZE_ALL  Adjust the resolution in all dimensions of all fields.
 %
 %  Assumptions:
 %    - if 2D, data must be in x-z plane
