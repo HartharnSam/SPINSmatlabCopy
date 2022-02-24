@@ -40,7 +40,6 @@ u = spins_reader_new('u',ii);
 umaxabs = max(abs(u(:)));
 
 %% Set up figure
-figure
 clf
 
 %% Plot density first 
@@ -52,6 +51,7 @@ ylabel('z (m)')
 set(gca, 'xticklabels', {});
 set(gca, 'xlim', xlimits);
 colormap(s, cmocean('dense'))
+colormap(s, 'jet')
 
 %% Plot Horizontal Velocity Next
 s = subaxis(2,1,2);
@@ -60,6 +60,7 @@ ylabel('z (m)')
 xlabel('x (m)')
 set(gca, 'xlim', xlimits);
 colormap(s, cmocean('balance'));
+%set(gcf, 'Position', [-1919 -167 1920 956.8000]);
 %---------------------------------------------------
 %% END OF CODE %%
 % --------------------------------------------------

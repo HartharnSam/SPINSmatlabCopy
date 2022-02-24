@@ -1,4 +1,4 @@
-function newmap = newbluewhitered(m, pivot)
+function newmap = newbluewhitered(m, pivot, ax)
 %BLUEWHITERED   Blue, white, and red color map.
 %   BLUEWHITERED(M) returns an M-by-3 matrix containing a blue to white
 %   to red colormap, with white corresponding to the CAXIS value closest
@@ -27,16 +27,19 @@ function newmap = newbluewhitered(m, pivot)
 %
 %   See also HSV, HOT, COOL, BONE, COPPER, PINK, FLAG,
 %   COLORMAP, RGBPLOT.
-poss_path = ['C:\Users\', getenv('USERNAME'), '\OneDrive - Newcastle University\02_PhD_Project\01_ShoalingStratification\03_Analysis\02_Scripts\DigiFlow_dfi_read\colormaps'];
+poss_path = ['C:\Users\', getenv('USERNAME'), '\OneDrive - Newcastle University\02_PhD_Project\03_ShoalingStratification\03_Analysis\02_Scripts\DigiFlow_dfi_read\colormaps'];
 
 if exist(poss_path) ==2
     run([poss_path, '\newbluewhitered']);
 else
     
+    
     if nargin < 1
         m = size(get(gcf,'colormap'),1);
     end
-    
+    if nargin < 3
+        ax = gca;
+    end
     
     bottom = [0 0 0.5]; % Red
     middle = [1 1 1]; % White
@@ -45,7 +48,7 @@ else
     RGB_weight = [.299, .587, .114]'; % Luminosity weights for R, G, B
     
     % Find middle
-    lims = get(gca, 'CLim');
+    lims = get(ax, 'CLim');
     if nargin<2
         pivot = 0;
     end
@@ -54,10 +57,18 @@ else
     if (lims(1) < pivot) && (lims(2) > pivot)
         % It has both negative and positive
         % Find ratio of negative to positive
+        max_lims = max(abs(lims));
+        for i = 1:3
+            bottom(i) = interp1([-max_lims pivot max_lims], [bottom(i) middle(i) top(i)], lims(1));
+            top(i) = interp1([-max_lims pivot max_lims], [bottom(i) middle(i) top(i)], lims(2));
+        end
+        
         
         ratio = (pivot - lims(1)) / diff(lims);
-        neglen = 1;
-        while neglen >0 && neglen<2
+        
+        neglen = 1; poslen = 1;
+        % Fix m so that we never have a length one side of the pivot == 1
+        while (neglen >0 && neglen <2) || (poslen >0 && poslen <2)
             neglen = round(m*ratio);
             poslen = m - neglen;
             m = m+2;
@@ -147,6 +158,8 @@ else
         end
         
     end
-    %
-    % % set(gcf, 'colormap', newmap), colorbar
+end
+if nargout == 0
+    colormap(ax,newmap)
+    clear newmap
 end

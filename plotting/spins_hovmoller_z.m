@@ -1,4 +1,4 @@
-function [time, x, data] = SPINS_hovmoller_z(varname, loc, t_inds, varargin)
+function [time, x, data] = spins_hovmoller_z(varname, z_loc, t_inds, varargin)
 %  SPINS_HOVMOLLER  plot a space-time plot of the field 'varname' at z=loc
 %                   over the times corresponding to the indices t_inds
 %
@@ -23,9 +23,7 @@ gd.z = zgrid_reader;
 params = spins_params;
 
 % Optional arguments
-if nargin == 2
-    t_inds = first_output(varname):last_output(varname);
-elseif isempty(t_inds)
+if nargin == 2 || isempty(t_inds)
     t_inds = first_output(varname):last_output(varname);
 end
 % define expected options
@@ -41,10 +39,10 @@ opts = p.Results;
 type = opts.Type;
 
 try
-    load wave_characteristics.mat
+    load wave_characteristics.mat WaveStats time wave_center wavelength_right wavelength_left
 catch
     characterize_wave;
-    load wave_characteristics.mat
+    load wave_characteristics.mat WaveStats time wave_center wavelength_right wavelength_left
 end
 timei = time;
 
@@ -53,7 +51,7 @@ timei = time;
 %   loc is along x axis (so plot will be z-t)
 
 % Find x-index and initialize variables
-[~, z_ind] = min(abs(gd.z - loc), [], 2);
+[~, z_ind] = min(abs(gd.z - z_loc), [], 2);
 N_t = length(t_inds);
 data = zeros(params.Nx, N_t);
 z_ind_minmax = min(z_ind):max(z_ind);
@@ -105,6 +103,7 @@ if opts.plot
     % Finish making pretty
     ylabel(c, varname);
     caxis(clim)
+    caxis([-.1 .1])
     xlim([x(1) x(end)])
     ylim([time(1) time(end)])
     

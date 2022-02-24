@@ -17,7 +17,7 @@ function [max_val, pos, ind] = find_wave_max(x, y)
 
 % set parameters for findpeaks
 if isempty(x)
-            max_val = NaN;
+        max_val = NaN;
         ind = NaN;
         pos = NaN;
         %max_val = y_max;

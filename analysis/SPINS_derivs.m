@@ -1,8 +1,22 @@
 function data = SPINS_derivs(derivative, ii, save)
 % Calculates derivatives offline. Currently only set up for 2D
-
 % calculate dx dy dz as appropriate
 % switch for derivatives (dissipation, vorticity, 
+%
+% Other m-files required: spins_params; spins_reader_new; get_grad2,
+% spins_writer
+% Subfunctions: none
+% MAT-files required: none
+%
+% See also: OTHER_FUNCTION_NAME2
+% Author: Sam Hartharn-Evans
+% School of Mathematics, Statistics and Physics, Newcastle University
+% email address: s.hartharn-evans2@newcastle.ac.uk
+% GitHub: https://github.com/HartharnSam
+% 12-Oct-2021; Last revision: 12-Oct-2021
+% MATLAB Version: 9.10.0.1739362 (R2021a) Update 5
+
+
 params = spins_params; 
 
 switch lower(derivative)

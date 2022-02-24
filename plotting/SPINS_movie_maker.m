@@ -146,10 +146,15 @@ else
     xlimits_ind = find(x(:, 1)>xlimits(1) & x(:, 1)<xlimits(2));
 end
 
-xspac = params.Nx/128;
-zspac = params.Nz/8;
-Xuv = x(xlimits_ind(1:xspac:end), 1:zspac:params.Nz);
-Zuv = z(xlimits_ind(1:xspac:end), 1:zspac:params.Nz);
+xspac = round([1:params.Nx/128:length(xlimits_ind)]);
+zspac = linspace(-1, 1, 8);
+
+for yi = 1:length(zspac)
+    yspaceinds(yi) = nearest_index(clencurt(params.Nz-1), zspac(yi));
+end
+zspac = yspaceinds;
+Xuv = x(xlimits_ind(xspac), yspaceinds);
+Zuv = z(xlimits_ind(xspac), yspaceinds);
 
 x = x(xlimits_ind, :);
 z = z(xlimits_ind, :);
@@ -284,8 +289,8 @@ for ii = min_t:max_t
     %% Vorticity
     if ~isempty(positioning.vorty)
         vorty = spins_reader_new('vorty', ii, xlimits_ind, []);
-        u_small = spins_reader_new('u',ii, xlimits_ind(1:xspac:end), (1:zspac:params.Nz));
-        w_small = spins_reader_new('w', ii, xlimits_ind(1:xspac:end), (1:zspac:params.Nz));
+        u_small = spins_reader_new('u',ii, xlimits_ind(xspac), (zspac));
+        w_small = spins_reader_new('w', ii, xlimits_ind(xspac), (zspac));
         
         ax(positioning.vorty) = subaxis(n_rows,n_columns, positioning.vorty, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,vorty),shading flat; hold on

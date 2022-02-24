@@ -1,19 +1,18 @@
 %%
 %% Countour?
 clc; clearvars; close all;
-savefnm = 'BroadSurge3D_Contours_pretty.mp4';
+savefnm = 'BroadSurge3D_Contours_pretty.png';
 vid = VideoWriter(savefnm, 'MPEG-4');
 vid.Quality = 100;
 vid.FrameRate = 1;
 open(vid)
-
 %%
-set(gcf, 'Units', 'centimeters'); set(gcf, 'Position', [1 1 26.5113 13.0969]);
+set(gcf, 'Units', 'centimeters'); set(gcf, 'Position', [1 1 26.5113 26.5/(694/363)]);
 set(gcf, 'PaperUnits','centimeters'); set(gcf, 'PaperPosition', get(gcf, 'Position'));
-set(gcf, 'Color', '#262626')
+set(gcf, 'Color', '#0F719B')
 %% Run the thing
-for t = 85:91
-    x = xgrid_reader; xinds = find(x(:, 1)>5.8 & x(:, 1)<6.5);
+for t = 85:90
+    x = xgrid_reader; xinds = find(x(:, 1)>6.0 & x(:, 1)<6.5);
     x = x(xinds,:, :);
     y = ygrid_reader; y = y(xinds,:, :);
     z = zgrid_reader; z = z(xinds,:, :);
@@ -39,7 +38,7 @@ for t = 85:91
         
         faces = isosurface(xi, yi, zi, field_rect, isos(j));
         p(j) = patch(faces);
-        zlim([-.24 0]); ylim([0 .128]); xlim([5.8 6.5])
+        zlim([-.24 0]); ylim([0 .128]); xlim([6.0 6.5])
         view(-27,  14); daspect([1 1 1]);
         axis tight
         p(j).FaceAlpha = .7;
@@ -48,20 +47,25 @@ for t = 85:91
         hold on
     end
     hold on
-    x1 = x(1, 1, 1); x2 = x(end, 1, 1);
+       p1 = patch(x(:, :, 1), y(:, :, 1), z(:, :, 1), 'k');
+    p1.FaceColor = 'k'; p1.EdgeColor = 'k'; p1.FaceAlpha = 0;
+        x1 = x(1, 1, 1); x2 = x(end, 1, 1);
     y1 = y(1, 1, 1); y2 = y(1, end, 1);
     z1 = z(1, 1, 1); z2 = z(end, 1, 1);
-    str = '#262626';
+    
+    p1 = patch([x1 x2 x2 x1], [y1 y1 y2 y2], [z1 z2 z2 z1], 'k');
+    str = '#0F719B';
     color = sscanf(str(2:end),'%2x%2x%2x',[1 3])/255;
-    p1 = patch([x1 x2 x2 x1], [y1 y1 y2 y2], [z1 z2 z2 z1], color, 'EdgeColor', 'none');
-    p2 = patch([x2 x1 x1 x2], [y1 y1 y1 y1], [-.3 -.3 z1 z2], color, 'EdgeColor', 'none');
-    p3 = patch([x2 x2 x2 x2], [y1 y2 y2 y1], [-.3 -.3 z2 z2], color, 'EdgeColor', 'none');
-    p2.FaceColor = '#262626'; p3.FaceColor = '#262626';
-    p1.FaceColor = 'w'; p1.EdgeColor = '#262626'; p1.FaceAlpha = 1;
+    %p1 = patch([x1 x2 x2 x1], [y1 y1 y2 y2], [z1 z2 z2 z1], color, 'EdgeColor', 'none');
+    %p2 = patch([x2 x1 x1 x2], [y1 y1 y1 y1], [-.3 -.3 z1 z2], color, 'EdgeColor', 'none');
+    %p3 = patch([x2 x2 x2 x2], [y1 y2 y2 y1], [-.3 -.3 z2 z2], color, 'EdgeColor', 'none');
+    %p2.FaceColor = '#262626'; p3.FaceColor = '#262626';
+    %p1.FaceColor = 'w'; p1.EdgeColor = '#262626'; p1.FaceAlpha = 1;
     
     % Format
     %xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
     pos = get(gca, 'Position');
+    set(gca, 'XDir', 'reverse')
     %legend(p , num2str(isos(1)), num2str(isos(2)), num2str(isos(3)), 'Location', 'west')
     %title(['t = ', num2str(t), ' s'])
     xticks([]); yticks([]); zticks([]);
@@ -69,6 +73,8 @@ for t = 85:91
     ax.XColor = '#262626';
     ax.ZColor = '#262626';
     ax.YColor = '#262626';
+            zlim([-.20 -.06]); ylim([0 .128]); xlim([6.0 6.4])
+
     figure_print_format(gcf);
 
     %% Write frame
@@ -76,3 +82,4 @@ for t = 85:91
     writeVideo(vid, F);
 end
 close(vid);
+export_fig('D:\OneDrive - Newcastle University\02_PhD_Project\01_ShoalingStratification\05_Communication\Announce_Twitter.png', '-dpng');

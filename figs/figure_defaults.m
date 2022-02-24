@@ -44,6 +44,8 @@ function [] = figure_defaults(fig_hand)
                     if strcmp(ax(ii).Children(jj).Type, 'contour') ...
                             && strcmp(ax(ii).Children(jj).Fill, 'on')
                         ax(ii).Children(jj).LineStyle = 'none';
+                    elseif strcmp(ax(ii).Children(jj).Type, 'line')
+                        ax(ii).Children(jj).LineWidth = 1;
                     end
                 end
             end

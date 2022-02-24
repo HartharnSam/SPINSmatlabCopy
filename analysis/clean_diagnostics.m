@@ -14,7 +14,7 @@ for nn = 1:length(files_to_clean)
             warning(['file "',diag_file,'" incorrectly configured.'])
             continue
         end
-
+        
         % find indices to keep
         time = diagnos.Time;
         %%
@@ -25,7 +25,7 @@ for nn = 1:length(files_to_clean)
         findinds(find_inds(time)) = 1;
         %%
         keep_inds = findinds' & (isfinite(time))' & (uniqlogical)';
-%%        
+        %%
         
         % clean up diagnostics file
         names = fieldnames(diagnos);
@@ -39,7 +39,7 @@ for nn = 1:length(files_to_clean)
             new_diagnos.(names{ii}) = temp(keep_inds);
         end
         new_diagnos.Properties = diagnos.Properties;
-
+        
         save([files_to_clean{nn},'.mat'],'-struct','new_diagnos')
         disp(['Completed cleaning of ',diag_file])
     else
@@ -50,22 +50,22 @@ end
 end % of function
 
 function keep_inds = find_inds(time)
-    % simplify time variable and find restarts
-    step_time = [time(1); time(2:end)-time(1:end-1)];
-    restart_inds = find(step_time<0);
-    last_inds = [restart_inds-1; length(time)];   % last indices before a restart
-    restart_time = time(restart_inds);
-    N_restarts = length(last_inds);
+% simplify time variable and find restarts
+step_time = [time(1); time(2:end)-time(1:end-1)];
+restart_inds = find(step_time<0);
+last_inds = [restart_inds-1; length(time)];   % last indices before a restart
+restart_time = time(restart_inds);
+N_restarts = length(last_inds);
 
-    % find indices to keep (remove unwanted doubled time)
-    for ii = 1:N_restarts
-        if ii == 1
-            keep_inds = 1:last_inds(ii);
-        elseif ii > 1
-            old_inds = keep_inds(time(keep_inds) < restart_time(ii-1));
-            add_inds = (last_inds(ii-1)+1):last_inds(ii);
-            keep_inds = [old_inds add_inds];
-        end
+% find indices to keep (remove unwanted doubled time)
+for ii = 1:N_restarts
+    if ii == 1
+        keep_inds = 1:last_inds(ii);
+    elseif ii > 1
+        old_inds = keep_inds(time(keep_inds) < restart_time(ii-1));
+        add_inds = (last_inds(ii-1)+1):last_inds(ii);
+        keep_inds = [old_inds add_inds];
     end
-    %keep_inds = keep_inds';
+end
+%keep_inds = keep_inds';
 end % end of function

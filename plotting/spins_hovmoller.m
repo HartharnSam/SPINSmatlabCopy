@@ -1,4 +1,4 @@
-function [time, z, data] = spins_hovmoller(varname, loc, t_inds, varargin)
+function [time, z, data] = spins_hovmoller(varname, x_loc, t_inds, varargin)
 %  SPINS_HOVMOLLER  plot a space-time plot of the field 'varname' at x=loc
 %                   over the times corresponding to the indices t_inds
 %
@@ -13,7 +13,8 @@ function [time, z, data] = spins_hovmoller(varname, loc, t_inds, varargin)
 %    z       - space vector
 %    data    - field data
 %
-%  %  David Deepwell, 2018
+%  David Deepwell, 2018
+
 %global gdpar
 
 % get grid and parameters
@@ -41,7 +42,7 @@ opts = p.Results;
 %   loc is along x axis (so plot will be z-t)
 
 % Find x-index and initialize variables
-x_ind = nearest_index(gd.x(:,1), loc);
+x_ind = nearest_index(gd.x(:,1), x_loc);
 N_t = length(t_inds);
 data = zeros(params.Nz, N_t);
 

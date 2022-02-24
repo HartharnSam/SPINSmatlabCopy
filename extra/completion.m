@@ -2,7 +2,8 @@ function [] = completion(ii, Nout, rate)
 % completion prints the completed percentage of a script
 %
 % David Deepwell, 2019
-
+% ii = Current frame
+% Nout = Final frame
 if nargin == 2
     rate = 0.1;
 end

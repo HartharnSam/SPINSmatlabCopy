@@ -180,6 +180,9 @@ end
 
 % are we plotting a streamline?
 plotting_streamlines1 = ~isempty(strfind(lower(var),       'streamline'));
+if plotting_streamlines1
+    opts.var2 = 'None';
+end
 plotting_streamlines2 = ~isempty(strfind(lower(opts.var2), 'streamline'));
 
 % get indices and grid for plotting

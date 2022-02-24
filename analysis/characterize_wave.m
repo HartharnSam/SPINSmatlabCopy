@@ -101,7 +101,7 @@ mult = 2; % multiplier of wavelength to compute region to load
 
 % set-up vectors of wave characteristics
 n_cont = length(contval);
-amplitude = zeros(noutputs, n_cont);
+amplitude = NaN(noutputs, n_cont);
 wave_center =      amplitude;
 wavelength_right = amplitude;
 wavelength_left =  amplitude;
@@ -265,11 +265,13 @@ end
 % get other important information
 wave_speed = 0*amplitude;
 for nn = 1:n_cont
-    wave_speed(:,nn) = FiniteDiff(time,1,2,false,false)*wave_center(:,nn);
+    wave_speed(~isnan(wave_center(:, nn)),nn) =...
+        FiniteDiff(time(~isnan(wave_center(:, nn))),1,2,false,false)*...
+        wave_center((~isnan(wave_center(:, nn))),nn);
 end
 
 % calculate time means for key parameters - over flat topography
-if isfield(params, 'hill_slope')
+if isfield(params, 'hill_slope') && params.hill_height ~= 0
     end_of_slope = params.Lx-((params.hill_height/params.hill_slope)+params.hill_end_dist);
 elseif isfield(params, 'ice_length')
     end_of_slope = params.Lx-params.ice_length;
@@ -279,10 +281,10 @@ end
 
 read_inds = find(wave_center>(params.L_adj*1.15) & wave_center<end_of_slope);
 
-mean_amp = mean(amplitude(read_inds));
-mean_speed = mean(wave_speed(read_inds));
+mean_amp = mean(amplitude(read_inds), 'omitnan');
+mean_speed = mean(wave_speed(read_inds), 'omitnan');
 end_of_slope = time(max(read_inds));
-mean_wavelength  = mean(wavelength_right(read_inds)) + mean(wavelength_left(read_inds));
+mean_wavelength  = mean(wavelength_right(read_inds), 'omitnan') + mean(wavelength_left(read_inds), 'omitnan');
 
 % Display and save data
 WaveStats = struct('meanAmp', mean_amp, 'meanWaveSpeed', mean_speed,...

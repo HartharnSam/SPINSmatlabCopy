@@ -70,6 +70,8 @@ if ~isempty(ax)
                 if strcmp(ax(ii).Children(jj).Type, 'contour') ...
                         && strcmp(ax(ii).Children(jj).Fill, 'on')
                     ax(ii).Children(jj).LineStyle = 'none';
+                elseif strcmp(ax(ii).Children(jj).Type, 'line')
+                    ax(ii).Children(jj).LineWidth = 1;
                 end
             end
         end
@@ -102,7 +104,7 @@ set(text_hand, 'Interpreter', 'Latex',...
 %% Set some other things
 settings = struct('DefaultLineLineWidth',1, 'DefaultTextFontWeight','normal',...
     'DefaultAxesFontWeight','normal', 'defaultfigurecolor', 'w',...
-    'DefaultAxesTickDir', 'in');
+    'DefaultAxesTickDir', 'in', 'DefaultFigureRenderer', 'painters');
 
 fields = fieldnames(settings);
 for i = 1:length(fields)

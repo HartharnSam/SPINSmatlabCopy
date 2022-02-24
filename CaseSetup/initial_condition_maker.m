@@ -73,21 +73,26 @@ hill_length = hill_height/hill_slope;
 a1 = Lx-hill_length-hill_end_dist;
 d = hill_trans;
 a2 = Lx-hill_end_dist;
+R_s = 3; amp = .01; frq = 3; 
 
 % Jacks rough slope
-t1 = .5*(xx-a1+(d1*log(2*cosh((xx-a1)/d1))));
-t2 = -0.5*(xx-a2 +(d2*log(2*cosh((xx-a2)/d2))));
+t1 = .5*(xx-a1+(d*log(2*cosh((xx-a1)/d))));
+t2 = -0.5*(xx-a2 +(d*log(2*cosh((xx-a2)/d))));
 exp_decay_fun = exp(-R_s*(-(xx - ((2*Lx - hill_length)/2))/.5).^2);
 rough_function = amp*sin(frq*pi*(xx));
 
 topo = hill_slope* (t1 - t2) +...
     rough_function.*exp_decay_fun;
+zg = min_z + 0.5*Lz*(1+zz) + 0.5*(1-zz).*topo;
 
 % Smooth Slope
 %topo = hill_slope/2 *(hill_length + d*(log(2*cosh((xx - a1)/d)) - log(2*cosh((xx-a2)/d))));
-
-
 zg = min_z + 0.5*Lz*(1+zz) + 0.5*(1-zz).*topo;
+
+% Ice covered waters
+ice_thickness = .05; ice_length = 1.2; ice_trans = .03;
+topo = -(ice_thickness/2 + (ice_thickness*0.5*tanh((xx - (Lx-ice_length))/ice_trans)));
+zg = min_z + 0.5*Lz*(1+zz) + 0.5*(1+zz).*topo;
 
 %% Plot these things upfigure
 % Note Units/absolute numbers aren't relevant, just how they change within

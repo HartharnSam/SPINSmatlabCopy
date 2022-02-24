@@ -317,7 +317,9 @@ E_rate  = Dmat*interp1(sim_time, E_tot,  time_rate, 'pchip')';
 % compute APE, total Avail. Energy (AE_tot), and change in BPE, and their rates of change
 if compute_BPE
     if do_filter
-        BPE_tot = mlptdenoise(diagnos.BPE_tot, diagnos.Time, 5, 'DualMoments', 3);
+        %BPE_tot = mlptdenoise(diagnos.BPE_tot, diagnos.Time, 5, 'DualMoments', 3);
+        smooth_window = 1e+05*mean(diff(diagnos.Time));
+        BPE_tot = smooth(diagnos.Time, diagnos.BPE_tot,smooth_window, 'sgolay', 1);
     else
         BPE_tot = diagnos.BPE_tot;
     end
@@ -390,8 +392,8 @@ end
 %% Place into output structure
 %  Energy budget
 all_diagnos.EnergyBudget.Time       = diagnos.Time;
-all_diagnos.EnergyBudget.E_tot      =   E_tot;
-all_diagnos.EnergyBudget.KE_tot     =  KE_tot;
+all_diagnos.EnergyBudget.E_tot      = E_tot;
+all_diagnos.EnergyBudget.KE_tot     = KE_tot;
 if compute_BPE
     all_diagnos.EnergyBudget.AE_tot     =  AE_tot;
     all_diagnos.EnergyBudget.APE_tot    = APE_tot;
@@ -488,6 +490,7 @@ if make_plots
         %% %% Diag_SimRunRate %% %%
         elseif strcmp(name, 'Clock_time')
             figure(fn), clf
+            figure_names{fn} = 'plot_diagnos_SimRunTimes';
             subplot(3,1,1), cla reset
             hold on
             for ii = 1:N_start
@@ -509,10 +512,11 @@ if make_plots
             %legend('boxoff')
             box on
             hold off
-
+            
             %%%% Simulation Time per Step %%%%
         elseif strcmp(name, 'Time')
             figure(fn)
+            figure_names{fn} = 'plot_diagnos_SimRunTimes';
             subplot(3,1,2), cla reset
             hold on
             for ii = 1:N_start
@@ -551,6 +555,7 @@ if make_plots
             %% %% Maximum (absolute value of) Velocities %% %%
         elseif strcmp(name, 'Max_u')
             figure(fn+1)
+            figure_names{fn+1} = 'plot_diagnos_MaxAbsVelocities';
             subplot(2,1,1), cla reset
             if ~isfield(diagnos, 'Max_v')
                 diagnos.Max_v = diagnos.Max_u*0;
@@ -561,7 +566,9 @@ if make_plots
             else
                 set(gca,'yscale','linear');
             end
-            ylabel('Velocity (m/s)')
+            ylabel('Velocity (m/s)')            
+            xlim([10 max(diagnos.Time)])
+
             title('Max velocity')
             leg = legend({'Max $|u|$','Max $|v|$','Max $|w|$','Max $|\vec{u}|$'},...
                 'Interpreter','Latex');
@@ -574,6 +581,7 @@ if make_plots
         elseif strcmp(name, 'KE_x')
             %% Plot just kinetic energy
             figure(fn+1)
+            figure_names{fn+1} = 'plot_diagnos_MaxAbsVelocities';
             subplot(2,1,2), cla reset
             plot(diagnos.Time,[diagnos.KE_x, diagnos.KE_y, diagnos.KE_z, KE_tot])
             if params.ndims == 3
@@ -582,6 +590,8 @@ if make_plots
                 set(gca,'yscale','linear');
             end
             xlabel('time (s)')
+            xlim([10 max(diagnos.Time)])
+
             ylabel('Kinetic Energy (J)')
             title('KE components')
             leg = legend({'KE_x','KE_y','KE_z','KE_{tot}'});
@@ -591,6 +601,7 @@ if make_plots
             %% Plot all energy components
             %(KE, APE, Change in internal, Change in BPE, and numerical)
             figure(fn+2)
+            figure_names{fn+2} = 'plot_diagnos_EnergyComponents';
             subplot(2,1,1), cla reset
             hold on
             plot(diagnos.Time, KE_tot)
@@ -620,6 +631,8 @@ if make_plots
             grid on
             box on
             ylabel('Energy (J)')
+            xlim([10 max(diagnos.Time)])
+
             title('Energy components')
             legend(energy_label)
             legend('location','best')
@@ -654,6 +667,7 @@ if make_plots
             grid on
             box on
             xlabel('time (s)')
+            xlim([10 max(diagnos.Time)])
             ylabel('Rate (J/s)')
             title('Energy rates of change')
             legend(energy_label)
@@ -663,39 +677,42 @@ if make_plots
             
             %% Plot all energy component rates (KE, APE, Diss, Change in BPE)
             figure(fn+3)
+            figure_names{fn+3} = 'plot_diagnos_EnergyRates';
             subplot(2,1,1), cla reset
             hold on
             % interpolate onto a regular grid of similar size
             energy_label = {};
             if compute_dissipation
-                plot(diagnos.Time, KE2APE_tot)
+                plot(diagnos.Time(70:end), KE2APE_tot(70:end))
                 energy_label = {'KE to APE (\int \phi_z dt)'};
             end
             % Add APE if calculated
             if compute_BPE && compute_BPE_from_int
-                plot(diagnos.Time, APE2BPE_tot)
+                plot(diagnos.Time(70:end), APE2BPE_tot(70:end))
                 energy_label = [energy_label, {'APE to BPE (\int \phi_m dt)'}];%#ok
             end
             % Add energy converted from internal energy
             if compute_BPE_from_int
-                plot(diagnos.Time, Int2BPE_tot,'Color',cols(4,:))
+                plot(diagnos.Time(70:end), Int2BPE_tot(70:end),'Color',cols(4,:))
                 energy_label = [energy_label, 'Int to BPE (\int \phi_i dt)'];%#ok
             end
             % Add dissipation if calculated
             if compute_dissipation
-                plot(diagnos.Time(8:end), KE2Int_tot(8:end),'k')
+                plot(diagnos.Time(70:end), KE2Int_tot(70:end),'k')
                 energy_label = [energy_label, 'KE to Int (diss, \int \epsilon dt)'];%#ok
             end
             if compute_dissipation && compute_BPE && compute_BPE_from_int
-                plot(diagnos.Time, NumE_tot,'Color',cols(5,:))
+                plot(diagnos.Time(70:end), NumE_tot(70:end),'Color',cols(5,:))
                 energy_label = [energy_label, 'to Numerics'];%#ok
             end
             if KE_forcing
-                plot(diagnos.Time, F2KE_tot)
+                plot(diagnos.Time(70:end), F2KE_tot(70:end))
                 energy_label = [energy_label, {'Work to KE'}];%#ok
             end
             grid on
             ylabel('Energy (J)')
+            xlim([10 max(diagnos.Time)])
+
             title('Energy converted')
             legend(energy_label)
             legend('location','best')
@@ -705,7 +722,7 @@ if make_plots
 
             subplot(2,1,2), cla reset
             hold on
-            inds = 5:length(time_rate);
+            inds = 70:length(time_rate);
             % interpolate onto a regular grid of similar size
             energy_label = {};
             if compute_dissipation
@@ -719,12 +736,12 @@ if make_plots
             end
             % Add energy converted from internal energy
             if compute_BPE_from_int
-                plot(diagnos.Time, diagnos.BPE_from_int,'Color',cols(4,:))
+                plot(diagnos.Time(70:end), diagnos.BPE_from_int(70:end),'Color',cols(4,:))
                 energy_label = [energy_label, 'Int to BPE (\phi_i)']; %#ok
             end
             % Add dissipation if calculated
             if compute_dissipation
-                plot(diagnos.Time(15:end), diagnos.Diss_tot(15:end),'k')
+                plot(diagnos.Time(70:end), diagnos.Diss_tot(70:end),'k')
                 energy_label = [energy_label, 'KE  to Int (diss, \epsilon)'];%#ok
             end
             if compute_dissipation && compute_BPE && compute_BPE_from_int
@@ -732,11 +749,12 @@ if make_plots
                 energy_label = [energy_label, 'to Numerics'];%#ok
             end
             if KE_forcing
-                plot(diagnos.Time, F2KE_rate)
+                plot(diagnos.Time(70:end), F2KE_rate(70:end))
                 energy_label = [energy_label, {'Work to KE'}];%#ok
             end
             grid on
             xlabel('time (s)')
+            xlim([10 max(diagnos.Time)])
             ylabel('Rate (J/s)')
             title('Energy conversion rates')
             legend(energy_label)
@@ -752,6 +770,7 @@ if make_plots
             %%%% Total Mass %%%%
         elseif strcmp(name, 'Mass')
             figure(fn+4)
+            figure_names{fn+4} = 'plot_diagnos_MassDensityDiss';
             subplot(3,1,1), cla reset
             first_ind = 50;
             % ignore the early adjustment caused by
@@ -767,6 +786,7 @@ if make_plots
             %%%% Maximum Density or Salt/Temp %%%%
         elseif strcmp(name, 'Max_density')
             figure(fn+4)
+            figure_names{fn+4} = 'plot_diagnos_MassDensityDiss';
             subplot(3,1,2), cla reset
             if isfield(diagnos,'Min_density')
                 plot(diagnos.Time, [rho_max_diff -rho_min_diff]);
@@ -789,6 +809,8 @@ if make_plots
         elseif strcmp(name, 'Max_temperature') || strcmp(name, 'Max_salinity') || ...
                 strcmp(name, 'Min_temperature') || strcmp(name, 'Min_salinity')
             figure(fn+10)
+            figure_names{fn+10} = 'plot_diagnos_SaltTemp';
+
             if strcmp(name, 'Max_temperature') || strcmp(name, 'Min_temperature')
                 subplot(2,1,1), cla reset, hold on
                 leg_text = {};
@@ -826,13 +848,13 @@ if make_plots
                 ax = gca;
                 ax.YGrid = 'on';
             end
-
-
+            
             %%%% Max Dissipation %%%%
         elseif strcmp(name, 'Max_diss')
             first_ind = 20;
             if length(diagnos.Max_diss) > first_ind
                 figure(fn+4)
+                figure_names{fn+4} = 'plot_diagnos_MassDensityDiss';
                 subplot(3,1,3), cla reset
                 inds = first_ind:length(diagnos.Max_diss);
                 plot(diagnos.Time(inds), diagnos.Max_diss(inds))
@@ -845,6 +867,8 @@ if make_plots
             %%%% Area where density is over/under initial extents %%%%
         elseif strcmp(name, 'Rho_over_vol')
             figure(fn+5), clf
+            figure_names{fn+5} = 'plot_diagnos_Rho_over_vol';
+
             plot(diagnos.Time, [diagnos.Rho_over_vol diagnos.Rho_under_vol ...
                 diagnos.Rho_over_extra_vol diagnos.Rho_under_extra_vol])
             xlabel('time (s)')
@@ -864,6 +888,8 @@ if make_plots
         elseif strncmp(name, 'Max_dye',6) || strcmp(name, 'Max_tracer')
             % initialize figure
             figure(fn+6)
+            figure_names{fn+6} = 'plot_diagnos_DyeTracerMax';
+
             tr_ind = tr_ind + 1;
             if tr_ind == 1
                 clf
@@ -897,6 +923,8 @@ if make_plots
             first_ind = 20; % remove values due to initial perturbations
             if length(diagnos.Max_vort_y) > first_ind
                 figure(fn+7)
+                figure_names{fn+7} = 'plot_diagnos_MaxVorticity_TotalEnstrophy';
+
                 subplot(2,1,1), cla reset
                 inds = first_ind:length(diagnos.Max_vort_y);
                 if params.ndims == 3
@@ -923,6 +951,8 @@ if make_plots
             first_ind = 20; % remove values due to initial perturbations
             if length(diagnos.Enst_y_tot) > first_ind
                 figure(fn+7)
+                figure_names{fn+7} = 'plot_diagnos_MaxVorticity_TotalEnstrophy';
+
                 subplot(2,1,2), cla reset
                 inds = first_ind:length(diagnos.Enst_y_tot);
                 if params.ndims == 3
@@ -955,6 +985,8 @@ if make_plots
             end
             inds = first_ind:length(diagnos.Diss_tot);
             figure(fn+8)
+            figure_names{fn+8} = 'plot_diagnos_Dissipation_Enstrophy';
+
             subplot(3,1,2), cla reset
             plot(diagnos.Time(inds), diagnos.Diss_tot(inds))
             if compute_enstrophy
@@ -969,6 +1001,8 @@ if make_plots
             %%%% Enstrophy-Dissipation ratio %%%%
             if compute_enstrophy
                 figure(fn+8)
+                figure_names{fn+8} = 'plot_diagnos_Dissipation_Enstrophy';
+
                 subplot(3,1,1), cla reset
                 plot(diagnos.Time(inds), enst_tot(inds)/Vol);
                 set(gca, 'xticklabels', []);
@@ -990,6 +1024,7 @@ if make_plots
         else
             disp([name,' not configured'])
             figure(fm), clf
+            figure_names{fm} = ['plot_diagnos_UNCONFIGURED_', num2str(fm)];
             plot(diagnos.Time, diagnos.(name{1}))
             xlabel('time (s)')
             ylabel(strrep(name,'_',' '))
@@ -1000,6 +1035,7 @@ if make_plots
     %%%% Mixing efficiency %%%%
     if compute_BPE && compute_dissipation
         figure(fn+9)
+        figure_names{fn+9} = 'plot_diagnos_MixEfficiency';
         clf
         plot(time_rate, [mix_eff mix_cof])
         xlabel('time (s)')
@@ -1013,15 +1049,10 @@ if make_plots
     end
     %%
     if save_plots
-        FigNames = {'SimRunRate', 'MaxVelsKE_Components', 'AllEnergyComponents', ...
-            'AllEnergyComponentRates', 'MassDensityMaxDiss', 'AreaDeltaRho', ...
-            'DyeTracer', 'MaxVortyTotEnstrophy', 'TotDissipation_Enstrophy',...
-            'MixEfficiency'};
-        
-        for figs = 1:9
-            if ishandle(fn+figs)
-                figure(fn+figs);
-                print(['Diag_', FigNames{figs}, '.png'], '-dpng');
+        for figs = 1:length(figure_names)
+            if ~isempty(figure_names{figs}) && ishandle(figs)
+                figure(figs);
+                print([figure_names{figs}, '.png'], '-dpng');
             end
         end
     end
