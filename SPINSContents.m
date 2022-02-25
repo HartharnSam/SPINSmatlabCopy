@@ -42,10 +42,10 @@ function SPINSContents(category)
 %                           KE, Ri, , fairly complex options
 %
 %% Analysis
-if nargin == 0
-    open SPINSContents
-    return
-end
+% if nargin == 0
+%     open SPINSContents
+%     return
+% end
 
 m_path = mpath;
 string_chars = ' \n ';
