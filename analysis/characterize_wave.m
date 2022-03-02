@@ -29,10 +29,11 @@ function WaveStats = characterize_wave(isTwoLayer, time_window)
 first_out = first_output();
 last_out = last_output();
 init_outputs = first_out:last_out;
-%%
+
+% Parse input arguments
 if nargin <2
-    startframe = 0;
-    endframe = length(init_outputs)-1;
+    startframe = first_out;
+    endframe = last_out;
 else
     startframe = time_window(1);
     endframe = time_window(2);
@@ -41,22 +42,28 @@ if nargin < 1
     isTwoLayer = false;
 end
 
-%%
+% Finalise timey things
 first_out = max(first_output(), startframe);
-last_out = min(last_out(), endframe);
+last_out = min(last_output(), endframe);
 outputs = first_out:last_out;
 noutputs = length(outputs);
-% set filename
+
+% set saving filename
 filename = 'wave_characteristics';
 
 % read grid and parameters
 gd.z = zgrid_reader;
 gd.x = xgrid_reader;
 params = spins_params;
-%gdpar = spins_gridparams('Full');
-%split_gdpar
+tank_end = params.Lx; % Provisionally
+if isfield(params, 'hill_height');
+    hill_length = params.hill_height/params.hill_slope;
+    tank_end = tank_end - hill_length - params.hill_end_dist;
+elseif isfield(params, 'ice_length')
+    ice_length = params.ice_length + params.ice_trans; %todo fix the adjustment of the ice transition length
+    tank_end = tank_end - ice_length;
+end
 % shorten parameters
-%noutputs = length(dir('u.*'));
 gdnames = fieldnames(gd);
 params.ndims = length(gdnames);
 
@@ -65,7 +72,7 @@ Nz = params.Nz;
 
 % find background stratification
 if params.ndims == 3
-    strat = mean(spins_reader('rho', 0, Nx, [], []));
+    strat = mean(spins_reader('rho', 0, Nx/2, [], []));
 elseif params.ndims == 2
     strat = spins_reader_new('rho', 0, Nx/2, 1, []);
 end
@@ -77,8 +84,7 @@ config = {'depr'};
 if isTwoLayer
     isopyc_loc = params.pyc_loc -params.h_halfwidth + 0.01;
 else
-    isopyc_loc = params.pyc_loc -params.h_halfwidth; %+ 0.01;
-    
+    isopyc_loc = params.pyc_loc -params.h_halfwidth;
 end
 if isvector(gd.z)
     contval = interp1(gd.z, strat, isopyc_loc);
@@ -249,7 +255,7 @@ for jj = 1:noutputs
             xrind = nearest_index(gd.x(:,1), xr);
             %ztind = nearest_index(gd.z(Nz,:), zt);
         end
-        if xr >=params.Lx
+        if xr >= tank_end
             reach_end = true;
         end
         %zbind = 1;
@@ -271,38 +277,26 @@ for nn = 1:n_cont
 end
 
 % calculate time means for key parameters - over flat topography
-if isfield(params, 'hill_slope') && params.hill_height ~= 0
-    end_of_slope = params.Lx-((params.hill_height/params.hill_slope)+params.hill_end_dist);
-elseif isfield(params, 'ice_length')
-    end_of_slope = params.Lx-params.ice_length;
-else
-    end_of_slope = params.Lx;
-end
-
-read_inds = find(wave_center>(params.L_adj*1.15) & wave_center<end_of_slope);
+read_inds = find(wave_center>(params.L_adj*1.15) & wave_center< tank_end);
 
 mean_amp = mean(amplitude(read_inds), 'omitnan');
 mean_speed = mean(wave_speed(read_inds), 'omitnan');
-end_of_slope = time(max(read_inds));
+end_of_tank = time(max(read_inds));
 mean_wavelength  = mean(wavelength_right(read_inds), 'omitnan') + mean(wavelength_left(read_inds), 'omitnan');
 
 % Display and save data
 WaveStats = struct('meanAmp', mean_amp, 'meanWaveSpeed', mean_speed,...
-    'endSlope', end_of_slope, 'meanWavelength', mean_wavelength);
+    'endTank', end_of_tank, 'meanWavelength', mean_wavelength);
 
 disp(['Avg. Amplitude = ', num2str(mean_amp), 'm'])
 disp(['Avg. Wave Speed = ', num2str(mean_speed), 'm/s']);
 disp(['Avg. Wave Length = ', num2str(mean_wavelength), 'm']);
 if max(read_inds)<length(wave_center)
-    disp(['Wave reached slope at ', num2str(end_of_slope), 's']);
+    disp(['Wave reached slope at ', num2str(end_of_tank), 's']);
 end
 
 % save data
 save(filename,'time','amplitude','wave_center',...
     'wavelength_right','wavelength_left','strat_loc','wave_speed','contval', 'isopyc_loc', 'WaveStats');
-
-
-
-
 
 

@@ -295,7 +295,8 @@ for ii = min_t:max_t
         ax(positioning.vorty) = subaxis(n_rows,n_columns, positioning.vorty, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,vorty),shading flat; hold on
         plot(x(:, 1), z(:,1), 'k-');
-        
+        plot(x(:, end), z(:,end), 'k-');
+
         caxis([-1 1]*6);
         colormap(gca, newbluewhitered);
         q_scale = 1.2;
