@@ -48,7 +48,7 @@ for ii = length(list_of_sims)
         diagnos = load('all_diagnos.mat');
         diagnos = diagnos.all_diagnos;
     end
-    
+    plot_froude('full', true);
     %% plot movie
     if isVideo
         if ispc
