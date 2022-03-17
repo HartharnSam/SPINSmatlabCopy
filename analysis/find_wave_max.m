@@ -53,6 +53,7 @@ if max_ind < length(x)
     %x = x(x_diff);
     %y = y(x_diff);
     % find peaks if x is monotonic
+    
     if all(diff(xc)>0)
         if y_max > 0
             [pks, locs, width, prom] = findpeaks(yc, xc, 'MinPeakHeight', min_height,...

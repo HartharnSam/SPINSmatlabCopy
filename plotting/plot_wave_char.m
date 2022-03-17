@@ -10,10 +10,12 @@ if exist('wave_characteristics.mat', 'file') == 0 %
     characterize_wave;
 end
 load('wave_characteristics.mat')
-endslope = WaveStats.endSlope;
-if isempty(endslope)
+if isfield('WaveStats','endslope')
+    endslope = WaveStats.endSlope;
+else
     endslope = length(time);
 end
+
 
 leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
 n_cont = length(contval);

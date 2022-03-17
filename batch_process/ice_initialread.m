@@ -20,7 +20,7 @@ for ii = length(list_of_sims)
     cd(['../', list_of_sims{ii}]); % Move into simulation folder
     
     params = spins_params; % Load in simulation parameters
-    disp(['Simulation ', list_of_sims{ii}, ' - ', params.name]);
+    disp(['Simulation ', list_of_sims{ii}]);
     
     %% Calculate/Load wave characteristics
     if exist('wave_characteristics.mat', 'file') == 0 && ~isCalcCharacteristics
