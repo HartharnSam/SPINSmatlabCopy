@@ -85,7 +85,11 @@ end
 
 %% Identify which parameters to be used & their positions
 n_plots = length(parameters);
-n_columns = 2;
+if n_plots > 2
+    n_columns = 2;
+else
+    n_columns = 1;
+end
 n_rows = ceil(n_plots/n_columns);
 % List of possible parameters, identifies the order
 positioning.rho = find(strcmp(parameters, 'rho'));
@@ -187,6 +191,8 @@ for ii = min_t:max_t
         
         ax(positioning.rho) = subaxis(n_rows,n_columns, positioning.rho, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,rho),shading flat
+        hold on
+        plot(x(:, 1), z(:, end), 'k-');
         %colormap darkjet
         c = colorbar(ax(positioning.rho));
         ylabel(c, '$\rho (kg m^{-3})$');
@@ -419,7 +425,7 @@ for ii = min_t:max_t
         ax(positioning.bot_stresses).XLabel.String = 'x (m)';
         
     end
-    
+    dark_figure(gcf, [23 23 23]); 
     if savevideo
         figure_print_format(gcf);
         F = getframe(gcf);

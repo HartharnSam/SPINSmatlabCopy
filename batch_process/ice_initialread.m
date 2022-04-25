@@ -3,27 +3,27 @@
 clc; clearvars; close all;
 
 % Parameters to set
-list_of_sims = {'base', 'hamburg'};  % Names of folders to process
+list_of_sims = {'310122', 'hamburg'};  % Names of folders to process
 isPlotDiagnostics = true; % Do we want to (re)make plots of diagnostics (yes)
 isCalcCharacteristics = true;
 isVideo = true; % Do we want to (re)make the main video
 
-pathname = '\path\to\output\movies';
+pathname = '.\';
 
 %---------------------------------------------------
 %% BEGIN CODE %%
 %---------------------------------------------------
-cd('list_of_sims{1}');
+%cd(list_of_sims{1});
 
 %% Run loops
-for ii = length(list_of_sims)
+for ii = 1:length(list_of_sims)
     cd(['../', list_of_sims{ii}]); % Move into simulation folder
     
     params = spins_params; % Load in simulation parameters
     disp(['Simulation ', list_of_sims{ii}]);
     
     %% Calculate/Load wave characteristics
-    if exist('wave_characteristics.mat', 'file') == 0 && ~isCalcCharacteristics
+    if exist('wave_characteristics.mat', 'file') == 2 && ~isCalcCharacteristics
         load('wave_characteristics.mat', 'WaveStats');
     else
         warning('off', 'MATLAB:DELETE:FileNotFound');
@@ -48,12 +48,12 @@ for ii = length(list_of_sims)
         diagnos = load('all_diagnos.mat');
         diagnos = diagnos.all_diagnos;
     end
-    plot_froude('full', true);
+    %plot_froude('full', true);
     %% plot movie
     if isVideo
         if ispc
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised', 'tracer', 'diss'},...
-                'slopeonly', WaveStats.endTank, true, fullfile(pathname, [params.name, '.mp4']));            
+                'slopeonly', WaveStats.endTank, true, fullfile(pathname, ['movie', '.mp4']));            
         else
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised', 'tracer', 'diss'},...
                 'slopeonly', WaveStats.endTank, true, fullfile(pathname, [params.name, '.avi']));

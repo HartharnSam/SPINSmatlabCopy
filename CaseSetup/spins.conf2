@@ -1,0 +1,44 @@
+##Grid parameters
+Lx = 7.0
+Ly = 0.1
+Lz = 0.3
+Nx = 4096
+Ny = 1
+Nz = 256
+min_x=  0
+min_y = 0
+min_z = -.3
+
+##Physical Parameters
+g = 9.81
+rot_f = 0.0e-3
+rho_0 = 1026.0 % upper layer density
+visco = 1e-6
+kappa_rho = 1e-7
+
+##Problem Parameters
+# For top layer
+rho_1 = 1036
+delta_rho_1 = 0.0097 # (rho_1-rho_0)/rho_0;
+pyc_loc_1 = -0.075
+h_pyc_1 = 0.0015
+pyc_adj_loc_1 = -0.05
+h_pyc_adj_1 = 0.0015 # = h_pyc_1
+
+# For bottom layer
+rho_2 = 1046
+delta_rho_2 = 0.0097 #(rho_2-rho_1)/rho_0;
+pyc_loc_2 = -0.15
+h_pyc_2 = 0.0015
+pyc_adj_loc_2 = -0.2
+h_pyc_adj_2 = 0.0015 # = h_pyc_2
+
+## Gate position/width
+delta_x = 0.04
+L_adj = 0.4
+
+## Topography Parameters
+hill_height = 0.05
+hill_slope = 0.4
+hill_trans = 0.01
+hill_end_dist = 3.0

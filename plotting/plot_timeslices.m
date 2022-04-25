@@ -53,7 +53,7 @@ end
 contour_clrmap = brighten(cmocean("grey", 6), -.5); % Colours of the contour lines
 fig = figure;
 tlayout = tiledlayout(n_times, n_columns,'TileSpacing','Compact', ...
-    'Padding','Compact', 'TileIndexing', 'columnmajor');
+    'Padding','Compact'); %, 'TileIndexing', 'columnmajor');
 betterplots(fig);
 %% Load in data
 
@@ -61,12 +61,13 @@ orig_dir = cd; % Save initial folder
 for jj = 1:n_columns
     s{jj} = gobjects(1, length(ColumnProperties{jj}.Times));
     for ii = 1:length(ColumnProperties{jj}.Times)
-        s{jj}(ii) = nexttile;
+        plot_num = ((n_columns)*(ii-1))+(jj);
+        s{jj}(ii) = nexttile(plot_num);
     end
     
     if strcmpi(ColumnProperties{jj}.Type, 'Model')
         cd(ColumnProperties{jj}.DirectoryName);
-
+        
         plot_model(ColumnProperties{jj}, jj, clrmap, c_range, contour_clrmap, labelled_columns, s{jj}, ylims);
     else
         warning('Type must be Model');
@@ -80,7 +81,7 @@ cd(orig_dir);
 end
 
 
-function plot_model(ColumnProperties, column_number, clrmap, c_range, contour_clrmap, labelled_columns, s, ylims)
+function plot_model(ColumnProperties, column_number, ~, c_range, contour_clrmap, labelled_columns, s, ylims)
 %% Load in model key parameters
 [x, z] = spinsgrid2d; % Load SPINS grid
 params = spins_params;
@@ -196,7 +197,7 @@ for i=1:n_times
             pcolor(s(i), x, z, u), shading(s(i),'flat'); % Plot background
             caxis(s(i), c_range);
             newbluewhitered(255, 0, s(i));
-
+            
             hold(s(i), 'on');
             %% Add Contour on top
             strat = spins_reader_new('rho', 0, params.Nx/2, 1, []); % Read a single vertical profile
@@ -234,40 +235,44 @@ for i=1:n_times
             end
         case 'ri' % Plot richardson number
             % Read in Ri
-            rho_z = spins_reader_new('rho_z',ii, xinds, [])';
-            u_z   = spins_reader_new('u_z',ii, xinds, [])';
-            g = params.g;
-            if params.delta_rho < 1
-                rho_0 = 1;
-            else
-                rho_0 = params.rho_0;
-            end
-            % calculate Ri
-            N_sq  = -g/rho_0*rho_z;
-            data = (N_sq./u_z.^2)';
-            % remove data that is too large
-            if max(data(:)) > 5
-                data(data>5) = 5;
-                warning(['Ri>5 has been set to 5.',...
-                    'This enables contour and contourf to make meaningful plots.'])
-            end
-            
-            % Plot data
-            contourf(s(i), x, z, data, [-.25 0 .25 .5], 'LineColor', 'none');
-            shading(s(i),'flat')
-            cmocean('-dense', 3);
-            hold(s(i), 'on');
-            
-            if any(column_number == labelled_columns)
-                %originalSize = get(s(i), 'Position');
-                c = colorbar;
-                set(c, 'YTick', [-.125 .125 .375]);
-                set(c, 'FontSize', 8);
-                c.TickLabels = {'$<0$', '$0-0.25$', '$>0.25$'};
+            try
+                rho_z = spins_reader_new('rho_z',ii, xinds, [])';
+                u_z   = spins_reader_new('u_z',ii, xinds, [])';
                 
-                ylabel(c, '$Ri$');
-                %set(s(i), 'Position', originalSize);
+                g = params.g;
+                if params.delta_rho < 1
+                    rho_0 = 1;
+                else
+                    rho_0 = params.rho_0;
+                end
+                % calculate Ri
+                N_sq  = -g/rho_0*rho_z;
+                data = (N_sq./u_z.^2)';
+            catch
+                
+                data = SPINS_derivs('ri', ii, true);
+                data = data(xinds, :);
             end
+            axes(s(i));
+            ogdata = data;
+            data = data.*NaN;
+            data(ogdata>=0.25) = 2.5;
+            data(ogdata< 0.25 & ogdata>0) = 1.5;
+            data(ogdata<=0) = 0.5;
+            contourf(s(i), x, z, data, [1 2]);
+            shading flat;
+            caxis(s(i), [0 3]);
+            c = colorbar(s(i));
+            colormap(s(i), cmocean('-dense', 3));
+            if any(column_number == labelled_columns)
+                stops = linspace(0,3, 3+3+1); 
+                c.YTick = stops(2:2:end-1);
+                c.TickLabels = {'$<0$', '$0-0.25$', '$>0.25$'};
+                set(c, 'FontSize', 8);
+                ylabel(c, '$Ri$');
+            end
+                  
+            
         case 'diss'
             diss = spins_reader_new('diss', ii, xinds, []);
             pcolor(s(i), x,z,log10(diss)),shading(s(i),'flat')
@@ -279,9 +284,44 @@ for i=1:n_times
                 ylabel(c, '$\epsilon (m^2s^{-3})$')
                 %set(s(i), 'Position', originalSize);
             end
+        case 'fr'
+            if exist('KdV.mat', 'file') == 0 %
+                calc_kdv_depthchange;
+                error('re-run script')
+            end
+            load KdV.mat KdV
+            % Calculate Fr = U/c_lw
+            u = spins_reader_new('u',ii, xinds, []);
+            data = u/KdV.c_0;
+            axis(s(i));
+            % remove data that is too large
+            if max(data(:)) > 2
+                data(data>2) = 2;
+                warning(['Fr>2 has been set to 2.',...
+                    'This enables contour and contourf to make meaningful plots.'])
+            end
+            %TODO _ Fix this and the colorbar
+            % Plot data
+            pcolor(s(i), x, z, data); shading(s(i), 'flat');
+            hold(s(i), 'on');
+            contour(s(i), x, z, data, [-.25 0 1 2], 'LineColor', 'none');
+            clim(s(i), [-2 2]);
+            colormap(s(i), cmocean('delta'));
+                        
+            if any(column_number == labelled_columns)
+                %originalSize = get(s(i), 'Position');
+                c = colorbar(s(i));
+                set(c, 'FontSize', 8);
+               % c.TickLabels = {'$<0$', '$0-1$', '$>1$'};
+                
+                ylabel(c, '$Fr$');
+                %set(s(i), 'Position', originalSize);
+            end
+            
+            
             
     end
-    if ~(strcmpi(Field, 'Ri') || strcmpi(Field, 'rho') || strcmpi(Field, 'diss'))
+    if ~(strcmpi(Field, 'Ri') || strcmpi(Field, 'rho') || strcmpi(Field, 'diss') || strcmpi(Field, 'Fr'))
         %eval(['colormap(s(i),' clrmap, ');']);
         %caxis(s(i), c_range);
     end
@@ -305,8 +345,7 @@ for i=1:n_times
     else
         ylim(s(i), ylims);
     end
-
-        
+    
     daspect(s(i), [1 1 1]);
     tick_chooser('XTick', s(i));
     set(s(i), 'XDir', 'normal');
@@ -314,9 +353,9 @@ for i=1:n_times
     hold(s(i), 'on')
     plot(s(i), x(:, 1), z(:, 1), 'k-');
     plot(s(i), x(:, end), z(:, end), 'k-');
+    drawnow
 
     hold(s(i), 'off')
-    drawnow
     box(s(i), 'off')
     set(s(i), 'TickDir', 'in');
     

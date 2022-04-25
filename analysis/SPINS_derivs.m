@@ -16,17 +16,17 @@ function data = SPINS_derivs(derivative, ii, save)
 % 12-Oct-2021; Last revision: 12-Oct-2021
 % MATLAB Version: 9.10.0.1739362 (R2021a) Update 5
 
-
 params = spins_params; 
 
 switch lower(derivative)
     case 'ri' % Richardson Number
         g_rho0 = -params.g/params.rho_0;
-                u = spins_reader_new('u', ii);        
-                rho = spins_reader_new('rho', ii);
+        u = spins_reader_new('u', ii);        
+        rho = rho_converter(spins_reader_new('rho', ii));
         [~, du_dz] = get_grad2(u);
         [~, drho_dz] = get_grad2(rho);
-        data = g_rho0*drho_dz.*(du_dz.^2);
+        N_sq = g_rho0 * drho_dz;
+        data = N_sq./(du_dz.^2);
         
     case 'vorty' % Vorticity
         u = spins_reader_new('u', ii);

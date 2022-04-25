@@ -277,6 +277,7 @@ for nn = 1:n_cont
 end
 
 % calculate time means for key parameters - over flat topography
+
 read_inds = find(wave_center>(params.L_adj*1.15) & wave_center< tank_end);
 
 mean_amp = mean(amplitude(read_inds), 'omitnan');

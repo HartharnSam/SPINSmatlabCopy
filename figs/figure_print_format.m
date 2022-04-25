@@ -1,29 +1,21 @@
-function figure_print_format(fig_hand)
+function figure_print_format(fig_hand, fontsize)
 %FIGURE_PRINT_FORMAT - Formats the figure nicely ready for printing
 %Changes to LaTeX like text, at appropriate text size, sets a nice line
 %width, box outline, ticks, etc.
 %
-% Syntax:  [output1,output2] = function_name(input1,input2,input3)
+% Syntax: figure_print_format(fig_hand)
 %
 % Inputs:
-%    input1 - Description
-%    input2 - Description
-%    input3 - Description
-%
-% Outputs:
-%    output1 - Description
-%    output2 - Description
+%    fig_hand - Figure Handle
 %
 % Example:
-%    Line 1 of example
-%    Line 2 of example
-%    Line 3 of example
+%    figure_print_format(fig1);
 %
 % Other m-files required: none
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: OTHER_FUNCTION_NAME1,  OTHER_FUNCTION_NAME2
+% See also: figure_defaults
 % Author: Sam Hartharn-Evans, based on SPINSmatlab figure_defaults (David
 % Deepwell, 2016)
 % School of Mathematics, Statistics and Physics, Newcastle University
@@ -37,7 +29,9 @@ if nargin == 0
 end
 
 % settings
-fontsize = 12;
+if nargin < 2
+    fontsize = 12;
+end
 
 % get figure children
 childs = allchild(fig_hand);
@@ -49,10 +43,11 @@ if ~isempty(ax)
         if ~strcmp(ax(ii).Type, 'axestoolbar')
             % change font size and font
             ax(ii).FontSize = fontsize;
-            ax(ii).TickLabelInterpreter = 'Latex';
+
             ax(ii).XLabel.Interpreter = 'Latex';
             ax(ii).YLabel.Interpreter = 'Latex';
-            
+            ax(ii).TickLabelInterpreter = 'Latex';
+
             % change axis outline
             set(ax(ii),'layer','top');
             ax(ii).Box = 'on';
@@ -70,8 +65,6 @@ if ~isempty(ax)
                 if strcmp(ax(ii).Children(jj).Type, 'contour') ...
                         && strcmp(ax(ii).Children(jj).Fill, 'on')
                     ax(ii).Children(jj).LineStyle = 'none';
-                elseif strcmp(ax(ii).Children(jj).Type, 'line')
-                    ax(ii).Children(jj).LineWidth = 1;
                 end
             end
         end
@@ -104,7 +97,7 @@ set(text_hand, 'Interpreter', 'Latex',...
 %% Set some other things
 settings = struct('DefaultLineLineWidth',1, 'DefaultTextFontWeight','normal',...
     'DefaultAxesFontWeight','normal', 'defaultfigurecolor', 'w',...
-    'DefaultAxesTickDir', 'in', 'DefaultFigureRenderer', 'painters');
+    'DefaultAxesTickDir', 'in');
 
 fields = fieldnames(settings);
 for i = 1:length(fields)
