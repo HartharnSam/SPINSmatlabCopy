@@ -21,29 +21,29 @@ clc; clearvars; close all;
 %% Set user options
 isPlotDiagnostics = true; %Switch to plot diagnostics
 isVideo = true; % Switch to make movie
-n_layers = 3;
+n_layers = 2;
 if n_layers == 2
     isTwoLayer = true; % Switch for if two layer (affects isopycnal chosen for characterize wave)
 else
     isTwoLayer = false;
 end
-RunDirectoryName = {'24_071020_2'}; %{'28_121120', '29_131120'   }; % List of directories to process files from
+RunDirectoryName = {'Surface_20L_Hyperviscous'}; %{'28_121120', '29_131120'   }; % List of directories to process files from
 %run_directory_names('Continuous', "Full");
 %runname = {'thin', 'broad', 'surface'};
-nlayers = [3, 1, 2];
+nlayers = [2];
 %% Set location for video file to be saved to
-pathname = ['C:\Users\', getenv('username'), '\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
+pathname = ['./'];
 %pathname = ['D:\Sam\OneDrive - Newcastle University\Shared_Videos\Numerics\'];
 
 %% Run loops
 outputs = NaN(length(RunDirectoryName), 21);
-for ii = length(RunDirectoryName)
+for ii = 1:length(RunDirectoryName)
     n_layers = nlayers(ii);
     if n_layers == 2
-    isTwoLayer = true; % Switch for if two layer (affects isopycnal chosen for characterize wave)
-else
-    isTwoLayer = false;
-end
+        isTwoLayer = true; % Switch for if two layer (affects isopycnal chosen for characterize wave)
+    else
+        isTwoLayer = false;
+    end
     cd(['../', RunDirectoryName{ii}]);
     
     params = spins_params;
@@ -51,17 +51,17 @@ end
     disp(RunDirectoryName{ii});
     
     %% Calculate/Load wave characteristics
-     try 
-         lastwarn('');
-         load('wave_characteristics.mat', 'WaveStats');
-         msg = lastwarn; 
-         if ~isempty(msg)
-             error('h')
-         end
-     catch
-                  warning('off', 'MATLAB:DELETE:FileNotFound');
-         delete('wave_characteristics.mat'); delete('wavestats.mat')
-     %if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
+    try
+        lastwarn('');
+        load('wave_characteristics.mat', 'WaveStats');
+        msg = lastwarn;
+        if ~isempty(msg)
+            error('h')
+        end
+    catch
+        warning('off', 'MATLAB:DELETE:FileNotFound');
+        delete('wave_characteristics.mat'); delete('wavestats.mat')
+        %if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
         if n_layers == 1
             WaveStats = wave_characteriser([10 45]); % Less robust script for use with continuous stratification
         else
@@ -69,8 +69,8 @@ end
         end
         plot_wave_char; % Plots the outputs and saves them
         close all
-    %else % If this has already been run before, just need to load it
-    %    load('wave_characteristics.mat', 'WaveStats');
+        %else % If this has already been run before, just need to load it
+        load('wave_characteristics.mat', 'WaveStats');
     end
     
     %% Clean/Plot diagnostics
@@ -81,10 +81,10 @@ end
     if exist('all_diagnos.mat', 'file') == 0% checks for file created by plot_diagnos
         diagnos = plot_diagnos(isPlotDiagnostics, false, isPlotDiagnostics);
         close all
-        plot_stress(isPlotDiagnostics, isPlotDiagnostics); % Also plot stresses
+        %        plot_stress(isPlotDiagnostics, isPlotDiagnostics); % Also plot stresses
     else
         close all
-
+        
         diagnos = load('all_diagnos.mat');
         diagnos = diagnos.all_diagnos;
     end
@@ -92,12 +92,12 @@ end
     %% plot movie
     if isVideo
         if ispc
-            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised', 'tracer', 'diss', 'timeseries_tracer', 'timeseries_dissipation', 'bot_stresses'},...
-                'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
-
+            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'},...
+                'slopeonly', WaveStats.endTank, true, 'output.mp4');
+            
             %SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'tracer'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
             %SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, ['numerics_example', '.mp4']));
-
+            
         else
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.avi']));
         end
@@ -112,17 +112,17 @@ end
         slope_condition_tmp = [slope_condition_tmp, 'mm_b'];
     else
         slope_condition_tmp = [slope_condition_tmp, 'mm'];
-    end 
+    end
     slope_condition{ii} = slope_condition_tmp;
     
-%     outputs(ii, :) = [params.hill_height, params.hill_slope, params.pyc_adj_loc, ...
-%         params.h_halfwidth, (params.Lz + (params.pyc_loc - params.h_halfwidth)),...
-%         WaveStats.meanAmp, WaveStats.meanWaveSpeed, WaveStats.meanWavelength... % Wave amplitude, speed, wavelength
-%         WaveStats.meanAmp/WaveStats.meanWavelength,... % wAve steepness
-%         params.hill_slope/sqrt(WaveStats.meanAmp/WaveStats.meanWavelength),... % Ir
-%         NaN, NaN, params.Nx, params.Ny, params.Nz, params.Lx, params.Ly, params.Lz,... % Resolution
-%         params.Lx./params.Nx, params.Ly./params.Ny, params.Lz./params.Nz ...% More resolution
-%         ];
+    %     outputs(ii, :) = [params.hill_height, params.hill_slope, params.pyc_adj_loc, ...
+    %         params.h_halfwidth, (params.Lz + (params.pyc_loc - params.h_halfwidth)),...
+    %         WaveStats.meanAmp, WaveStats.meanWaveSpeed, WaveStats.meanWavelength... % Wave amplitude, speed, wavelength
+    %         WaveStats.meanAmp/WaveStats.meanWavelength,... % wAve steepness
+    %         params.hill_slope/sqrt(WaveStats.meanAmp/WaveStats.meanWavelength),... % Ir
+    %         NaN, NaN, params.Nx, params.Ny, params.Nz, params.Lx, params.Ly, params.Lz,... % Resolution
+    %         params.Lx./params.Nx, params.Ly./params.Ny, params.Lz./params.Nz ...% More resolution
+    %         ];
     %% Clean up
     clearvars -except is* RunDirectoryName pathname outputs* n_layers slope_condition start* nlayers runname
     close all

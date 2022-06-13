@@ -26,9 +26,13 @@ function rho_new = rho_converter(rho)
 %---------------------------------------------------
 
 params = spins_params;
-delta_rho = params.delta_rho;
+try
+    delta_rho = params.delta_rho;
+catch
+    delta_rho = params.delta_rho_1+params.delta_rho_2;
+end
 rho_0 = params.rho_0;
 
-rho_new = params.rho_0.*(1 + params.delta_rho/2 + rho.*(delta_rho.*(1+delta_rho) + 1));
+rho_new = rho_0.*(1 + delta_rho/2 + rho.*(delta_rho.*(1+delta_rho) + 1));
 end
 

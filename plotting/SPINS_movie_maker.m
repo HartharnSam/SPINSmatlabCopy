@@ -2,7 +2,7 @@ function SPINS_movie_maker(parameters, xlimits, min_t, savevideo, savefnm)
 %SPINS_MOVIE_MAKER - Plots a video of the SPINS outputs outlined by
 %parameters over the time and x space specified
 %
-% Syntax:  SPINS_movie_maker(savevideo,parameters, xlimits, min_t, savefnm)
+% Syntax:  SPINS_movie_maker(parameters, xlimits, min_t, savevideo, savefnm)
 %
 % Inputs:
 %    parameters - [REQUIRED] List of fields to be plotted - in order of
@@ -91,6 +91,7 @@ else
     n_columns = 1;
 end
 n_rows = ceil(n_plots/n_columns);
+
 % List of possible parameters, identifies the order
 positioning.rho = find(strcmp(parameters, 'rho'));
 positioning.u = find(strcmp(parameters, 'u'));
@@ -106,8 +107,6 @@ positioning.timeseries_dissipation = find(strcmp(parameters, 'timeseries_dissipa
 positioning.timeseries_tracer = find(strcmp(parameters, 'timeseries_tracer'));
 
 pcolor_plots = zeros(n_columns, n_rows);
-
-
 
 %% Begin Video and set figure settings
 if savevideo % Open videowriter class
@@ -206,11 +205,12 @@ for ii = min_t:max_t
     if ~isempty(positioning.u)
         u = spins_reader_new('u', ii, xlimits_ind, []);
         %umaxabs=max(abs(u(:)));
-        
         ax(positioning.u) = subaxis(n_rows,n_columns, positioning.u, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,u),shading flat
-        colormap darkjet
-        
+        cmocean('delta');
+        c = colorbar(ax(positioning.u));
+        ylabel(c, '$u$');
+        umaxabs = 0.15;
         caxis(gca, umaxabs*[-1 1]);
         title('u (m/s)')
         pcolor_plots(positioning.u) = 1;
@@ -219,7 +219,7 @@ for ii = min_t:max_t
     %% Normalised U Velocity
     if ~isempty(positioning.u_normalised)
         u = spins_reader_new('u', ii, xlimits_ind, []);
-        c = wave_speed;
+        c = wave_speed(1);
         u_normalised = u./c;
         ax(positioning.u_normalised) = subaxis(n_rows, n_columns, positioning.u_normalised, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x, z, u_normalised), shading flat
@@ -227,7 +227,7 @@ for ii = min_t:max_t
         cmocean('delta');
         c = colorbar(ax(positioning.u_normalised));
         ylabel(c, '$u / c$');
-        caxis(gca, [-1.1 1.1]);
+        caxis(gca, [-.1 .1]);
         %title('u/c')
         title(subplot_labels(positioning.u_normalised, 2))
         pcolor_plots(positioning.u_normalised) = 1;
@@ -240,7 +240,6 @@ for ii = min_t:max_t
         
         ax(positioning.v) = subaxis(n_rows,n_columns, positioning.v, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,v),shading flat
-        colormap darkjet
         
         caxis(gca, vmaxabs*[-1 1]);
         title('v (m/s)')
@@ -255,7 +254,11 @@ for ii = min_t:max_t
         ax(positioning.w) = subaxis(n_rows,n_columns, positioning.w, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,w),shading flat
         colormap darkjet
+        cmocean('delta');
+        wmaxabs = 0.15;
         caxis(gca, wmaxabs*[-1 1]);
+        c = colorbar(ax(positioning.w));
+        ylabel(c, '$w$');
         title('w (m/s)')
         pcolor_plots(positioning.w) = 1;
         
@@ -264,7 +267,7 @@ for ii = min_t:max_t
     if ~isempty(positioning.w_normalised)
         w = spins_reader_new('w', ii, xlimits_ind, []);
         c = wave_speed;
-        w_normalised = w./c;
+        w_normalised = w./c(1);
         
         ax(positioning.w_normalised) = subaxis(n_rows, n_columns, positioning.w_normalised, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x, z, w_normalised), shading flat
@@ -272,7 +275,7 @@ for ii = min_t:max_t
         cmocean('delta');
         c = colorbar(ax(positioning.w_normalised));
         ylabel(c, '$w / c$');
-        caxis(gca, [-1.1 1.1]);
+        caxis(gca, [-0.1 0.1]);
         %title('w/c')
         title(subplot_labels(positioning.w_normalised, 2))
         pcolor_plots(positioning.w_normalised) = 1;
@@ -425,7 +428,8 @@ for ii = min_t:max_t
         ax(positioning.bot_stresses).XLabel.String = 'x (m)';
         
     end
-    dark_figure(gcf, [23 23 23]); 
+    drawnow;
+    %dark_figure(gcf, [23 23 23]); 
     if savevideo
         figure_print_format(gcf);
         F = getframe(gcf);

@@ -15,7 +15,8 @@ if isfield('WaveStats','endslope')
 else
     endslope = length(time);
 end
-
+n_isopycnals = size(amplitude, 2);
+endslope = endslope*ones(1, n_isopycnals);
 
 leg = arrayfun(@(contval) ['rho = ',num2str(contval)],contval,'Uni',0);
 n_cont = length(contval);
@@ -32,7 +33,7 @@ clf
 subplot(n_plots, 1, 1)
 plot(time,amplitude*100)
 hold on
-plot([endslope endslope], [0 max(amplitude)*100], 'k-')
+plot([endslope endslope], [zeros(1, n_isopycnals) max(amplitude)*100], 'k-')
 %xlabel('time (s)')
 set(gca, 'XTick', []);
 ylabel({'Amplitude', '(cm)'})
@@ -52,7 +53,7 @@ if n_cont == 1
         plot(time,[wavelength_right; wavelength_left]*100)
     end
     hold on
-    plot([endslope endslope], [0 max(wavelength_right)*100], 'k-')
+    plot([endslope endslope], [zeros(1, n_isopycnals) max(wavelength_right)*100], 'k-')
     %xlabel('time (s)')
     set(gca, 'XTick', []);
     ylabel({'Wavelength', '(cm)'})
@@ -60,14 +61,14 @@ if n_cont == 1
     legend('location','best')
     legend('boxoff')
     fnum = fnum+1;
-    
+
 else
     %figure(fnum)
     %  clf
     subplot(n_plots, 1, 2)
     plot(time,wavelength_right*100)
-       hold on
-    plot([endslope endslope], [0 max(wavelength_right)*100], 'k-')
+    hold on
+    plot([endslope endslope], [zeros(1, n_isopycnals) max(wavelength_right)*100], 'k-')
 
     xlabel('time (s)')
     %ylabel('Right Wavelength (cm)')
@@ -77,7 +78,7 @@ else
     fnum = fnum+1;
     %figure(fnum)
     %clf
-    
+
     plot(time,wavelength_left*100)
     xlabel('time (s)')
     ylabel('Wavelength (cm)')
@@ -98,7 +99,7 @@ if n_cont == 1
         plot(time,[wavelength_right+wavelength_left]*100)
     end
     hold on
-    plot([endslope endslope], [0 max(wavelength_right+wavelength_left)*100], 'k-')
+    plot([endslope endslope], [zeros(1, n_isopycnals) max(wavelength_right+wavelength_left)*100], 'k-')
     %xlabel('time (s)')
     set(gca, 'XTick', []);
     ylabel({'Wavelength', '(cm)'})
@@ -106,14 +107,14 @@ if n_cont == 1
     legend('location','best')
     legend('boxoff')
     fnum = fnum+1;
-    
+
 else
     %figure(fnum)
     %  clf
     subplot(n_plots, 1, 3)
     plot(time,wavelength_right*100)
-       hold on
-    plot([endslope endslope], [0 max(wavelength_right)*100], 'k-')
+    hold on
+    plot([endslope endslope], [zeros(1, n_isopycnals) max(wavelength_right)*100], 'k-')
 
     xlabel('time (s)')
     %ylabel('Right Wavelength (cm)')
@@ -123,7 +124,7 @@ else
     fnum = fnum+1;
     %figure(fnum)
     %clf
-    
+
     plot(time,wavelength_left*100)
     xlabel('time (s)')
     ylabel('Wavelength (cm)')
@@ -139,10 +140,10 @@ end
 subplot(n_plots, 1, 4)
 plot(time,wave_speed*100)
 hold on
-plot([endslope endslope], [-1 1]*max(wave_speed)*100, 'k-')
+plot([endslope(1) endslope(1)], [-1 1]*max(wave_speed(:, 1))*100, 'k-')
 
 xlabel('time (s)')
-set(gca, 'ylim', [-1 1]*max(wave_speed)*100);
+set(gca, 'ylim', [-1 1]*max(wave_speed, [], 'all')*100);
 ylabel({'Wave speed', '(cm/s)'})
 legend(leg)
 legend('location','best')
@@ -155,7 +156,7 @@ fnum = fnum+1;
 subplot(n_plots, 1, 5)
 plot(time, wave_center)
 hold on
-plot([endslope endslope], [0 max(wave_center)], 'k-')
+plot([endslope endslope], [zeros(1, n_isopycnals) max(wave_center)], 'k-')
 %xlabel('time (s)')
 set(gca, 'XTick', []);
 ylabel({'Wave center', '(m)'})

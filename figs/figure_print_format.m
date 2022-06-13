@@ -51,7 +51,7 @@ if ~isempty(ax)
             % change axis outline
             set(ax(ii),'layer','top');
             ax(ii).Box = 'on';
-            
+            ax(ii).Toolbar.Visible = 'off';
             % Get rid of the annoying exponent thing
             for i = 1:length(ax(ii).YAxis)
                 ax(ii).YAxis(i).Exponent = 0;

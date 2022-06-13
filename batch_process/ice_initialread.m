@@ -3,7 +3,7 @@
 clc; clearvars; close all;
 
 % Parameters to set
-list_of_sims = {'310122', 'hamburg'};  % Names of folders to process
+list_of_sims = {'lab_10L', 'lab_20L', 'lab_30L', 'lab_40L'};  % Names of folders to process
 isPlotDiagnostics = true; % Do we want to (re)make plots of diagnostics (yes)
 isCalcCharacteristics = true;
 isVideo = true; % Do we want to (re)make the main video
@@ -16,7 +16,7 @@ pathname = '.\';
 %cd(list_of_sims{1});
 
 %% Run loops
-for ii = 1:length(list_of_sims)
+for ii = length(list_of_sims)
     cd(['../', list_of_sims{ii}]); % Move into simulation folder
     
     params = spins_params; % Load in simulation parameters

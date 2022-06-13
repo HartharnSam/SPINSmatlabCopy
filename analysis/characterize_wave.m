@@ -56,7 +56,7 @@ gd.z = zgrid_reader;
 gd.x = xgrid_reader;
 params = spins_params;
 tank_end = params.Lx; % Provisionally
-if isfield(params, 'hill_height');
+if isfield(params, 'hill_height')
     hill_length = params.hill_height/params.hill_slope;
     tank_end = tank_end - hill_length - params.hill_end_dist;
 elseif isfield(params, 'ice_length')
@@ -72,28 +72,39 @@ Nz = params.Nz;
 
 % find background stratification
 if params.ndims == 3
-    strat = mean(spins_reader('rho', 0, Nx/2, [], []));
+    strat = mean(spins_reader_new('rho', 0, Nx/2, [], []));
 elseif params.ndims == 2
     strat = spins_reader_new('rho', 0, Nx/2, 1, []);
 end
 
 % isopycnal parameters
-%   One isopycnal:
-contval = 0; %#ok
-config = {'depr'};
-if isTwoLayer
-    isopyc_loc = params.pyc_loc -params.h_halfwidth + 0.01;
-else
-    isopyc_loc = params.pyc_loc -params.h_halfwidth;
-end
-if isvector(gd.z)
-    contval = interp1(gd.z, strat, isopyc_loc);
-else
-    contval = interp1(gd.z(Nx/2,:), strat, isopyc_loc);
-end
+% Uncomment if one isopycnal:
+ contval = 0; %#ok
+ config = {'depr'};
+ if isTwoLayer
+     isopyc_loc = params.pyc_loc -params.h_halfwidth + 0.01;
+ else
+     isopyc_loc = params.pyc_loc -params.h_halfwidth;
+ end
+ if isvector(gd.z)
+     contval = interp1(gd.z, strat, isopyc_loc);
+ else
+     contval = interp1(gd.z(Nx/2,:), strat, isopyc_loc);
+ end
 
+% Uncomment if two isopycnals
+% middepth = params.min_z + params.Lz/2;
+% h = params.h_pyc_1;
+% isopyc_loc = middepth - h;
+% isopyc_loc = params.pyc_loc_1
+% strat = spins_reader_new('rho', 0, Nx, 1, []);
+% if isvector(gd.z)
+%    val = interp1(gd.z, strat, isopyc_loc);
+% else
+%    val = interp1(gd.z(Nx,:), strat, isopyc_loc);
+% end
 % contval = [-1 1]*val;
-% config = {'depr'}; %{'elev', 'depr'}; % whether the isopycnals correspond
+% config = {'depr', 'elev'}; % whether the isopycnals correspond
 % to waves of elevation ('elev') or depression ('depr')
 % Depression waves will be flipped to appear as elevation
 % waves. This makes characterization easier.
@@ -127,7 +138,7 @@ end
 time = (startframe:endframe)';
 
 %% Loop through outputs
-
+figure(1)
 for jj = 1:noutputs
     if reach_end
         disp(['Wave has reached the tank end, skipping output '...
@@ -162,7 +173,7 @@ for jj = 1:noutputs
     
     % set-up the figure
     all_conts = true; % do all contours exist in the domain?
-    figure(1), clf
+    clf
     hold on
     
     % loop through the contours
@@ -267,6 +278,7 @@ for jj = 1:noutputs
     % print percentage of completion
     completion(jj, noutputs)
 end
+set(0,'DefaultFigureVisible','on');
 
 % get other important information
 wave_speed = 0*amplitude;
@@ -278,12 +290,12 @@ end
 
 % calculate time means for key parameters - over flat topography
 
-read_inds = find(wave_center>(params.L_adj*1.15) & wave_center< tank_end);
+read_inds = find(wave_center(:, 1)>(params.L_adj*1.15) & wave_center(:, 1)< tank_end);
 
-mean_amp = mean(amplitude(read_inds), 'omitnan');
-mean_speed = mean(wave_speed(read_inds), 'omitnan');
+mean_amp = mean(amplitude(read_inds, :), 'omitnan');
+mean_speed = mean(wave_speed(read_inds, :), 'omitnan');
 end_of_tank = time(max(read_inds));
-mean_wavelength  = mean(wavelength_right(read_inds), 'omitnan') + mean(wavelength_left(read_inds), 'omitnan');
+mean_wavelength  = mean(wavelength_right(read_inds, :), 'omitnan') + mean(wavelength_left(read_inds, :), 'omitnan');
 
 % Display and save data
 WaveStats = struct('meanAmp', mean_amp, 'meanWaveSpeed', mean_speed,...

@@ -27,7 +27,7 @@ function [pos, ind] = find_half_max(x, y)
         val = y(ii);
     end
 
-    if ii == 1
+    if ii == 1 || ii >= len
         % didn't reach max_val/2, so take minimum in domain
         [~, ind] = min(y);
         pos = x(ind);

@@ -131,7 +131,7 @@ line_2 = inds_free_wave(round(length(inds_free_wave)/2));
 %% Calculate density profile (based on problem parameters and .cpp equations)
 
 rho =  -0.5 * ((delta_rho_1 * tanh((zg-pyc_loc_1)/h_pyc_1)) + ...
-    (delta_rho_2*(tanh((zg-pyc_loc_2)/h_pyc_2)))); % Without the gate
+    (delta_rho_2*tanh((zg-pyc_loc_2)/h_pyc_2))); % Without the gate
 gate_rho = -0.5*(delta_rho_1*(tanh((zg-pyc_adj_loc_1)/h_pyc_adj_1)) + delta_rho_2*(tanh((zg-pyc_adj_loc_2)/h_pyc_adj_2)));
 
 rho = rho.*0.5.*(1.0+tanh((xx-L_adj)/delta_x)); % Clears the region behind the gate

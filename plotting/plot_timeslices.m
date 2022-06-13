@@ -52,8 +52,8 @@ else
 end
 contour_clrmap = brighten(cmocean("grey", 6), -.5); % Colours of the contour lines
 fig = figure;
-tlayout = tiledlayout(n_times, n_columns,'TileSpacing','Compact', ...
-    'Padding','Compact'); %, 'TileIndexing', 'columnmajor');
+tlayout = tiledlayout(n_times, n_columns,'TileSpacing','compact', ...
+    'Padding','compact'); %, 'TileIndexing', 'columnmajor');
 betterplots(fig);
 %% Load in data
 
@@ -95,7 +95,7 @@ xinds = find(x(:, 1)>xlimits(1) & x(:, 1)<xlimits(2));
 x = x(xinds, :);
 z_midline = z(params.Nx/2,:); % Take a profile at the mid-tank before cropping
 z = z(xinds, :);
-
+z = z*100;
 %% Pre-allocate the axes array
 n_times = length(ColumnProperties.Times);
 %s = gobjects(n_times, 1);
@@ -104,10 +104,10 @@ n_times = length(ColumnProperties.Times);
 actual_times = round(actual_times,1);
 times = round(ColumnProperties.Times, 1);
 %iis = ColumnProperties.Times;%actual_otpt_nums(any(actual_times == round(ColumnProperties.Times, 2), 2));
-for i = 1:length(times)
-    iis(i) = actual_otpt_nums(actual_times == times(i));
-end
-
+% for i = 1:length(times)
+%     iis(i) = actual_otpt_nums(actual_times == times(i));
+% end
+iis = times;
 
 %% Start plotting
 for i=1:n_times
@@ -128,23 +128,25 @@ for i=1:n_times
             rho = spins_reader_new('rho',ii, xinds, []); %read in density
             rho = rho_converter(rho); % convert to real densities
             params = spins_params;
-            pcolor(s(i), x, z, rho),shading(s(i),'flat')
-            caxis(s(i), [params.rho_0 params.rho_0.*(1+params.delta_rho)]);
+            pcolor(s(i), x, z, rho-1000),shading(s(i),'flat')
+            caxis(s(i), [params.rho_0 params.rho_0.*(1+params.delta_rho)]-1000);
             colormap(s(i), cmocean('dense'))
-            if any(column_number == labelled_columns)
-                %originalSize = get(s(i), 'Position');
+            if any(column_number == labelled_columns) && i == 1
                 c = colorbar(s(i));
-                ylabel(c, '$\rho (kg m^{-3})$')
-                %set(s(i), 'Position', originalSize);
-                %set(c, 'YTick', [min(c_range) 0 max(c_range)]);
+                c.Location = 'northoutside';
+                ylabel(c, '$\sigma_t (kg m^{-3})$')
             end
         case 'vorty' % plot vorticity field
             vorty = spins_reader_new('vorty', ii, xinds, []); % Read in data
             
             pcolor(s(i), x, z, vorty), shading(s(i),'flat'); % Plot data
+            c_range = [-1 1].*6;
             caxis(s(i), c_range); % Sort color range
-            if any(column_number == labelled_columns)
+            colormap(s(i), cmocean('balance'))
+
+            if any(column_number == labelled_columns) && i  == 1
                 c = colorbar(s(i));
+                c.Location = 'northoutside';
                 ylabel(c, '$\omega (s^{-1})$')
                 set(c, 'YTick', [min(c_range) 0 max(c_range)]);
             end
@@ -155,6 +157,8 @@ for i=1:n_times
             rho = rho_converter(rho); % convert to real densities
             pcolor(s(i), x, z, vorty), shading(s(i),'flat'); % Plot background
             caxis(s(i), c_range);
+            colormap(s(i), cmocean('balance'))
+
             hold(s(i), 'on')
             %% Add Contour on top
             strat = spins_reader_new('rho', 0, params.Nx/2, 1, []); % Read a single vertical profile
@@ -183,9 +187,10 @@ for i=1:n_times
                 end
             end
             % Sort the colourbar if needed
-            if any(column_number == labelled_columns)
+            if any(column_number == labelled_columns) && i == 1
                 %originalSize = get(s(i), 'Position');
                 c = colorbar(s(i));
+                c.Location = 'northoutside';
                 ylabel(c, '$\omega (s^{-1})$')
                 %set(s(i), 'Position', originalSize);
                 set(c, 'YTick', [min(c_range) 0 max(c_range)]);
@@ -226,10 +231,12 @@ for i=1:n_times
                 end
             end
             % Sort the colourbar if needed
-            if any(column_number == labelled_columns)
+            if any(column_number == labelled_columns) && i == 1
                 %originalSize = get(s(i), 'Position');
                 c = colorbar(s(i));
                 ylabel(c, 'u (ms$^{-1})$')
+                c.Location = 'northoutside';
+
                 %set(s(i), 'Position', originalSize);
                 set(c, 'YTick', [min(c_range) 0 max(c_range)]);
             end
@@ -264,9 +271,10 @@ for i=1:n_times
             caxis(s(i), [0 3]);
             c = colorbar(s(i));
             colormap(s(i), cmocean('-dense', 3));
-            if any(column_number == labelled_columns)
+            if any(column_number == labelled_columns) && i == 1
                 stops = linspace(0,3, 3+3+1); 
-                c.YTick = stops(2:2:end-1);
+                c.YTick = stops(2:2:end-1);               
+                c.Location = 'northoutside';
                 c.TickLabels = {'$<0$', '$0-0.25$', '$>0.25$'};
                 set(c, 'FontSize', 8);
                 ylabel(c, '$Ri$');
@@ -276,12 +284,14 @@ for i=1:n_times
         case 'diss'
             diss = spins_reader_new('diss', ii, xinds, []);
             pcolor(s(i), x,z,log10(diss)),shading(s(i),'flat')
-            cmocean('amp');
-            caxis(s(i), c_range); % Sort color range
-            if any(column_number == labelled_columns)
+            colormap(s(i), cmocean('amp'));
+            caxis(s(i), [-7 -1]); % Sort color range
+            if any(column_number == labelled_columns) && i == 1
                 %originalSize = get(s(i), 'Position');
                 c = colorbar(s(i));
-                ylabel(c, '$\epsilon (m^2s^{-3})$')
+                c.Location = 'northoutside';
+
+                ylabel(c, '$log_{10}(\epsilon (m^2s^{-3}))$')
                 %set(s(i), 'Position', originalSize);
             end
         case 'fr'
@@ -308,12 +318,12 @@ for i=1:n_times
             clim(s(i), [-2 2]);
             colormap(s(i), cmocean('delta'));
                         
-            if any(column_number == labelled_columns)
+            if any(column_number == labelled_columns) && i == 1
                 %originalSize = get(s(i), 'Position');
-                c = colorbar(s(i));
+                c = colorbar(s(i));        
+                c.Location = 'northoutside';
                 set(c, 'FontSize', 8);
                % c.TickLabels = {'$<0$', '$0-1$', '$>1$'};
-                
                 ylabel(c, '$Fr$');
                 %set(s(i), 'Position', originalSize);
             end
@@ -330,7 +340,7 @@ for i=1:n_times
     if column_number ~= 1
         yticklabels(s(i), []);
     else
-        ylabel(s(i), '$z (m)$');
+        ylabel(s(i), '$z (cm)$');
     end
     
     % X Axis
@@ -346,7 +356,7 @@ for i=1:n_times
         ylim(s(i), ylims);
     end
     
-    daspect(s(i), [1 1 1]);
+    daspect(s(i), [1 100 1]);
     tick_chooser('XTick', s(i));
     set(s(i), 'XDir', 'normal');
     %% Draw on slope, and outside
