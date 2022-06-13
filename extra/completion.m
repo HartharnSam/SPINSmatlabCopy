@@ -1,4 +1,4 @@
-function [] = completion(ii, Nout, rate)
+function [] = completion(ii, Nout, rate, label)
 % completion prints the completed percentage of a script
 %
 % David Deepwell, 2019
@@ -6,6 +6,9 @@ function [] = completion(ii, Nout, rate)
 % Nout = Final frame
 if nargin == 2
     rate = 0.1;
+    label = '';
+elseif nargin == 3
+    label = '';
 end
 
 if ii == 1
@@ -29,5 +32,11 @@ else
 end
 
 if do_print
-    fprintf('Process %3d of %3d complete: %3d%%\n',ii,Nout,round(ii/Nout*100))
+    if strcmp(label,'')
+        fprintf('Process %3d of %3d complete: %3d%%\n',...
+            ii, Nout, round(ii/Nout*100))
+    else
+        fprintf('%s: Process %3d of %3d complete: %3d%%\n',...
+            label, ii, Nout, round(ii/Nout*100))
+    end
 end

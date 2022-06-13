@@ -43,8 +43,13 @@ elseif nargin == 2
 end
 %% 
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
-% read diagnostic file
 diag_file_name = 'diagnostics';
+
+% error check if multiple runs have been completed in this directory
+check_txt_file([diag_file_name,'.txt'], 'Iter')
+check_txt_file('plot_times.txt', 'Output')
+
+% read diagnostic file
 if exist([diag_file_name,'.mat'], 'file') == 2
     % load cleaned data, if it exists
     diag_file = [diag_file_name,'.mat'];
@@ -481,6 +486,7 @@ if make_plots
     cols = get(groot,'DefaultAxesColorOrder');
     coly = cols(2,:);
     tr_ind = 0; % tracer number
+    clear_tracer = true;
 
     for name = fieldnames(diagnos)'
         if strcmp(name, 'Iter')
@@ -561,6 +567,7 @@ if make_plots
                 diagnos.Max_v = diagnos.Max_u*0;
             end
             plot(diagnos.Time, [diagnos.Max_u, diagnos.Max_v, diagnos.Max_w, diagnos.Max_vel])
+
             if params.ndims == 3
                 set(gca,'yscale','log');
             else
@@ -584,11 +591,7 @@ if make_plots
             figure_names{fn+1} = 'plot_diagnos_MaxAbsVelocities';
             subplot(2,1,2), cla reset
             plot(diagnos.Time,[diagnos.KE_x, diagnos.KE_y, diagnos.KE_z, KE_tot])
-            if params.ndims == 3
-                set(gca,'yscale','log');
-            else
-                set(gca,'yscale','linear');
-            end
+            set(gca,'yscale','linear');
             xlabel('time (s)')
             xlim([10 max(diagnos.Time)])
 
@@ -892,14 +895,17 @@ if make_plots
 
             tr_ind = tr_ind + 1;
             if tr_ind == 1
-                clf
-                hold on
+                if clear_tracer
+                    clf
+                end
                 leg_text = {};
             end
+            subplot(2,1,1)
+            hold on
             max_tr = diagnos.(name{1}) / diagnos.(name{1})(1) - 1;
             plot(diagnos.Time, max_tr)
             xlabel('time (s)')
-            ylabel('Tr_{max}/Tr(0) - 1')
+            ylabel('Tr_{max}/Tr_{max}(0) - 1')
             title('Maximum tracer')
 
             % Make legend
@@ -917,6 +923,22 @@ if make_plots
                 legend(leg_text)
                 legend('location','best')
             end
+
+            %%%% Minimum of Dye or Tracer %%%%
+        elseif strncmp(name, 'Min_dye',6) || strcmp(name, 'Min_tracer')
+            % initialize figure
+            figure(fn+6)
+            if tr_ind == 0
+                clf
+                clear_tracer = false;
+            end
+            subplot(2,1,2)
+            hold on
+            min_tr = (diagnos.(name{1}) - diagnos.(name{1})(1) ) / diagnos.(['Max',name{1}(4:end)])(1);
+            plot(diagnos.Time, min_tr)
+            xlabel('time (s)')
+            ylabel('(Tr_{min}-Tr_{min}(0))/Tr_{max}(0)')
+            title('Minimum tracer')
 
             %%%% Max (absolute value of) vorticity %%%%
         elseif strcmp(name, 'Max_vort_y')
@@ -1076,11 +1098,11 @@ function Vol = find_volume(gdpar)
     Vol = params.Lx * params.Ly * params.Lz;
     if strcmp(params.mapped_grid, 'true')
         if params.ndims == 3
-            bot = gd.z(:,1,1);
-            top = gd.z(:,1,params.Nz);
+            bot = gd.z(:,1,1)   - min(gd.z(:,1,1));
+            top = gd.z(:,1,end) - min(gd.z(:,1,end));
         else
-            bot = gd.z(:,1);
-            top = gd.z(:,params.Nz);
+            bot = gd.z(:,1)   - min(gd.z(:,1));
+            top = gd.z(:,end) - min(gd.z(:,end));
         end
         if strcmp(params.type_x, 'NO_SLIP')
             warning('Volume calculation is not setup for Cheb grid in x.')
@@ -1148,5 +1170,16 @@ function Scales = find_Kolm_Batch(diagnos, gdpar, kappa_min)
         Scales.dx_Batch = dx_Batch;
     else
         Scales = 'N/A';
+    end
+end
+
+function check_txt_file(filename, header_ptrn)
+    % error check if multiple runs have been completed in this directory
+    file_txt = fileread(filename);
+    file_lines = regexp(file_txt, '\r\n|\r|\n', 'split');
+    if sum(contains(file_lines, header_ptrn)) > 1
+        error('%s file has too many headers\n%s',...
+            filename,...
+            'Remove headers and outputs from previous runs before continuing')
     end
 end

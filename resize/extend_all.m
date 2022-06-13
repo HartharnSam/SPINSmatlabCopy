@@ -1,95 +1,83 @@
-function resize_all_y(ii, Ny_new)
-% RESIZE_ALL_Y  Adjust the resolution in y of all fields.
+function extend_all(ii, Ly, Ny)
+%EXTEND_ALL  Adjust the resolution in all dimensions of all fields.
 %
 %  Assumptions:
 %    - spins.conf file must be present
 %
 %  Usage:
-%    resize_all_y(5, 512)
+%    extend_all(output, spanwise_width, spanwise_gridpoints)
 %
 %  Inputs:
-%    'ii'        - output number to resize
-%    'Ny_new'    - number of points to change to
+%    'output'            - output number to extend
+%    'spanwise_width'    - Width of the extended dimension
+%    'Ny'                - number of gridpoints in the extended dimension
+
 %
 %  Outputs:
 %    n/a
 %
-%  David Deepwell, 2018
+%  Andrew Grace, 2021.
+
+fields = find_fields(ii);
+
+%Make new directory to store resized data
+new_dir = 'extended';
+mkdir(new_dir)
+
 
 % read parameters
 params = spins_params();
+perturb = params.perturb;
 
-% shorten some parameters
-dt = params.plot_interval;
 Nx = params.Nx;
-Ny_old = params.Ny;
 Nz = params.Nz;
+
 Lx = params.Lx;
-Ly = params.Ly;
 Lz = params.Lz;
-dx = Lx/Nx;
-dz = Lz/Nz;
 
-% check sizes
-mult = Ny_new/Ny_old;
-if mult > 1
-    change = 'Increasing';
-    fac = mult;
-else
-    change = 'Decreasing';
-    fac = 1/mult;
-end
-
-% find which fields exist at output ii
-fields = find_fields(ii);
-
-% make directory to store resized data
-new_dir = 'resized';
-mkdir(new_dir)
-
-fprintf('%s y resolution by factor of %d\n',change,fac)
-% loop over fields
 for jj = 1:length(fields)
     tic
     field = fields{jj};
-    fprintf('Changing field: %-8s ...',field)
+    fprintf('Extending field: %-8s ...',field)
 
     % read and expand field
-    data = spins_reader_new(field, ii);
-    if Ny_old == 1
-        data = reshape(data, Nx, Ny_old, Nz);
-    end
-    data = resize_y(field, data, Ny_new);
+    data = spins_reader(field, ii);
+    
+    data3D = extend(data,Ny,2);
+    data3D = data3D + perturb*(2*rand(Nx,Ny,Nz) - 1);
+    %Perturb data with white noise. 
+    
 
     % write new field in new directory
     cd(new_dir)
-    spins_writer([field,'.',num2str(ii)], data);
+    spins_writer([field,'.',num2str(ii)], data3D);
     cd('..')
 
     fprintf(' took %.4g s\n',toc)
 end
-clear data
+
+%Generate a new v velocity field
+v = zeros(Nx,Ny,Nz) + perturb*(2*rand(Nx,Ny,Nz) - 1);
+cd(new_dir)
+spins_writer(['v.',num2str(ii)], v);
+cd('..')
+
 
 % create grids
 fprintf('Creating / writing grids ...')
 tic
-% dy_new = Ly/Ny_new;
-% x1d = dx/2:dx:Lx;
-% z1d = dz/2:dz:Lz;
-% y1d = dy_new/2:dy_new:Ly;
-% xg = bsxfun(@times, ones(Nx, Ny_new, Nz), x1d');
-% yg = bsxfun(@times, ones(Nx, Ny_new, Nz), y1d);
-% zg = bsxfun(@times, ones(Nx, Ny_new, Nz), reshape(z1d,1,1,Nz));
 
-xg = generate_xgrid([Lx Ly Lz],[Nx Ny_new Nz],params.type_z);
-yg = generate_ygrid([Lx Ly Lz],[Nx Ny_new Nz],params.type_z);
-zg = generate_zgrid([Lx Ly Lz],[Nx Ny_new Nz],params.type_z);
+xg = generate_xgrid([Lx Ly Lz],[Nx Ny Nz],params.type_z);
+yg = generate_ygrid([Lx Ly Lz],[Nx Ny Nz],params.type_z);
+zg = generate_zgrid([Lx Ly Lz],[Nx Ny Nz],params.type_z);
+
 
 % write grids in new directory
 cd(new_dir)
 spins_writer('xgrid', xg);
-spins_writer('ygrid', yg);
 spins_writer('zgrid', zg);
+spins_writer('ygrid', yg);
+
 cd('..')
 fprintf(' took %.4g s\n',toc)
 
@@ -103,18 +91,20 @@ try
     system(['cp submit.sh ',new_dir]);
 end
 
-% Replace old Ny size and restarting information in spins.conf
+% Replace old Ly and Ny sizes and restarting information in spins.conf
 cd(new_dir)
 comp = computer();
 restart_time = params.plot_interval*ii;
 if strncmp(comp,'MAC',3)
-    system(['sed -i '''' ''s/^Ny.*$/Ny = ',num2str(Ny_new),'/'' spins.conf']);
+    system(['sed -i '''' ''s/^Ly.*$/Ly = ',num2str(Ly),'/'' spins.conf']);
+    system(['sed -i '''' ''s/^Ny.*$/Ny = ',num2str(Ny),'/'' spins.conf']);       
     system(['sed -i '''' ''s/^restart[[:space:]]*=.*$/restart = true/g'' spins.conf']);
     system(['sed -i '''' ''s/^restart_time.*$/restart_time = ',num2str(restart_time),'/g'' spins.conf']);
     system(['sed -i '''' ''s/^restart_sequence.*$/restart_sequence = ',num2str(ii),'/g'' spins.conf']);
     system(['sed -i '''' ''s/^restart_from_dump.*$/restart_from_dump = false/g'' spins.conf']);
 else
-    system(['sed -i -e ''s/Ny\s*=\s*',num2str(Ny_old),'/Ny = ',num2str(Ny_new),'/'' spins.conf']);
+    system(['sed -i -e ''s/Ly\s*=\s*',num2str(params.Ly),'/Ly = ',num2str(Ly),'/'' spins.conf']);
+    system(['sed -i -e ''s/Ny\s*=\s*',num2str(params.Ny),'/Ny = ',num2str(Ny),'/'' spins.conf']);
     system(['sed -i -e ''s/^restart[[:space:]]*=.*$/restart = true/g'' spins.conf']);
     system(['sed -i -e ''s/^restart_time.*$/restart_time = ',num2str(restart_time),'/g'' spins.conf']);
     system(['sed -i -e ''s/^restart_sequence.*$/restart_sequence = ',num2str(ii),'/g'' spins.conf']);
@@ -122,3 +112,6 @@ else
 end
 cd('..')
 fprintf('                         ... took %.4g s\n',toc)
+
+end
+

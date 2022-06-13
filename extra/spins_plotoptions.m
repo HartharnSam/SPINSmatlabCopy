@@ -148,7 +148,8 @@ if strcmp(var_name, 'rho')
 end
 if strcmp(var_name, opts.var2) || ...
         strncmp(reverse(var), 'mottob', 6) || ... % bottom surface
-        strncmp(reverse(var), 'pot', 3) % top surface
+        strncmp(reverse(var), 'pot', 3) || ... % top surface
+        strcmpi(opts.var2, 'None')
     opts.var2 = 'None';
 elseif strncmp(reverse(var), 'ms', 2) || ...    % ends in sm - Spanwise Mean
         strncmp(reverse(var), 'zx', 2)          % ends in xz - a cross-section

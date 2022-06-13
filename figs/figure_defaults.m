@@ -51,6 +51,31 @@ function [] = figure_defaults(fig_hand)
             end
         end
     end
+    % Change polaraxis
+    ax = findobj(childs,'Type','PolarAxes');
+    if ~isempty(ax)
+        for ii = 1:length(ax)
+            if ~strcmp(ax(ii).Type, 'axestoolbar')
+                % change font size and font
+                ax(ii).FontSize = fontsize;
+                ax(ii).TickLabelInterpreter = 'Latex';
+                ax(ii).RAxis.Label.Interpreter = 'Latex';
+                ax(ii).ThetaAxis.Label.Interpreter = 'Latex';
+
+                % change axis outline
+                set(ax(ii),'layer','top');
+                ax(ii).Box = 'on';
+
+                % remove line colour on contourf plots
+                for jj = 1:length(ax(ii).Children)
+                    if strcmp(ax(ii).Children(jj).Type, 'contour') ...
+                            && strcmp(ax(ii).Children(jj).Fill, 'on')
+                        ax(ii).Children(jj).LineStyle = 'none';
+                    end
+                end
+            end
+        end
+    end
 
     % Change colorbar
     cbar = findobj(childs,'Type','ColorBar');

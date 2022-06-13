@@ -31,12 +31,15 @@ else
     compute_top = false;
 end
 
+
 % read the file
 if compute_bottom
+    check_txt_file('stresses_bottom.txt', 'Time')
     stress_bot = readtable('stresses_bottom.txt');
     all_stress.bottom = stress_bot;
 end
 if compute_top
+    check_txt_file('stresses_top.txt',    'Time')
     stress_top = readtable('stresses_top.txt');
     all_stress.top = stress_top;
 end
@@ -169,5 +172,16 @@ if make_plots
         if save_plots
             print('BottomStresses.png', '-dpng');
         end
+    end
+end
+
+function check_txt_file(filename, header_ptrn)
+    % error check if multiple runs have been completed in this directory
+    file_txt = fileread(filename);
+    file_lines = regexp(file_txt, '\r\n|\r|\n', 'split');
+    if sum(contains(file_lines, header_ptrn)) > 1
+        error('%s file has too many headers\n%s',...
+            filename,...
+            'Remove headers and outputs from previous runs before continuing')
     end
 end
