@@ -29,6 +29,7 @@ function pltinfo = spins_plot2d(var, t_index, varargin)
 %   dimen:  {'X','Y','Z'}       - dimension to take cross-section
 %   slice:  {double}            - location to take cross-section
 %   axis:   {[x1 x2 z1 z2]}     - domain to plot
+%   axes:   {handle}            - axes to plot on
 %   style:  {'pcolor','contourf','contour'}     - type of plot
 %   xskp:   {integer}           - x-grid points to skip in plot
 %   yskp:   {integer}           - y-grid     "
@@ -141,7 +142,8 @@ for ii = t_index
             yvar = squeeze(gd.y(:,:,1));
         end
     end
-    % find rectilinear grid for mapped streamlines
+    % find rectilinear grid for mapped 
+
     if (plotting_streamlines1 || plotting_streamlines2) && strcmpi(params.mapped_grid, 'true')
         if params.ndims == 3
             gd_select.x = gd.x(nx,ny,nz);
@@ -321,7 +323,7 @@ for ii = t_index
                 hill   = squeeze(gd.z(hill_nx,params.Nz));
                 hill_x = squeeze(gd.x(hill_nx,params.Nz));
             end
-            plot(hill_x,hill,'k')
+            plot(hill_x,hill,'k', 'LineWidth', 1)
         end
         % if right side is mapped (or tank is rotated)
         if rratio ~= 0
@@ -332,7 +334,7 @@ for ii = t_index
                 hill   = squeeze(gd.z(params.Nx,hill_nz));
                 hill_x = squeeze(gd.x(params.Nx,hill_nz));
             end
-            plot(hill_x,hill,'k')
+            plot(hill_x,hill,'k', 'LineWidth', 1)
         end
         % if left side is mapped (or tank is rotated)
         if lratio ~= 0

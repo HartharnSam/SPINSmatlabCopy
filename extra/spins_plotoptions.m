@@ -29,6 +29,7 @@ d.visible = true;       % make plot visible or not (bool)
 d.speed = -1;           % wave speed for streamlines
 d.streamline_heatmap= true; % Add a heatmap of the magnitude of velocity under the streamlines?
 d.streamline_density= 2;    % Density of streamlines
+d.rho_converted = true;     % Convert density to real units (bool)
 d.savefig = false;      % save figure? (bool)
 d.filename = 'filename';	% name of file to save
 d.dir = 'figures';      % name of file to save
@@ -81,6 +82,7 @@ addParameter(p,'nlevels2', d.nlevels2, @isnumeric)
 addParameter(p,'speed', d.speed, @isnumeric)
 addParameter(p,'streamline_heatmap', d.streamline_heatmap, @islogical)
 addParameter(p,'streamline_density', d.streamline_density, @isnumeric)
+addParameter(p, 'rho_converted', d.rho_converted, @islogical)
 addParameter(p,'xskp', d.xskp, @isnumeric)
 addParameter(p,'yskp', d.yskp, @isnumeric)
 addParameter(p,'zskp', d.zskp, @isnumeric)

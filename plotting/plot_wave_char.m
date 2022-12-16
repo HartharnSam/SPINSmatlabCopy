@@ -1,3 +1,4 @@
+function plot_wave_char()
 % PLOT_WAVE_CHAR    Plot the data from the characterize_wave.m script
 %
 %  Usage: After characterize_wave has been successfully completed, run

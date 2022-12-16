@@ -1,4 +1,4 @@
-function data = SPINS_derivs(derivative, ii, save)
+function data = spins_derivs(derivative, ii, save)
 % Calculates derivatives offline. Currently only set up for 2D
 % calculate dx dy dz as appropriate
 % switch for derivatives (dissipation, vorticity, 
@@ -17,12 +17,15 @@ function data = SPINS_derivs(derivative, ii, save)
 % MATLAB Version: 9.10.0.1739362 (R2021a) Update 5
 
 params = spins_params; 
+if nargin<3
+    save = false;
+end
 
 switch lower(derivative)
     case 'ri' % Richardson Number
         g_rho0 = -params.g/params.rho_0;
         u = spins_reader_new('u', ii);        
-        rho = rho_converter(spins_reader_new('rho', ii));
+        rho = (spins_reader_new('rho', ii));
         [~, du_dz] = get_grad2(u);
         [~, drho_dz] = get_grad2(rho);
         N_sq = g_rho0 * drho_dz;
@@ -42,6 +45,9 @@ switch lower(derivative)
         [du_dx, du_dz] = get_grad2(u);
         [dw_dx, dw_dz] = get_grad2(w);
         data = 2*nu*(du_dx.^2 + dw_dz.^2 + 2*(.5*(du_dz + dw_dx)).^2);
+    case {'u_x'}
+        u = spins_reader_new('u', ii);
+        [data, ~] = get_grad2(u);
 
 end
 % Save as SPINS output type file

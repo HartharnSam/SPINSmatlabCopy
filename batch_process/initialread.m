@@ -45,11 +45,11 @@ for ii = 1:length(RunDirectoryName)
         isTwoLayer = false;
     end
     cd(['../', RunDirectoryName{ii}]);
-    
+
     params = spins_params;
     disp(params.name);
     disp(RunDirectoryName{ii});
-    
+
     %% Calculate/Load wave characteristics
     try
         lastwarn('');
@@ -72,40 +72,40 @@ for ii = 1:length(RunDirectoryName)
         %else % If this has already been run before, just need to load it
         load('wave_characteristics.mat', 'WaveStats');
     end
-    
+
     %% Clean/Plot diagnostics
     if exist('diagnostics.mat', 'file') == 0 % checks for file created by clean_diagnostics
         clean_diagnostics(); % Cleans diagnostics files
     end
-    
+
     if exist('all_diagnos.mat', 'file') == 0% checks for file created by plot_diagnos
         diagnos = plot_diagnos(isPlotDiagnostics, false, isPlotDiagnostics);
         close all
         %        plot_stress(isPlotDiagnostics, isPlotDiagnostics); % Also plot stresses
     else
         close all
-        
+
         diagnos = load('all_diagnos.mat');
         diagnos = diagnos.all_diagnos;
     end
-    
+
     %% plot movie
     if isVideo
         if ispc
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'},...
                 'slopeonly', WaveStats.endTank, true, 'output.mp4');
-            
+
             %SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'tracer'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.mp4']));
             %SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, ['numerics_example', '.mp4']));
-            
+
         else
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised'}, 'slopeonly', WaveStats.endSlope, true, fullfile(pathname, [params.name, '.avi']));
         end
     end
-    
+
     %% Calculate Reynolds statistics
     [maxRe, startRe(ii)] = calc_reynolds(n_layers);
-    
+
     %% Collate stats to be pasted into appropriate index sheet
     slope_condition_tmp = num2str(round(params.hill_slope*1.5 *1000));
     if params.Lx>7
@@ -114,15 +114,7 @@ for ii = 1:length(RunDirectoryName)
         slope_condition_tmp = [slope_condition_tmp, 'mm'];
     end
     slope_condition{ii} = slope_condition_tmp;
-    
-    %     outputs(ii, :) = [params.hill_height, params.hill_slope, params.pyc_adj_loc, ...
-    %         params.h_halfwidth, (params.Lz + (params.pyc_loc - params.h_halfwidth)),...
-    %         WaveStats.meanAmp, WaveStats.meanWaveSpeed, WaveStats.meanWavelength... % Wave amplitude, speed, wavelength
-    %         WaveStats.meanAmp/WaveStats.meanWavelength,... % wAve steepness
-    %         params.hill_slope/sqrt(WaveStats.meanAmp/WaveStats.meanWavelength),... % Ir
-    %         NaN, NaN, params.Nx, params.Ny, params.Nz, params.Lx, params.Ly, params.Lz,... % Resolution
-    %         params.Lx./params.Nx, params.Ly./params.Ny, params.Lz./params.Nz ...% More resolution
-    %         ];
+
     %% Clean up
     clearvars -except is* RunDirectoryName pathname outputs* n_layers slope_condition start* nlayers runname
     close all

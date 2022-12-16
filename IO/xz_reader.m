@@ -1,4 +1,4 @@
-function ar = xz_reader(varname, seq, varargin);
+function ar = xz_reader(varname, seq, varargin)
 % SPINS xz reader with slab support and a user defined name
 % Opens and reads a slab of SPINS data, optionally
 % loading only a portion of the total array. This

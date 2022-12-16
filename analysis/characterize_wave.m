@@ -1,5 +1,4 @@
 function WaveStats = characterize_wave(isTwoLayer, time_window)
-
 % CHARACTERIZE_WAVE   track the wave core assuming
 %                     it moves from left to right
 %
@@ -84,7 +83,7 @@ end
  if isTwoLayer
      isopyc_loc = params.pyc_loc -params.h_halfwidth + 0.01;
  else
-     isopyc_loc = params.pyc_loc -params.h_halfwidth;
+     isopyc_loc = params.pyc_loc;%-params.h_halfwidth;
  end
  if isvector(gd.z)
      contval = interp1(gd.z, strat, isopyc_loc);

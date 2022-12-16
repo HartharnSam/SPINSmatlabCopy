@@ -3,7 +3,7 @@
 clc; clearvars; close all;
 
 % Parameters to set
-list_of_sims = {'lab_10L', 'lab_20L', 'lab_30L', 'lab_40L'};  % Names of folders to process
+list_of_sims = {'pyc1_1'};  % Names of folders to process
 isPlotDiagnostics = true; % Do we want to (re)make plots of diagnostics (yes)
 isCalcCharacteristics = true;
 isVideo = true; % Do we want to (re)make the main video
@@ -52,7 +52,7 @@ for ii = length(list_of_sims)
     %% plot movie
     if isVideo
         if ispc
-            SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised', 'tracer', 'diss'},...
+            spins_movie_maker({'rho', 'vorty'},...
                 'slopeonly', WaveStats.endTank, true, fullfile(pathname, ['movie', '.mp4']));            
         else
             SPINS_movie_maker({'rho', 'vorty', 'u_normalised', 'w_normalised', 'tracer', 'diss'},...

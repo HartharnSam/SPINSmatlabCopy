@@ -30,7 +30,7 @@ end
 
 % settings
 if nargin < 2
-    fontsize = 12;
+    fontsize = get(0, 'defaultaxesfontsize');
 end
 
 % get figure children
@@ -43,21 +43,34 @@ if ~isempty(ax)
         if ~strcmp(ax(ii).Type, 'axestoolbar')
             % change font size and font
             ax(ii).FontSize = fontsize;
-
+            ax(ii).FontName = 'Arial';
             ax(ii).XLabel.Interpreter = 'Latex';
             ax(ii).YLabel.Interpreter = 'Latex';
             ax(ii).TickLabelInterpreter = 'Latex';
-
+            ax(ii).Title.FontSize = fontsize;
+           
             % change axis outline
             set(ax(ii),'layer','top');
             ax(ii).Box = 'on';
             ax(ii).Toolbar.Visible = 'off';
+            
             % Get rid of the annoying exponent thing
             for i = 1:length(ax(ii).YAxis)
                 ax(ii).YAxis(i).Exponent = 0;
             end
             for i = 1:length(ax(ii).XAxis)
                 ax(ii).XAxis(i).Exponent = 0;
+            end
+            
+            % Set the line width & Marker size
+            ax(ii).LineWidth = 1.5;
+            for i = 1:length(ax(ii).Children)
+                if strcmp(class(ax(ii).Children(i)), 'matlab.graphics.chart.primitive.Line')
+                    ax(ii).Children(i).LineWidth = 1.5;
+                end
+                if isfield(ax(ii).Children(i), 'MarkerFaceColor')
+                    ax(ii).Children(i).MarkerFaceColor = ax(ii).Children(i).Color;
+                end
             end
             
             % remove line colour on contourf plots
@@ -77,6 +90,8 @@ if ~isempty(cbar)
     for ii = 1:length(cbar)
         cbar(ii).TickLabelInterpreter = 'Latex';
         cbar(ii).Label.Interpreter = 'Latex';
+        cbar(ii).FontSize = fontsize;
+        
     end
 end
 
@@ -105,6 +120,6 @@ for i = 1:length(fields)
     set(fig_hand, fields{i}, eval(str));
 end
 
-
+drawnow;
 
 
