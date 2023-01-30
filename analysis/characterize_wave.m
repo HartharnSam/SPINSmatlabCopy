@@ -55,13 +55,13 @@ gd.z = zgrid_reader;
 gd.x = xgrid_reader;
 params = spins_params;
 tank_end = params.Lx; % Provisionally
-if isfield(params, 'hill_height')
-    hill_length = params.hill_height/params.hill_slope;
-    tank_end = tank_end - hill_length - params.hill_end_dist;
-elseif isfield(params, 'ice_length')
-    ice_length = params.ice_length + params.ice_trans; %todo fix the adjustment of the ice transition length
-    tank_end = tank_end - ice_length;
-end
+% if isfield(params, 'hill_height')
+%     hill_length = params.hill_height/params.hill_slope;
+%     tank_end = tank_end - hill_length - params.hill_end_dist;
+% elseif isfield(params, 'ice_length')
+%     ice_length = params.ice_length + params.ice_trans; %todo fix the adjustment of the ice transition length
+%     tank_end = tank_end - ice_length;
+% end
 % shorten parameters
 gdnames = fieldnames(gd);
 params.ndims = length(gdnames);

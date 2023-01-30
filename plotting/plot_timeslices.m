@@ -64,11 +64,12 @@ for jj = 1:n_columns
         plot_num = ((n_columns)*(ii-1))+(jj);
         s{jj}(ii) = nexttile(plot_num);
     end
-    
+
     if strcmpi(ColumnProperties{jj}.Type, 'Model')
         cd(ColumnProperties{jj}.DirectoryName);
-        
         plot_model(ColumnProperties{jj}, jj, clrmap, c_range, contour_clrmap, labelled_columns, s{jj}, ylims);
+    elseif strcmpi(ColumnProperties{jj}.Type, 'Lab')
+        plot_lab(ColumnProperties{jj}, jj, clrmap, c_range, labelled_columns, s{jj}, ylims);
     else
         warning('Type must be Model');
     end
@@ -375,3 +376,102 @@ for i=1:n_times
 end
 
 end
+
+function plot_lab(ColumnProperties, column_number, clrmap, c_range, labelled_columns, s, ylims)
+
+if isfield(ColumnProperties, 'c_range')
+    c_range = ColumnProperties.c_range;
+end
+x1 = ColumnProperties.x1;
+%y1 = ColumnProperties.y1;
+%% Sort out grids and times for lab piv
+fig = gcf; 
+fnm_placeholder = "####";
+lab_fname = cell(length(ColumnProperties.DirectoryName), 1);
+
+%Read in for each camera section of total frame
+x_lab = nan(length(ColumnProperties.DirectoryName), 2); y_lab = x_lab;
+figure(fig);
+
+%% Plot
+for i=1:length(ColumnProperties.Times)
+    if ~isnan(ColumnProperties.Times(i))
+        %s(i, column_number) = subaxis(length(ColumnProperties.Times),n_columns, column_number, i, 'SpacingHoriz', .1, 'MarginRight', .13);
+        title(subplot_labels(length(ColumnProperties.Times).*(column_number-1) +i  , 2));
+        %s(i, column_number).TitleHorizontalAlignment = 'left';
+        for j = 1:length(ColumnProperties.DirectoryName)
+            if i == 1
+                if isfield(ColumnProperties, 'Field') && strcmpi(ColumnProperties.Field, 'image')
+                    lab_fname{j} = fullfile(ColumnProperties.DirectoryName{j}, 'output_####.dfi');
+                    clrmap = 'singlecycle';
+                else
+                    lab_fname{j} = fullfile(ColumnProperties.DirectoryName{j}, 'piv_hr_####.dfi');
+                end
+                ArgsIn = struct('colormap', clrmap, 'c_range', c_range, 'q_scale', .2,...
+                    'Resolution', 12, 'Parameter', 1);  
+                framenumbers(j, :) = round((ColumnProperties.Times.*ColumnProperties.FrameRate)-ColumnProperties.LabTimeOffset(j));
+            end
+            
+            ii = framenumbers(j, i);
+            lab_fnm_in = strrep(lab_fname{j}, fnm_placeholder, sprintf('%04d',ii));
+            im = dfireadvel(lab_fnm_in); % read .dfi file
+            if i == 1
+                
+                [Grids.x, Grids.y, Grids.dx, Grids.dy, Grids.nx, Grids.ny, Grids.x0, Grids.y0, Grids.xi, Grids.yi] = dfi_grid_read(im);
+                x_lab(j, :) = Grids.x; y_lab(j, :) = Grids.y; %x2 = Grids.x2; y2 = Grids.y2;
+                xlimits = [min(x_lab, [], 'all') max(x_lab, [], 'all')];
+                ylimits = [min(y_lab, [], 'all') max(y_lab, [], 'all')];
+            end
+            if isfield(ColumnProperties, 'Field') && strcmpi(ColumnProperties.Field, 'image')
+                imagesc(x_lab(j, :), y_lab(j, :), im.cdata(:, :, 1), c_range);
+            else
+                imagesc(x_lab(j, :), y_lab(j, :), im.cdata(:, :, 1), c_range);
+            end
+            hold on
+            
+        end
+        
+        eval(['colormap(s(i), "', clrmap, '");']);
+        rectangle('position', [xlimits(1), ylimits(1), xlimits(2), ylimits(2)], 'edgecolor', 'k');
+        
+        if i == length(find(~isnan(ColumnProperties.Times)))
+            xlabel('$x (m)$')
+        else
+            xticklabels([]);
+            
+        end
+        
+        tick_chooser('XTick', s(i));
+        
+        if any(column_number == labelled_columns) && ii == 1
+            %originalSize = get(s(i, column_number), 'Position');
+            c = colorbar;
+            c.Location = 'northoutside';
+
+            if ~(isfield(ColumnProperties, 'Field') && strcmpi(ColumnProperties.Field, 'image'))
+                set(c, 'YTick', [min(c_range) (min(c_range)+max(c_range))/2 max(c_range)]);
+            else
+                set(c, 'YTick', [min(c_range) max(c_range)]);
+            end
+            
+            ylabel(c, '$u (ms^{-1})$')
+            set(s(i), 'Position', originalSize);
+            yticklabels([]);
+            
+        end
+        if column_number == 1
+            ylabel('$z (m)$');
+        end
+        %text((x1(1)*.1 + x1(2)*.9), .3-0.25, ['t = ', num2str(col_inputs.Times(i)), ' s'], 'FontSize', 14); % Writes the time of each plot
+        daspect([1 1 1]);
+        
+        ylim([0 .3]);
+        xlim([max(xlimits(1), x1(1)) min(xlimits(2), x1(2))]);
+        box on
+        tick_chooser('XTick', s(i));
+        
+    end
+end
+
+end
+

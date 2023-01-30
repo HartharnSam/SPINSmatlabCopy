@@ -1,22 +1,6 @@
 function tick_chooser(axesticks, ax)
 %TICK_CHOOSER - Makes nice + logically spaced ticks on the chosen axis
 %
-% Syntax:  [output1,output2] = function_name(input1,input2,input3)
-%
-% Inputs:
-%    input1 - Description
-%    input2 - Description
-%    input3 - Description
-%
-% Outputs:
-%    output1 - Description
-%    output2 - Description
-%
-% Example:
-%    Line 1 of example
-%    Line 2 of example
-%    Line 3 of example
-%
 % Other m-files required: none
 % Subfunctions: none
 % MAT-files required: none

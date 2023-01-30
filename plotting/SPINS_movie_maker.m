@@ -56,7 +56,7 @@ rho_0 = params.rho_0;
 delta_rho = params.delta_rho;
 
 [x, z] = spinsgrid2d;
-x = x-params.L_adj;
+%x = x-params.L_adj;
 if nargin<2 || isempty(xlimits)
     xlimits = [min(min(x)) max(max(x))];
 end
@@ -105,6 +105,8 @@ positioning.tracer = find(strcmp(parameters, 'tracer'));
 positioning.bot_stresses = find(strcmp(parameters, 'bot_stresses'));
 positioning.timeseries_dissipation = find(strcmp(parameters, 'timeseries_dissipation'));
 positioning.timeseries_tracer = find(strcmp(parameters, 'timeseries_tracer'));
+positioning.dye1 = find(strcmp(parameters, 'dye1'));
+positioning.dye2 = find(strcmp(parameters, 'dye2'));
 
 pcolor_plots = zeros(n_columns, n_rows);
 
@@ -338,6 +340,33 @@ for ii = min_t:max_t
 
     end
 
+    %% Dye 1
+    if ~isempty(positioning.dye1)
+        dye1 = spins_reader_new('dye1', ii, xlimits_ind, []);
+
+        ax(positioning.dye1) = subaxis(n_rows,n_columns, positioning.dye1, 'SpacingVert', SpacingVert, 'Margin', Margin);
+        pcolor(x,z,dye1),shading flat
+        cmocean('turbid');
+        caxis(gca, [0 1]);
+        c = colorbar(ax(positioning.dye1));
+        ylabel(c, 'Tracer 1');
+        title(subplot_labels(positioning.dye1, 2))
+        pcolor_plots(positioning.dye1) = 1;
+
+    end
+    if ~isempty(positioning.dye2)
+        dye2 = spins_reader_new('dye2', ii, xlimits_ind, []);
+
+        ax(positioning.dye2) = subaxis(n_rows,n_columns, positioning.dye2, 'SpacingVert', SpacingVert, 'Margin', Margin);
+        pcolor(x,z,dye2),shading flat
+        cmocean('turbid');
+        caxis(gca, [0 1]);
+        c = colorbar(ax(positioning.dye2));
+        ylabel(c, 'Tracer 2');
+        title(subplot_labels(positioning.dye2, 2))
+        pcolor_plots(positioning.dye2) = 1;
+
+    end
     %% Dissipation Timeseries
     if ~isempty(positioning.timeseries_dissipation)
         load('all_diagnos', 'all_diagnos')
@@ -410,7 +439,7 @@ for ii = min_t:max_t
                 ax(ai).YLabel.String = 'z (m)';
             end
             ax(ai).YLim = [params.min_z params.min_z+params.Lz];
-            set(ax(ai), 'XDir', 'reverse');
+           % set(ax(ai), 'XDir', 'reverse');
             ax(ai).XLim = xlimits;
             col_num = mod(ai-1, n_columns)+1;
             if ceil(ai/n_columns) == last_in_column(col_num)

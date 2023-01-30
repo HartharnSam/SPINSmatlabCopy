@@ -33,7 +33,7 @@ if nargin<2
 end
     
 %% Read in Data
-rho=spins_reader_new('rho',ii);
+rho = spins_reader_new('rho',ii);
 rho = rho_converter(rho); % convert density to real density
 rhoRange = [params.rho_0 params.rho_0+(params.delta_rho*params.rho_0)];
 u = spins_reader_new('u',ii);
