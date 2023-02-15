@@ -45,10 +45,23 @@ switch lower(derivative)
         [du_dx, du_dz] = get_grad2(u);
         [dw_dx, dw_dz] = get_grad2(w);
         data = 2*nu*(du_dx.^2 + dw_dz.^2 + 2*(.5*(du_dz + dw_dx)).^2);
-    case {'u_x'}
-        u = spins_reader_new('u', ii);
-        [data, ~] = get_grad2(u);
+    otherwise
+        split_string = split(lower(derivative), '_');
+        if ~(length(split_string)==2)
+            error('derivative type not configured, try ri, vorty, diss, or var_x type')
+        end
 
+        raw_data = spins_reader_new(split_string{1}, ii);
+        
+        switch split_string{2}
+            case 'x'
+                data = get_grad2(raw_data);
+            case 'z'
+                [~, data] = get_grad2(raw_data);
+            otherwise
+                error('derivative type not configured, try ri, vorty, diss, or var_x type')
+
+        end
 end
 % Save as SPINS output type file
 filename = [derivative,'.', num2str(ii)];
