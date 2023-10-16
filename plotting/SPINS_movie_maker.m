@@ -257,7 +257,7 @@ for ii = min_t:max_t
 
         ax(positioning.w) = subaxis(n_rows,n_columns, positioning.w, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,w),shading flat
-        colormap darkjet
+        colormap(ax(positioning.w), darkjet)
         cmocean('delta');
         wmaxabs = 0.15;
         caxis(gca, wmaxabs*[-1 1]);

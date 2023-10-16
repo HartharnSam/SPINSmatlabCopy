@@ -129,13 +129,13 @@ for i=1:n_times
             rho = spins_reader_new('rho',ii, xinds, []); %read in density
             rho = rho_converter(rho); % convert to real densities
             params = spins_params;
-            pcolor(s(i), x, z, rho-1000),shading(s(i),'flat')
-            caxis(s(i), [params.rho_0 params.rho_0.*(1+params.delta_rho)]-1000);
+            pcolor(s(i), x, z, rho-params.rho_0),shading(s(i),'flat')
+            caxis(s(i), [params.rho_0 params.rho_0.*(1+params.delta_rho)]-params.rho_0);
             colormap(s(i), cmocean('dense'))
             if any(column_number == labelled_columns) && i == 1
                 c = colorbar(s(i));
                 c.Location = 'northoutside';
-                ylabel(c, '$\sigma_t (kg m^{-3})$')
+                ylabel(c, "$\rho' (kg m^{-3})$")
             end
         case 'vorty' % plot vorticity field
             vorty = spins_reader_new('vorty', ii, xinds, []); % Read in data

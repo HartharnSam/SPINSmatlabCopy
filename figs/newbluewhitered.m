@@ -1,4 +1,4 @@
-function newmap = newbluewhitered(m, pivot)
+function newmap = newbluewhitered(m, pivot, ax)
 %BLUEWHITERED   Blue, white, and red color map.
 %   NEWBLUEWHITERED(M) returns an M-by-3 matrix containing a perpetually
 %   uniform blue to white to red colormap, with white corresponding to the

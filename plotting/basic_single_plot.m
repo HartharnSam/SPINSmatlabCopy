@@ -37,8 +37,10 @@ rho = spins_reader_new('rho',ii);
 rho = rho_converter(rho); % convert density to real density
 rhoRange = [params.rho_0 params.rho_0+(params.delta_rho*params.rho_0)];
 u = spins_reader_new('u',ii);
-v = spins_reader_new('w',ii);
-u = 0.5*(u.^2 + v.^2);
+%u = spins_reader_new('tracer', ii);
+
+%v = spins_reader_new('w',ii);
+%u = 0.5*(u.^2 + v.^2);
 umaxabs = max(abs(u(:)));
 
 %% Set up figure
