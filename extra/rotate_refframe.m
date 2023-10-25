@@ -1,13 +1,17 @@
-function gdpar_rot = rotate_refframe(full_trnfrm)
+function gdpar_rot = rotate_refframe(full_trnfrm, theta)
 % rotate grid into laboratory reference frame
 %
+% Theta = tilt angle in degrees
 % David Deepwell, 2019
-global gdpar
-split_gdpar
+
+global gdpar   
+[gd.x gd.z] = spinsgrid2d();
+ gdpar.gd = gd;
+params = spins_params;
 
 % shorten some parameters
 Lx    = params.Lx;
-theta = params.tilt_angle;
+%theta = params.slope;
 
 if nargin == 0
     full_trnfrm = true;
