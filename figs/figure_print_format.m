@@ -35,7 +35,7 @@ end
 
 % get figure children
 childs = allchild(fig_hand);
-
+warning('off', 'MATLAB:handle_graphics:exceptions:SceneNode');
 % Change axis
 ax = findobj(childs,'Type','Axes');
 if ~isempty(ax)
@@ -48,7 +48,6 @@ if ~isempty(ax)
             ax(ii).YLabel.Interpreter = 'Latex';
             ax(ii).TickLabelInterpreter = 'Latex';
             ax(ii).Title.FontSize = fontsize;
-           
             % change axis outline
             set(ax(ii),'layer','top');
             ax(ii).Box = 'on';

@@ -1,3 +1,5 @@
 initialread.m
 *.png
 SPINSmatlab_Conf.m
+*.asv
+*bkp.m

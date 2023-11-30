@@ -63,5 +63,6 @@ function [pos, ind] = find_position(x, y, val)
         dist = abs([1 1]*x(ind) - posn);
         [~,p_ind] = min(dist);
         pos = posn(p_ind);
+        pos = real(pos);
     end
 end
