@@ -139,8 +139,9 @@ if make_plots
     end
     
     % plot
-    figure(18), clf
     if compute_bottom
+        figure(18), clf
+
         subplot(2,1,1)
         if par.Ny == 1
             plot(Bot_time,[Bot_fx_tot, Bot_fx_abs]);
@@ -173,6 +174,7 @@ if make_plots
             print('BottomStresses.png', '-dpng');
         end
     end
+end
 end
 
 function check_txt_file(filename, header_ptrn)

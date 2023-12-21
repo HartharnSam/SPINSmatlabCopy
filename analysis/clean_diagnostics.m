@@ -16,7 +16,11 @@ for nn = 1:length(files_to_clean)
         end
         
         % find indices to keep
-        time = diagnos.Time;
+        if strcmp(files_to_clean{nn}, 'plot_times')
+            time = diagnos.SimulationTime_s_;
+        else
+            time = diagnos.Time;
+        end
         %%
         [~, uniqs] = unique(time);
         uniqlogical = zeros(size(time));

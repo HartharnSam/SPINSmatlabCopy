@@ -38,7 +38,9 @@ Nx = params.Nx; Nz = params.Nz;
 dx = diff(x, 1, 1); dx(end+1, :) = dx(end);
 
 % Find out which outputs exist
-first_out = first_output; last_out = last_output();
+times = get_output_times(false);
+first_out = times(1);
+last_out = last_output();
 
 % TODO: Add in optional timings
 if nargin == 0
