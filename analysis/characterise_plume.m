@@ -37,24 +37,27 @@ Nx = params.Nx; Nz = params.Nz;
 
 dx = diff(x, 1, 1); dx(end+1, :) = dx(end);
 
+%% Time settings
 % Find out which outputs exist
-times = get_output_times(false);
-first_out = times(1);
-last_out = last_output();
+[time, outputs]= get_output_times(false);
+first_out_full = outputs(1);
+last_out_full = outputs(end);
 
-% TODO: Add in optional timings
 if nargin == 0
-    startframe = first_out;
-    endframe = last_out;
+    startframe = first_out_full;
+    endframe = last_out_full;
 end
 
 % % Finalise timey things
-first_out = max(first_output(), startframe);
-last_out = min(last_output(), endframe);
-outputs = first_out:last_out;
-noutputs = length(outputs);
-time = (startframe:endframe);
+first_out = max(first_out_full, startframe);
+last_out = min(last_out_full, endframe);
 
+time = time((first_out:last_out)-outputs(1)+1);
+outputs = first_out:last_out;
+
+noutputs = length(outputs);
+
+%% Other settings
 % Set saving filename
 filename = 'plume_characteristics';
 
@@ -66,7 +69,11 @@ contval = rho_1 + 0.5*(rho_2 - rho_1); % Set as the mid-density currently, but o
 
 % Set up vectors of wave characteristics
 n_cont = length(contval);
-h_plume = NaN(noutputs, n_cont);
+h_plume = NaN(last_out_full, n_cont);
+top_rhobar = h_plume; bot_rhobar = h_plume;
+top_ubar = h_plume; bot_ubar = h_plume;
+Ri_prof = NaN(last_out_full, Nz);
+param_times = NaN(last_out_full, 1);
 
 % Calculate Chebyschev volumes
 % Compute the area associated with each Chebyshev point using the values
@@ -85,14 +92,11 @@ for jj = 1:Nx
 end
 % Vol = sum(winow(:)); % Sanity check for volume calculations
 
-% Initialise variable arrays
-top_rhobar = NaN(noutputs, n_cont); bot_rhobar = NaN(noutputs, n_cont);
-top_ubar = NaN(noutputs, n_cont); bot_ubar = NaN(noutputs, n_cont);
 
 % Loop through outputs
 for jj = 1:noutputs
     ii = outputs(jj);
-    
+    current_time = time(jj);
     % Read data and find reference stratification
     if params.Ny > 1 % in 3 dimensions
         warning('not yet configured properly')
@@ -107,16 +111,16 @@ for jj = 1:noutputs
     for nn = 1:n_cont
         % find background depth of chosen isopycnal (contval)
         [strat_pos, ~] = find_position(z(Nx/2,:), strat, contval(nn));
-        h_plume(jj, nn) = params.Lz+params.min_z - strat_pos;
+        h_plume(ii, nn) = params.Lz+params.min_z - strat_pos;
         %[cont_x, cont_y] = find_contour(x, z, rho, contval(nn));
         top_inds = rho < contval(nn);
         bot_inds = rho > contval(nn);
         
-        top_rhobar(jj, nn) = sum((rho(top_inds).*winow(top_inds)))/sum(winow(top_inds), 'all');
-        bot_rhobar(jj, nn) = sum((rho(bot_inds).*winow(bot_inds)))/sum(winow(bot_inds), 'all');
+        top_rhobar(ii, nn) = sum((rho(top_inds).*winow(top_inds)))/sum(winow(top_inds), 'all');
+        bot_rhobar(ii, nn) = sum((rho(bot_inds).*winow(bot_inds)))/sum(winow(bot_inds), 'all');
         
-        top_ubar(jj, nn) = sum((u(top_inds).*winow(top_inds)))/sum(winow(top_inds), 'all');
-        bot_ubar(jj, nn) = sum((u(bot_inds).*winow(bot_inds)))/sum(winow(bot_inds), 'all');
+        top_ubar(ii, nn) = sum((u(top_inds).*winow(top_inds)))/sum(winow(top_inds), 'all');
+        bot_ubar(ii, nn) = sum((u(bot_inds).*winow(bot_inds)))/sum(winow(bot_inds), 'all');
         
     end
     % Add in a mean layer density measure
@@ -132,8 +136,10 @@ for jj = 1:noutputs
     [~, drho_dz] = get_grad2(rho);
     N_sq = g_rho0 * drho_dz.*cosd(params.slope);
     Ri = N_sq./(du_dz.^2);
-    Ri_prof(jj, :) = mean(Ri);
+    Ri_prof(ii, :) = mean(Ri);
     % TODO: Add the things L178:278 in characterize_wave
+    param_times(ii) = current_time;
+    completion(jj, noutputs, .1, 'Characterising Plume');
 end
 
 Ri_b = -9.81*(cosd(params.slope)*h_plume.*(top_rhobar-bot_rhobar))./((top_ubar-bot_ubar).^2);
@@ -151,6 +157,7 @@ u_1 = top_ubar(end);
 Re = abs(u_1).*H/nu;
 Ar = Gr/(Re.^2);
 
+fprintf('\n \n --------- \n');
 fprintf('Grashof =  %.2e | ', Gr);
 if Gr > 1e10
    fprintf('Probably turbulent \n'); 
@@ -173,36 +180,41 @@ end
 
 
 %% Now save and plot
-save(filename, 'time', 'h_plume', 'top_rhobar', 'bot_rhobar', 'top_ubar', 'bot_ubar', 'Ri_b', 'Ar', 'Gr', 'Re');
+%tmp_time = NaN(noutputs+outputs(1)-1, 1);
+%tmp_time(outputs) = time; 
+%time = tmp_time;
+
+first_time = time(1); last_time = time(end);
 
 figure('Name', 'Timeseries');
 tiledlayout('flow');
 nexttile;
-plot(time, h_plume);
+plot(param_times, h_plume);
 xlabel('time (s)'); ylabel('h (m)');
-xlim([first_out last_out])
+xlim([first_time last_time])
 
 nexttile;
-plot(time, top_rhobar*1000); hold on
-plot(time, -bot_rhobar*1000);
+plot(param_times, top_rhobar*1000); hold on
+plot(param_times, -bot_rhobar*1000);
 xlabel('time (s)'); ylabel('$\overline{{\rho}}$');
 axis padded
-xlim([first_out last_out])
+xlim([first_time last_time])
 
 nexttile;
-plot(time, top_ubar); hold on
-plot(time, -bot_ubar);
+plot(param_times, top_ubar); hold on
+plot(param_times, -bot_ubar);
 xlabel('time (s)'); ylabel('$\overline{{u}}$');
-xlim([first_out last_out])
+xlim([first_time last_time])
 
 nexttile;
-plot(time, Ri_b);
+plot(param_times, Ri_b);
 xlabel('time (s)'); ylabel('$Ri$');
 ylim([0 1]);
-xlim([first_out last_out])
+xlim([first_time last_time])
 
 nexttile;
-cc = contourf_clrbar(time, z(1, :), Ri_prof', [-Inf 0 .25 1 2 Inf], 'cmocean(amp');
+inds = ~isnan(param_times);
+cc = contourf_clrbar(param_times(inds), z(1, :), Ri_prof(inds, :)', [-Inf 0 .25 1 2 Inf], 'cmocean(amp');
 cc.LineColor = 'none';
 figure_print_format(gcf, 14);
 exportgraphics(gcf, [filename, '.png']);
@@ -210,6 +222,14 @@ exportgraphics(gcf, [filename, '.png']);
 if nargout == 1
     plumeCharacteristics = load(filename);
 end
+time = param_times;
+h_plume_prime = time.*NaN; 
+h_plume_prime(~isnan(time)) = FiniteDiff(time(~isnan(time)),1,2,false,false)*...
+        h_plume((~isnan(time)));
+
+save(filename, 'time', 'h_plume', 'h_plume_prime', 'top_rhobar', 'bot_rhobar', 'top_ubar', 'bot_ubar', 'Ri_b', 'Ar', 'Gr', 'Re');
+
+
 %---------------------------------------------------
 %% END OF CODE %%
 % --------------------------------------------------

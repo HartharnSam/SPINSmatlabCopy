@@ -15,7 +15,7 @@ opts = delimitedTextImportOptions("NumVariables", 4);
 opts.Delimiter = ",";
 
 % Specify column names and types
-opts.VariableNames = ["SimulationTime_s_", "OutputNumber", "VarName3", "VarName4"];
+opts.VariableNames = ["OutputNumber", "SimulationTime_s_", "VarName3", "VarName4"];
 opts.VariableTypes = ["double", "double", "double", "double"];
 
 % Specify file level properties
@@ -29,6 +29,10 @@ inds = isnan(times);
 times = times(~inds);
 outputs = pt.OutputNumber;
 outputs = outputs(~inds);
+
+[outputs, inds] = unique(outputs);
+times = times(inds);
+
 % check for first output
 if do_check
     if first_output() == outputs(1) - 1
