@@ -1,15 +1,26 @@
-% it loads the grid for Chris' model (assuming 3D)
-function [x, y, z, x1d, z1d, sz, NX, NZ, dx, Lz, Lx, wtz, wt] = spinsgrid3d()
+function [x, y, z, xv, zv, xh, yh, yp, zp, sz, NX, NY, NZ, dx, Lz, Lx] = spinsgrid3d()
 x = xgrid_reader();
-y = zgrid_reader();
+y = ygrid_reader();
 z = zgrid_reader();
-slice_grids;
+
+if nargout > 3
+    sz = size(x);
+    NX = sz(1);
+    NY = sz(2);
+    NZ = sz(3);
+    
+    xv=xzslice(x,1);
+    zv=xzslice(z,1);
+    xh=xyslice(x,NZ);
+    yh=xyslice(y,NZ);
+    if nargout > 7
+        yp=yzslice(y,1);
+        zp=yzslice(z,1);
+    end
+end
 % z1d=squeeze(z(1,:));
 % x1d=squeeze(x(:,1));
-% sz=size(x);
-% NX=sz(1);
-% NZ=sz(2);
-% 
+%
 % sz=size(x);
 % dx=x(2,2)-x(1,1);
 % Lz=max(abs(z(:)));

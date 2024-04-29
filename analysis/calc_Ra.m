@@ -37,6 +37,8 @@ params = spins_params;
 
 if isfield(params, 'delta_rho')
     delta_rho = params.delta_rho;
+elseif isfield(params, 'rho_top')
+    delta_rho = abs(params.rho_top-params.rho_bot); 
 else
     rho = spins_reader_new('rho', 0);
     delta_rho = max(rho(:))-min(rho(:));
@@ -46,9 +48,7 @@ g = params.g;
 mu = params.visco; 
 kappa = params.kappa;
 
-
 Ra = (delta_rho*L*L*L*g)./(mu*kappa);
-
 
 %---------------------------------------------------
 %% END OF CODE %%

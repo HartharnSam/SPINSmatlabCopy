@@ -32,7 +32,7 @@ switch lower(derivative)
         data = N_sq./(du_dz.^2);
         
     case 'vorty' % Vorticity
-        u = spins_reader_new('u', ii);
+        u = spins_reader_new('u', ii);        
         w = spins_reader_new('w', ii);
         [~, du_dz] = get_grad2(u);
         [dw_dx] = get_grad2(w);
@@ -53,11 +53,19 @@ switch lower(derivative)
 
         raw_data = spins_reader_new(split_string{1}, ii);
         
+        [~, z] = spinsgrid2d;
+%        raw_data = raw_data + -0.5*params.delta_rho * tanh((z-params.rho_loc)/params.dz_rho);
         switch split_string{2}
             case 'x'
                 data = get_grad2(raw_data);
             case 'z'
                 [~, data] = get_grad2(raw_data);
+            case 'zz'
+                [~, data] = get_grad2(raw_data);
+                [~, data] = get_grad2(data);
+            case 'absgrad'
+                [d_dx, d_dz] = get_grad2(raw_data);
+                data = sqrt(d_dx.^2 + d_dz.^2);
             otherwise
                 error('derivative type not configured, try ri, vorty, diss, or var_x type')
 

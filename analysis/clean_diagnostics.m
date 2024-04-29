@@ -2,14 +2,27 @@ function [new_diagnos] = clean_diagnostics()
 % clean_diagnostics reads in the diagnostic file and removed repeated
 % times, and saves clean version as a .mat file
 
-files_to_clean = {'diagnostics','stresses_top','stresses_bottom'}; % without file extensions (all are .txt)
+files_to_clean = {'diagnostics','stresses_top','stresses_bottom', 'plot_times'}; % without file extensions (all are .txt)
 %%
 for nn = 1:length(files_to_clean)
     % read analysis file (if it exists
     diag_file = [files_to_clean{nn},'.txt'];
     if exist(diag_file, 'file') == 2
         try
-            diagnos = readtable(diag_file);
+            opts = detectImportOptions(diag_file);
+
+            % Specify range and delimiter
+            opts.DataLines = [2, Inf];
+            opts.Delimiter = ",";
+
+            % Specify file level properties
+            opts.ExtraColumnsRule = "ignore";
+            opts.EmptyLineRule = "read";
+            %opts.ReadVariableNames = true;
+
+            % Import the data
+            diagnos = readtable(diag_file, opts);
+
         catch
             warning(['file "',diag_file,'" incorrectly configured.'])
             continue

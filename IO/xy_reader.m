@@ -1,4 +1,4 @@
-function ar = xy_reader(varname, seq, varargin);
+function ar = xy_reader(varname, seq, varargin)
 % SPINS xy reader with slab support and a user defined name
 % Opens and reads a slab of SPINS data, optionally
 % loading only a portion of the total array. This
@@ -31,7 +31,7 @@ function ar = xy_reader(varname, seq, varargin);
 params = spins_params();
 Nx = params.Nx;
 Ny = params.Ny;
-Nz = 1;
+Nz = params.Nz;
 
 %% Get ranges
 if nargin==4
