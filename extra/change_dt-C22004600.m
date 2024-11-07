@@ -1,4 +1,4 @@
-function [new_diagnos, movelist, movefromto] = change_dt(input_times, isTest)
+function [new_diagnos, movelist] = change_dt(input_times, isTest)
 %CHANGE_DT - Reduces output frequency of SPINS outputs by updating
 %plot_times.txt, moving unwanted outputs to archive, and renaming the
 %existing outputs
@@ -28,17 +28,12 @@ end
 if ~isTest
     fprintf('This script will delete data \n');
     isContinue = input('Are you sure you wish to continue? Y/N [N]: ', 's');
-	%% As a sanity check, its worth deleting some common derivatives too, in case they arise at a later timestep than 0
-
-	delete vorty.* diss.* *_z.* *_x.* N2.* ri.*
 
     if isempty(isContinue) || strcmpi(isContinue, 'n')
         fprintf('Script terminated, no data adjusted \n')
         return
     end
 end
-
-
 
 %% First, update plot_times.txt, and identify how to adjust outputs
 % This part is based on clean_diagnostics.m - it reads in the plot_times.txt file and removes repeated
@@ -119,13 +114,11 @@ for jj = 1:length(list_of_outputs)
     output_list{jj} = tmp{1};
 end
 movelist = "";
-movefromto = [];
 for ii = 1:length(remapped_outputs)
     if ~isequal(remapped_outputs(ii), ii-1)
         for jj = 1:length(output_list)
             if isTest
-                movelist(end+1, 1) = "./"+output_list{jj}+"."+remapped_outputs(ii)+" to "+"./"+output_list{jj}+"."+(ii-1);
-				movefromto(end+1, 1) = [remapped_outputs(ii) (ii-1)];
+                movelist(end+1, :) = "./"+output_list{jj}+"."+remapped_outputs(ii)+" to "+"./"+output_list{jj}+"."+(ii-1);
                 if ~exist("./"+output_list{jj}+"."+remapped_outputs(ii), "file")
                     error("okay")
                 end
@@ -140,3 +133,6 @@ for ii = 1:length(remapped_outputs)
         end
     end
 end
+%% As a sanity check, its worth deleting some common derivatives too, in case they arise at a later timestep than 0
+
+delete vorty.* diss.* *_z.* *_x.* N2.* ri.*

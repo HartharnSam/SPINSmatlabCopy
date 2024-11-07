@@ -1,8 +1,9 @@
 % This script takes in the parameter ii
 % it loads the grid for Chris' model (assuming 2D)
-function [x, z, x1d, z1d, sz, NX, NZ, dx, Lz, Lx, wtz, wt] = spinsgrid2d()
-x=xgrid_reader();
-z=zgrid_reader();
+function [x, z, x1d, z1d, sz, NX, NZ, dx, Lz, Lx, wtz, wt] = spinsgrid2d(xind, zind)
+if nargin < 1; xind = []; end; if nargin < 2; zind = []; end
+x=xgrid_reader(xind, zind);
+z=zgrid_reader(xind, zind);
 % z1d=squeeze(z(1,:));
 % x1d=squeeze(x(:,1));
 % sz=size(x);

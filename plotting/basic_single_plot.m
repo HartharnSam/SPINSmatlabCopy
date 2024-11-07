@@ -35,7 +35,7 @@ end
 %% Read in Data
 rho = spins_reader_new('rho',ii);
 %rho = rho_converter(rho); % convert density to real density
-rhoRange = [params.rho_0 params.rho_0+(params.delta_rho*params.rho_0)];
+%rhoRange = [params.rho_0 params.rho_0+(params.delta_rho*params.rho_0)];
 u = spins_reader_new('u',ii);
 %u = spins_reader_new('tracer', ii);
 
@@ -48,14 +48,14 @@ clf
 
 %% Plot density first 
 s = subaxis(2,1,1);
-pcolor(x,z,rho),shading flat; caxis(rhoRange);
+pcolor(x,z,rho),shading flat; %caxis(rhoRange);
 title('Density (upper panel) and u (lower panel)')
 %contourf(x,z,rho),shading flat % This is better for printed figures
 ylabel('z (m)')
 set(gca, 'xticklabels', {});
 set(gca, 'xlim', xlimits);
 colormap(s, cmocean('dense'))
-colormap(s, 'jet')
+%colormap(s, 'jet')
 
 %% Plot Horizontal Velocity Next
 s = subaxis(2,1,2);

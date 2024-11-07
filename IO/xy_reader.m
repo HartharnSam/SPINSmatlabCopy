@@ -43,7 +43,7 @@ end
 % Sanitize the ranges:
 if (~exist('xrange') || isempty(xrange) || strcmp(xrange,':')) xrange = [1:Nx]; end;
 if (~exist('yrange') || isempty(yrange) || strcmp(yrange,':')) yrange = [1:Ny]; end;
-zrange = [1];
+zrange = [100];
 xrange(xrange < 1) = []; xrange(xrange > Nx) = [];
 yrange(yrange < 1) = []; yrange(yrange > Ny) = [];
 % reset ranges if they were input as values outside of the extrema

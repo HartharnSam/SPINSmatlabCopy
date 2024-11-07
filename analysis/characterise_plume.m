@@ -1,4 +1,4 @@
-function plumeCharacteristics = characterise_plume(startframe,endframe, zlims)
+function plumeCharacteristics = characterise_plume(startframe, endframe, zlims)
 %CHARACTERISE_PLUME - Carries out calculations of plume parameters
 % Calculates timeseries of plume depth, velocity, density; Richardson
 % number,
@@ -79,10 +79,10 @@ h_plume = NaN(last_out_full, n_cont);
 top_rhobar = h_plume; bot_rhobar = h_plume;
 top_ubar = h_plume; bot_ubar = h_plume;
 Ri_prof = NaN(last_out_full, Nz);
-param_times = NaN(last_out_full, 1);
+param_times_tmp = NaN(last_out_full, 1);
 
-rho_ts = NaN(size(z, 2), length(time));
-ri_ts = rho_ts; u_ts = rho_ts; drhodz_ts = rho_ts; vorty_ts = rho_ts;
+rho_ts_tmp = NaN(size(z, 2), noutputs);
+ri_ts_tmp = rho_ts_tmp; u_ts_tmp = rho_ts_tmp; drhodz_ts_tmp = rho_ts_tmp; vorty_ts_tmp = rho_ts_tmp;
 
 % Calculate Chebyschev volumes
 % Compute the area associated with each Chebyshev point using the values
@@ -117,8 +117,9 @@ h = waitbar(0, 'Characterising ...');
 afterEach(D, @nUpdateWaitbar);
 
 p = 1; N = noutputs;
+wb = gobjects(1);
     function nUpdateWaitbar(~)
-        waitbar(p/N, h);
+        wb = waitbar(p/N, h);
         p = p + 1;
     end
 
@@ -128,41 +129,42 @@ parfor jj = 1:noutputs
     ii = outputs(jj);
     current_time = time(jj);
     full_output_ind(jj) = find(og_outputs == ii);
+
     % Read data and find reference stratification
     if Ny > 1 % in 3 dimensions
         warning('not yet configured properly')
-        %rho = spins_reader_new('Mean Density', ii, x_inds, 1, z_inds);
-        %u = spins_reader_new('Mean u', ii, x_inds, 1, z_inds);
+        rho = spins_reader_new('Mean Density', ii, x_inds, 1, z_inds);
+        u = spins_reader_new('Mean u', ii, x_inds, 1, z_inds);
     else
         rho = spins_reader_new('rho', ii);
         u = spins_reader_new('u', ii);
     end
     strat = mean(rho);
-    
+
     for nn = 1:n_cont
         % find background depth of chosen isopycnal (contval)
         [strat_pos, ~] = find_position(z_mid, strat, contval(nn));         %#ok<PFBNS>
         h_plume_tmp(jj, nn) = Lz+min_z - strat_pos;
         %[cont_x, cont_y] = find_contour(x, z, rho, contval(nn));
-        
+
         top_inds = rho < contval(nn);
         bot_inds = rho > contval(nn);
-        
+
         top_rhobar_tmp(jj, nn) = sum((rho(top_inds).*winow(top_inds)))/sum(winow(top_inds), 'all'); %#ok<PFBNS>
         bot_rhobar_tmp(jj, nn) = sum((rho(bot_inds).*winow(bot_inds)))/sum(winow(bot_inds), 'all');
-        
+
         top_ubar_tmp(jj, nn) = sum((u(top_inds).*winow(top_inds)))/sum(winow(top_inds), 'all');
         bot_ubar_tmp(jj, nn) = sum((u(bot_inds).*winow(bot_inds)))/sum(winow(bot_inds), 'all');
-        
+
     end
     % Add in a mean layer density measure
     % And a layer velocity measure
-    
+
     % set-up the figure
     %all_conts = true; % do all contours exist in the domain?
     clf
     hold on
-    
+
     g_rho0 = -g/rho_0;
     [~, du_dz] = get_grad2(u);
     [~, drho_dz] = get_grad2(rho);
@@ -170,18 +172,29 @@ parfor jj = 1:noutputs
     Ri = N_sq./(du_dz.^2);
     Ri_prof_tmp(jj, :) = mean(Ri);
     % TODO: Add the things L178:278 in characterize_wave
-    param_times(jj) = current_time;
+    param_times_tmp(jj) = current_time;
     %completion(jj, noutputs, .1, 'Characterising Plume');
-    
+
     % Calculate mean profiles
-    rho_ts(:, jj) = strat;
-    u_ts(:, jj) = mean(u);
-    vorty_ts(:, jj) = mean(spins_derivs('vorty', ii));
-    ri_ts(:, jj) = Ri_prof_tmp(jj, :);
-    drhodz_ts(:, jj) = mean(drho_dz);
-    
+    rho_ts_tmp(:, jj) = strat;
+    u_ts_tmp(:, jj) = mean(u);
+    vorty_ts_tmp(:,jj) = mean(spins_derivs('vorty', ii));
+    ri_ts_tmp(:, jj) = Ri_prof_tmp(jj, :);
+    drhodz_ts_tmp(:, jj) = mean(drho_dz);
+
     send(D, jj);
 end
+rho_ts = NaN(size(z, 2), last_out_full);
+u_ts = rho_ts; vorty_ts = rho_ts; ri_ts = rho_ts; drhodz_ts = rho_ts;
+param_times = NaN(1, last_out_full);
+
+rho_ts(:, full_output_ind) = rho_ts_tmp(:, 1:noutputs);
+u_ts(:, full_output_ind) = u_ts_tmp(:, 1:noutputs);
+vorty_ts(:, full_output_ind) = vorty_ts_tmp(:, 1:noutputs);
+ri_ts(:, full_output_ind) = ri_ts_tmp(:, 1:noutputs);
+drhodz_ts(:, full_output_ind) = drhodz_ts_tmp(:, 1:noutputs);
+
+param_times(full_output_ind) = param_times_tmp(1:noutputs);
 
 h_plume(full_output_ind, :) = h_plume_tmp(1:noutputs, :);
 top_rhobar(full_output_ind, :) = top_rhobar_tmp(1:noutputs, :);
@@ -246,7 +259,7 @@ ylim(zlims);
 c = colorbar;
 ylabel(c, '$\rho$');
 ylabel('$z (m)$');
-caxis([params.rho_top params.rho_bot]);
+clim([params.rho_top params.rho_bot]);
 cmocean('dense');
 
 % Plot density gradient
@@ -254,7 +267,7 @@ nexttile
 pcolor(param_times, zprof, log10(drhodz_ts.^2)); %TODO: Should this be a log?
 ylim(zlims);
 c = colorbar;
-caxis([-10 0]);
+clim([-10 0]);
 ylabel(c, '$\frac{d\rho}{dz}$');
 ylabel('$z (m)$')
 cmocean('thermal');
@@ -263,7 +276,7 @@ nexttile;
 pcolor(param_times, zprof, u_ts);
 ylim(zlims);
 c = colorbar;
-caxis([-.5 .5]);
+clim([-.5 .5]);
 ylabel(c, '$u (m/s)$');
 ylabel('$z (m)$')
 cmocean('balance', 'pivot', 0);
@@ -278,7 +291,7 @@ cmocean('balance', 'pivot', 0);
 
 nexttile;
 pcolor(param_times, zprof, ri_ts);
-ylim(zlims); caxis([0 1])
+ylim(zlims); clim([0 1])
 ylabel('$z (m)$')
 c = colorbar;
 ylabel(c, '$Ri$');
@@ -298,7 +311,7 @@ end
 plot(param_times, ri_ts_max);
 ylim([0 1]);
 hold on; yline(.25, ':');
-xlim([param_times(1) param_times(end)]);
+xlim([min(param_times) max(param_times)]);
 xlabel('t (s)')
 ylabel('$Ri$')
 
@@ -353,7 +366,7 @@ h_plume_prime(~isnan(time)) = FiniteDiff(time(~isnan(time)),1,2,false,false)*...
     h_plume((~isnan(time)));
 
 save(filename, 'time', 'h_plume', 'h_plume_prime', 'top_rhobar', 'bot_rhobar', 'top_ubar', 'bot_ubar', 'Ri_b', 'Ar', 'Gr', 'Re');
-
+close(wb)
 end
 %---------------------------------------------------
 %% END OF CODE %%

@@ -1,4 +1,4 @@
-function all_diagnos = plot_diagnos(make_plots, do_filter, save_plots)  
+function all_diagnos = plot_diagnos(make_plots, do_filter, save_plots)
 %  PLOT_DIAGNOS  Plot diagnostics (timing, energy budget, etc) of a SPINS case
 %
 %  Info: Diagnostics are in one of two diagnostic files
@@ -34,14 +34,14 @@ function all_diagnos = plot_diagnos(make_plots, do_filter, save_plots)
 if nargin == 0
     make_plots = true;
     do_filter = false;
-    save_plots = true;  
+    save_plots = true;
 elseif nargin == 1
     do_filter = false;
-    save_plots = true; 
+    save_plots = true;
 elseif nargin == 2
-    save_plots = true;  
+    save_plots = true;
 end
-%% 
+%%
 %%%%%%%%%%% Read Data %%%%%%%%%%%%%%%
 diag_file_name = 'diagnostics';
 
@@ -197,26 +197,26 @@ all_diagnos.diagnos.TotClockTime = (tot_clk_time);
 if isfield(diagnos, 'Enst_y_tot')
     compute_enstrophy = true;
 else
-    compute_enstrophy = false; 
+    compute_enstrophy = false;
 end
-if isfield(diagnos, 'Diss_tot') 
+if isfield(diagnos, 'Diss_tot')
     compute_dissipation = true;
 else
-    compute_dissipation = false; 
+    compute_dissipation = false;
 end
-if isfield(diagnos, 'BPE_tot') 
+if isfield(diagnos, 'BPE_tot')
     compute_BPE = true;
 else
-    compute_BPE = false; 
+    compute_BPE = false;
 end
-if isfield(diagnos, 'BPE_from_int') 
+if isfield(diagnos, 'BPE_from_int')
     compute_BPE_from_int = true;
 else
-    compute_BPE_from_int = false; 
+    compute_BPE_from_int = false;
 end
 
 %% Shorten Enstrophy Variable and compare against dissipation
-% from Mike Waite's Turbulence class: 
+% from Mike Waite's Turbulence class:
 %   total diss. = 2*mu*(total enstrophy)
 %   when boundary conditions are not no-slip (ie. free-slip or periodic on all sides)
 %   see also Yeung et al. 2012 in JFM
@@ -310,11 +310,11 @@ else
 end
 
 % total energy
-E_tot  = KE_tot + diagnos.PE_tot; 
+E_tot  = KE_tot + diagnos.PE_tot;
 E_loss = E_tot(1) - E_tot;
 
 % compute rates
-time_rate = linspace(sim_time(1), sim_time(end),round(length(sim_time)/2)); % Linear spaced simulation times 
+time_rate = linspace(sim_time(1), sim_time(end),round(length(sim_time)/2)); % Linear spaced simulation times
 Dmat = FiniteDiff(time_rate, 1, 2, true);
 KE_rate = Dmat*interp1(sim_time, KE_tot, time_rate, 'pchip')';
 E_rate  = Dmat*interp1(sim_time, E_tot,  time_rate, 'pchip')';
@@ -357,7 +357,7 @@ if compute_dissipation
     KE2APE_rate = Dmat*interp1(sim_time, KE2APE_tot, time_rate, 'pchip')';
     % offset onto the grid to use with other rates which are off_set by 1st order FD derivative
     diss_offset = interp1(sim_time, diagnos.Diss_tot, time_rate, 'pchip')';
-    % compute rate of change of internal energy, and the cumulative change 
+    % compute rate of change of internal energy, and the cumulative change
     if compute_BPE_from_int
         Int_rate = diagnos.Diss_tot - diagnos.BPE_from_int;
         Int_change = cumtrapz(diagnos.Time, Int_rate);
@@ -369,7 +369,7 @@ end
 if compute_dissipation && compute_BPE && compute_BPE_from_int
     NumE_tot  = E_loss - Int_change + F2KE_tot;
     NumE_rate = Dmat*interp1(sim_time, NumE_tot, time_rate, 'pchip')';
-
+    
     fprintf('\n')
     fprintf('---- Energy ----\n')
     if KE_forcing
@@ -487,13 +487,13 @@ if make_plots
     coly = cols(2,:);
     tr_ind = 0; % tracer number
     clear_tracer = true;
-
+    
     for name = fieldnames(diagnos)'
         if strcmp(name, 'Iter')
             continue
             
             %%%% Clock Time per Step %%%%
-        %% %% Diag_SimRunRate %% %%
+            %% %% Diag_SimRunRate %% %%
         elseif strcmp(name, 'Clock_time')
             figure(fn), clf
             figure_names{fn} = 'plot_diagnos_SimRunTimes';
@@ -532,7 +532,7 @@ if make_plots
             ylabel('\Delta T_s (s)')
             title('Simulation time step')
             if length(sim_step_time) > 500
-                set(gca, 'YLim', [0 1.2*max(sim_step_time(500:end))]);
+                set(gca, 'YLim', [0 prctile(sim_step_time,99.98)]);
             end
             box on
             hold off
@@ -548,15 +548,16 @@ if make_plots
             xlabel('Iteration')
             ylabel('\Delta{T_c} / \Delta{T_s}')
             title('Ratio of time steps')
-            try
-                max_clk_per_sim = max(clk_per_sim(~isoutlier(clk_per_sim,'ThresholdFactor',15)));
-            catch
-                max_clk_per_sim = max(clk_per_sim);
-            end
-            set(gca, 'YLim', [0 1.1*max_clk_per_sim]);
+            %             try
+            %                 max_clk_per_sim = max(clk_per_sim(~isoutlier(clk_per_sim,'ThresholdFactor',15)));
+            %             catch
+            %                 max_clk_per_sim = max(clk_per_sim);
+            %             end
+            set(gca, 'YLim', [0 prctile(clk_per_sim,99)]);
+            %set(gca, 'YLim', [0 1.1*max_clk_per_sim]);
             box on
             hold off
-    
+            
             
             %% %% Maximum (absolute value of) Velocities %% %%
         elseif strcmp(name, 'Max_u')
@@ -567,15 +568,15 @@ if make_plots
                 diagnos.Max_v = diagnos.Max_u*0;
             end
             plot(diagnos.Time, [diagnos.Max_u, diagnos.Max_v, diagnos.Max_w, diagnos.Max_vel])
-
+            
             if params.ndims == 3
                 set(gca,'yscale','log');
             else
                 set(gca,'yscale','linear');
             end
-            ylabel('Velocity (m/s)')            
+            ylabel('Velocity (m/s)')
             xlim([10 max(diagnos.Time)])
-
+            
             title('Max velocity')
             leg = legend({'Max $|u|$','Max $|v|$','Max $|w|$','Max $|\vec{u}|$'},...
                 'Interpreter','Latex');
@@ -583,7 +584,7 @@ if make_plots
             leg.Box = 'off';
         elseif strcmp(name, 'Max_v') || strcmp(name, 'Max_w') || strcmp(name, 'Max_vel')
             continue
-
+            
             %%%% Energy components %%%%
         elseif strcmp(name, 'KE_x')
             %% Plot just kinetic energy
@@ -594,7 +595,7 @@ if make_plots
             set(gca,'yscale','linear');
             xlabel('time (s)')
             xlim([10 max(diagnos.Time)])
-
+            
             ylabel('Kinetic Energy (J)')
             title('KE components')
             leg = legend({'KE_x','KE_y','KE_z','KE_{tot}'});
@@ -635,42 +636,50 @@ if make_plots
             box on
             ylabel('Energy (J)')
             xlim([10 max(diagnos.Time)])
-
+            
             title('Energy components')
             legend(energy_label)
             legend('location','best')
             legend('boxoff')
-
+            
             %% plot the rate of change of Energy components
             subplot(2,1,2), cla reset
             hold on
             inds = 10:length(time_rate);
             plot(time_rate(inds), KE_rate(inds))
             energy_label = {'KE'};
+            max_per_timestep = KE_rate(inds);
             % Add APE, AE, and change in BPE, if calculated
             if compute_BPE
                 plot(time_rate(inds), [APE_rate(inds), AE_rate(inds), BPE_rate(inds)])
                 energy_label = [energy_label, {'APE','AE','BPE (\phi_d)'}]; %#ok
+                max_per_timestep = [max_per_timestep APE_rate(inds) AE_rate(inds) BPE_rate(inds)];
             end
             % Add change in internal energy if calculated
             if compute_dissipation && compute_BPE_from_int
                 plot(diagnos.Time(10:end), Int_rate(10:end),'k')
                 energy_label = [energy_label, 'Internal']; %#ok
+                max_per_timestep = [max_per_timestep Int_rate(inds)];
+                
             end
             % add energy created/removed by numerics (filter and numerical errors/scheme etc.)
             % only if dissipation, BPE, and BPE_from_int were calculated
             if compute_dissipation && compute_BPE && compute_BPE_from_int
                 plot(time_rate(inds), NumE_rate(inds))
                 energy_label = [energy_label, {'Numerics'}];%#ok
+                max_per_timestep = [max_per_timestep NumE_rate(inds)];
             end
             if KE_forcing
                 plot(diagnos.Time, -F2KE_rate)
                 energy_label = [energy_label, {'- Work'}]; %#ok
+                max_per_timestep = [max_per_timestep F2KE_rate(inds)];
             end
+            max_per_timestep = max(abs(max_per_timestep), [], 2);
             grid on
             box on
             xlabel('time (s)')
             xlim([10 max(diagnos.Time)])
+            set(gca, 'YLim', [0 prctile(max_per_timestep,99.98)]);
             ylabel('Rate (J/s)')
             title('Energy rates of change')
             legend(energy_label)
@@ -685,9 +694,11 @@ if make_plots
             hold on
             % interpolate onto a regular grid of similar size
             energy_label = {};
+            
             if compute_dissipation
                 plot(diagnos.Time(70:end), KE2APE_tot(70:end))
                 energy_label = {'KE to APE (\int \phi_z dt)'};
+                
             end
             % Add APE if calculated
             if compute_BPE && compute_BPE_from_int
@@ -707,6 +718,7 @@ if make_plots
             if compute_dissipation && compute_BPE && compute_BPE_from_int
                 plot(diagnos.Time(70:end), NumE_tot(70:end),'Color',cols(5,:))
                 energy_label = [energy_label, 'to Numerics'];%#ok
+                
             end
             if KE_forcing
                 plot(diagnos.Time(70:end), F2KE_tot(70:end))
@@ -715,49 +727,63 @@ if make_plots
             grid on
             ylabel('Energy (J)')
             xlim([10 max(diagnos.Time)])
-
+            
             title('Energy converted')
             legend(energy_label)
             legend('location','best')
             legend('boxoff')
             box on
             hold off
-
+            
             subplot(2,1,2), cla reset
             hold on
             inds = 70:length(time_rate);
+            max_per_timestep = time_rate(inds)'.*0;
+            
             % interpolate onto a regular grid of similar size
             energy_label = {};
             if compute_dissipation
                 plot(time_rate(inds), KE2APE_rate(inds))
                 energy_label = {'KE  to APE (\phi_z)'};
+                max_per_timestep = [max_per_timestep KE2APE_rate(inds)];
+                
             end
             % Add APE if calculated
             if compute_BPE && compute_BPE_from_int
                 plot(time_rate(inds), APE2BPE_rate(inds))
                 energy_label = [energy_label, {'APE to BPE (\phi_m)'}];%#ok
+                max_per_timestep = [max_per_timestep APE2BPE_rate(inds)];
+                
             end
             % Add energy converted from internal energy
             if compute_BPE_from_int
-                plot(diagnos.Time(70:end), diagnos.BPE_from_int(70:end),'Color',cols(4,:))
+                plot(diagnos.Time(inds), diagnos.BPE_from_int(inds),'Color',cols(4,:))
                 energy_label = [energy_label, 'Int to BPE (\phi_i)']; %#ok
+                max_per_timestep = [max_per_timestep diagnos.BPE_from_int(inds)];
             end
             % Add dissipation if calculated
             if compute_dissipation
-                plot(diagnos.Time(70:end), diagnos.Diss_tot(70:end),'k')
+                plot(diagnos.Time(inds), diagnos.Diss_tot(inds),'k')
                 energy_label = [energy_label, 'KE  to Int (diss, \epsilon)'];%#ok
+                max_per_timestep = [max_per_timestep diagnos.Diss_tot(inds)];
+                
             end
             if compute_dissipation && compute_BPE && compute_BPE_from_int
                 plot(time_rate(inds), NumE_rate(inds),'Color',cols(5,:))
                 energy_label = [energy_label, 'to Numerics'];%#ok
+                max_per_timestep = [max_per_timestep NumE_rate(inds)];
             end
             if KE_forcing
                 plot(diagnos.Time(70:end), F2KE_rate(70:end))
                 energy_label = [energy_label, {'Work to KE'}];%#ok
+                %max_per_timestep = [max_per_timestep F2KE_rate(inds)];
             end
+            max_per_timestep = max(abs(max_per_timestep),[], 2);
             grid on
             xlabel('time (s)')
             xlim([10 max(diagnos.Time)])
+            set(gca, 'YLim', [-1 1].*prctile(max_per_timestep, 80));
+            
             ylabel('Rate (J/s)')
             title('Energy conversion rates')
             legend(energy_label)
@@ -769,7 +795,7 @@ if make_plots
         elseif strcmp(name, 'KE_y') || strcmp(name, 'KE_z') || strcmp(name, 'BPE_tot') ||...
                 strcmp(name, 'PE_tot') || strcmp(name, 'BPE_from_int') || strcmp(name, 'KE_from_forcing')
             continue
-
+            
             %%%% Total Mass %%%%
         elseif strcmp(name, 'Mass')
             figure(fn+4)
@@ -784,8 +810,9 @@ if make_plots
                     (diagnos.Mass(first_ind-20:end) - M0)/M0,'.')
                 ylabel('M/M_0 - 1')
                 title('Mass deviation')
+                ylim([0 prctile((diagnos.Mass(first_ind-20:end) - M0)/M0, 99.9)])
             end
-
+            
             %%%% Maximum Density or Salt/Temp %%%%
         elseif strcmp(name, 'Max_density')
             figure(fn+4)
@@ -801,11 +828,14 @@ if make_plots
                 legend('boxoff')
                 ax = gca;
                 ax.YGrid = 'on';
+                ylim([0 prctile([rho_max_diff -rho_min_diff], 99.9)])
+
             else
                 plot(diagnos.Time, rho_var)
                 ylabel('$\rho_\mathrm{max}/\rho_\mathrm{max}(0) - 1$',...
                     'Interpreter','Latex','FontSize',12)
                 title('Max density deviation')
+                ylim([0 prctile(rho_var, 99.9)])
             end
         elseif strcmp(name, 'Min_density')
             continue
@@ -813,7 +843,7 @@ if make_plots
                 strcmp(name, 'Min_temperature') || strcmp(name, 'Min_salinity')
             figure(fn+10)
             figure_names{fn+10} = 'plot_diagnos_SaltTemp';
-
+            
             if strcmp(name, 'Max_temperature') || strcmp(name, 'Min_temperature')
                 subplot(2,1,1), cla reset, hold on
                 leg_text = {};
@@ -864,14 +894,15 @@ if make_plots
                 xlabel('time (s)')
                 ylabel('$\epsilon_\mathrm{max}$  (J s$^{-1}$ m$^{-3}$)',...
                     'Interpreter','Latex','FontSize',12)
+                ylim([0 prctile(diagnos.Max_diss(inds), 99.9)])
                 title('Max dissipation')
             end
-
+            
             %%%% Area where density is over/under initial extents %%%%
         elseif strcmp(name, 'Rho_over_vol')
             figure(fn+5), clf
             figure_names{fn+5} = 'plot_diagnos_Rho_over_vol';
-
+            
             plot(diagnos.Time, [diagnos.Rho_over_vol diagnos.Rho_under_vol ...
                 diagnos.Rho_over_extra_vol diagnos.Rho_under_extra_vol])
             xlabel('time (s)')
@@ -886,13 +917,13 @@ if make_plots
         elseif strcmp(name, 'Rho_under_vol') || ...
                 strcmp(name, 'Rho_over_extra_vol') || strcmp(name, 'Rho_under_extra_vol')
             continue
-
+            
             %%%% Maximum of Dye or Tracer %%%%
         elseif strncmp(name, 'Max_dye',6) || strcmp(name, 'Max_tracer')
             % initialize figure
             figure(fn+6)
             figure_names{fn+6} = 'plot_diagnos_DyeTracerMax';
-
+            
             tr_ind = tr_ind + 1;
             if tr_ind == 1
                 if clear_tracer
@@ -907,7 +938,7 @@ if make_plots
             xlabel('time (s)')
             ylabel('Tr_{max}/Tr_{max}(0) - 1')
             title('Maximum tracer')
-
+            
             % Make legend
             if length(name{1}) > 7
                 tr_num = name{1}(8);
@@ -923,7 +954,7 @@ if make_plots
                 legend(leg_text)
                 legend('location','best')
             end
-
+            
             %%%% Minimum of Dye or Tracer %%%%
         elseif strncmp(name, 'Min_dye',6) || strcmp(name, 'Min_tracer')
             % initialize figure
@@ -939,25 +970,27 @@ if make_plots
             xlabel('time (s)')
             ylabel('(Tr_{min}-Tr_{min}(0))/Tr_{max}(0)')
             title('Minimum tracer')
-
+            
             %%%% Max (absolute value of) vorticity %%%%
         elseif strcmp(name, 'Max_vort_y')
             first_ind = 20; % remove values due to initial perturbations
             if length(diagnos.Max_vort_y) > first_ind
                 figure(fn+7)
                 figure_names{fn+7} = 'plot_diagnos_MaxVorticity_TotalEnstrophy';
-
+                
                 subplot(2,1,1), cla reset
                 inds = first_ind:length(diagnos.Max_vort_y);
                 if params.ndims == 3
                     plot(diagnos.Time(inds),...
                         [diagnos.Max_vort_x(inds), diagnos.Max_vort_y(inds), diagnos.Max_vort_z(inds)])
+                    ylim([0 prctile(diagnos.Max_vort_y(inds), 95)])
                     set(gca,'yscale','log');
                     leg = legend({'Max $|\omega_x|$','Max $|\omega_y|$','Max $|\omega_z|$'},...
                         'Interpreter','Latex','FontSize',12);
                 else
                     plot(diagnos.Time(inds), diagnos.Max_vort_y(inds),'Color',coly)
                     set(gca,'yscale','linear');
+                    ylim([0 prctile(diagnos.Max_vort_y(inds), 95)])
                     leg = legend({'Max $|\omega_y|$'}, 'Interpreter','Latex','FontSize',12);
                 end
                 leg.Location = 'best';
@@ -967,14 +1000,14 @@ if make_plots
             end
         elseif strcmp(name, 'Max_vort_x') || strcmp(name, 'Max_vort_z')
             continue
-
+            
             %%%% Total Enstrophy components %%%%
         elseif strcmp(name, 'Enst_y_tot')
             first_ind = 20; % remove values due to initial perturbations
             if length(diagnos.Enst_y_tot) > first_ind
                 figure(fn+7)
                 figure_names{fn+7} = 'plot_diagnos_MaxVorticity_TotalEnstrophy';
-
+                
                 subplot(2,1,2), cla reset
                 inds = first_ind:length(diagnos.Enst_y_tot);
                 if params.ndims == 3
@@ -998,7 +1031,7 @@ if make_plots
             end
         elseif strcmp(name, 'Enst_x_tot') || strcmp(name, 'Enst_z_tot')
             continue
-
+            
         elseif strcmp(name, 'Diss_tot')
             %%%% Total Dissipation %%%%
             first_ind = 50;
@@ -1008,7 +1041,7 @@ if make_plots
             inds = first_ind:length(diagnos.Diss_tot);
             figure(fn+8)
             figure_names{fn+8} = 'plot_diagnos_Dissipation_Enstrophy';
-
+            
             subplot(3,1,2), cla reset
             plot(diagnos.Time(inds), diagnos.Diss_tot(inds))
             if compute_enstrophy
@@ -1019,30 +1052,32 @@ if make_plots
             ylabel('$\epsilon_\mathrm{tot}$  (J/s)',...
                 'Interpreter','Latex','FontSize',12)
             title('Total dissipation')
-
+            
             %%%% Enstrophy-Dissipation ratio %%%%
             if compute_enstrophy
                 figure(fn+8)
                 figure_names{fn+8} = 'plot_diagnos_Dissipation_Enstrophy';
-
+                
                 subplot(3,1,1), cla reset
                 plot(diagnos.Time(inds), enst_tot(inds)/Vol);
                 set(gca, 'xticklabels', []);
                 ylabel('$\Omega_\mathrm{tot}/V$ (1/s$^2$)',...
                     'Interpreter','Latex','FontSize',12)
                 title('Total enstrophy')
-
+                
                 subplot(3,1,3), cla reset
                 plot(diagnos.Time(inds), enst_diss(inds)-1,'.')
                 xlabel('time (s)')
                 ylabel('$\epsilon_{tot}/(2 \mu \Omega_{tot})-1$',...
                     'Interpreter','Latex','FontSize',12)
+                ylim([0 prctile(enst_diss(inds)-1, 95)])
+                
                 title('Enstrophy-dissipation ratio error')
             end
-
+            
         elseif strcmp(name, 'Properties')
             continue
-
+            
         else
             disp([name,' not configured'])
             figure(fm), clf
@@ -1053,7 +1088,7 @@ if make_plots
             fm = fm+1;
         end
     end
-
+    
     %%%% Mixing efficiency %%%%
     if compute_BPE && compute_dissipation
         figure(fn+9)
@@ -1063,8 +1098,9 @@ if make_plots
         xlabel('time (s)')
         ylabel('Mixing')
         title('Mixing')
-        yl = ylim;
-        set(gca, 'YLim', [0 yl(2)]);
+        %yl = ylim;
+        set(gca, 'YLim', [0 2]);
+        %set(gca, 'YLim', [0 yl(2)]);
         leg = legend({'Mixing eff.','Mixing coeff.'});
         leg.Location = 'best';
         leg.Box = 'off';
@@ -1078,7 +1114,7 @@ if make_plots
             end
         end
     end
-                
+    
 end
 fprintf('\n')
 
@@ -1092,94 +1128,94 @@ end
 
 %% Volume of domain
 function Vol = find_volume(gdpar)
-    gd = gdpar.gd;
-    params = gdpar.params;
-    gdvec = get_vector_grid(gd);
-    Vol = params.Lx * params.Ly * params.Lz;
-    if strcmp(params.mapped_grid, 'true')
-        if params.ndims == 3
-            bot = gd.z(:,1,1)   - min(gd.z(:,1,1));
-            top = gd.z(:,1,end) - min(gd.z(:,1,end));
-        else
-            bot = gd.z(:,1)   - min(gd.z(:,1));
-            top = gd.z(:,end) - min(gd.z(:,end));
-        end
-        if strcmp(params.type_x, 'NO_SLIP')
-            warning('Volume calculation is not setup for Cheb grid in x.')
-        else
-            Vol = Vol - params.Ly * trapz(gdvec.x, bot+top);
-        end
+gd = gdpar.gd;
+params = gdpar.params;
+gdvec = get_vector_grid(gd);
+Vol = params.Lx * params.Ly * params.Lz;
+if strcmp(params.mapped_grid, 'true')
+    if params.ndims == 3
+        bot = gd.z(:,1,1)   - min(gd.z(:,1,1));
+        top = gd.z(:,1,end) - min(gd.z(:,1,end));
+    else
+        bot = gd.z(:,1)   - min(gd.z(:,1));
+        top = gd.z(:,end) - min(gd.z(:,end));
     end
+    if strcmp(params.type_x, 'NO_SLIP')
+        warning('Volume calculation is not setup for Cheb grid in x.')
+    else
+        Vol = Vol - params.Ly * trapz(gdvec.x, bot+top);
+    end
+end
 end
 
 %% Minimum diffusivity
 function kappa_min = find_min_diffu(params)
-    diffu_types = {'kappa','kappa_rho','kappa_tracer',...
-        'kappa_dye','kappa_dye1','kappa_dye2',...
-        'kappa_T','kappa_S','kappa_t','kappa_s'};
-    kappa = nan(1, length(diffu_types));
-    for ii = 1:length(diffu_types)
-        if isfield(params, diffu_types{ii})
-            kappa(ii) = params.(diffu_types{ii}); 
-        else
-            kappa(ii) = NaN; 
-        end
+diffu_types = {'kappa','kappa_rho','kappa_tracer',...
+    'kappa_dye','kappa_dye1','kappa_dye2',...
+    'kappa_T','kappa_S','kappa_t','kappa_s'};
+kappa = nan(1, length(diffu_types));
+for ii = 1:length(diffu_types)
+    if isfield(params, diffu_types{ii})
+        kappa(ii) = params.(diffu_types{ii});
+    else
+        kappa(ii) = NaN;
     end
-    kappa_min = min(kappa(:));
+end
+kappa_min = min(kappa(:));
 end
 
 %% Kolmogorov and Batchelor Scales
 function Scales = find_Kolm_Batch(diagnos, gdpar, kappa_min)
-    % Prints the Kolmogorov and Batchelor Scales and their relation to
-    % dx & dz
-    % Kolmogorov Scale: eta = (rho_0 nu^3/epsilon)^(1/4)
-    % Batchelor Scale:  lambda_B = eta * sqrt(kappa/nu)
-    % rho_0 is included to make epsilon the dissipation per unit mass (makes dimensions work)
+% Prints the Kolmogorov and Batchelor Scales and their relation to
+% dx & dz
+% Kolmogorov Scale: eta = (rho_0 nu^3/epsilon)^(1/4)
+% Batchelor Scale:  lambda_B = eta * sqrt(kappa/nu)
+% rho_0 is included to make epsilon the dissipation per unit mass (makes dimensions work)
 
-    % shorten parameters
-    split_gdpar
-    rho_0 = params.rho_0;
-    visco = params.visco;
+% shorten parameters
+split_gdpar
+rho_0 = params.rho_0;
+visco = params.visco;
 
-    if isfield(diagnos, 'Max_diss')
-        % find max diss. ignoring the first 100 points containing the random perturbations
-        if length(diagnos.Diss_tot) >= 100
-            max_diss = max(diagnos.Max_diss(100:end));
-        else
-            max_diss = max(diagnos.Max_diss);
-        end
-
-        % Kolmogorov and Batchelor scales
-        Kolm = (rho_0*visco^3/max_diss)^(1/4);
-        Batch = Kolm * sqrt(kappa_min/visco);
-
-        % compare max grid size to these scales
-        max_dxyz = max(max_grid_spacing(gdpar));
-        dx_Kolm  = max_dxyz/Kolm;
-        dx_Batch = max_dxyz/Batch;
-
-        % print out the info
-        fprintf('\n')
-        disp('---- Kolmogorov and Batchelor Scales ----')
-        disp(['dx/eta =      ',num2str(dx_Kolm)])
-        disp(['dx/lambda_B = ',num2str(dx_Batch)])
-
-        Scales.Kolm  = Kolm;
-        Scales.Batch = Batch;
-        Scales.dx_Kolm  = dx_Kolm;
-        Scales.dx_Batch = dx_Batch;
+if isfield(diagnos, 'Max_diss')
+    % find max diss. ignoring the first 100 points containing the random perturbations
+    if length(diagnos.Diss_tot) >= 100
+        max_diss = max(diagnos.Max_diss(100:end));
     else
-        Scales = 'N/A';
+        max_diss = max(diagnos.Max_diss);
     end
+    
+    % Kolmogorov and Batchelor scales
+    Kolm = (rho_0*visco^3/max_diss)^(1/4);
+    Batch = Kolm * sqrt(kappa_min/visco);
+    
+    % compare max grid size to these scales
+    max_dxyz = max(max_grid_spacing(gdpar));
+    dx_Kolm  = max_dxyz/Kolm;
+    dx_Batch = max_dxyz/Batch;
+    
+    % print out the info
+    fprintf('\n')
+    disp('---- Kolmogorov and Batchelor Scales ----')
+    disp(['dx/eta =      ',num2str(dx_Kolm)])
+    disp(['dx/lambda_B = ',num2str(dx_Batch)])
+    
+    Scales.Kolm  = Kolm;
+    Scales.Batch = Batch;
+    Scales.dx_Kolm  = dx_Kolm;
+    Scales.dx_Batch = dx_Batch;
+else
+    Scales = 'N/A';
+end
 end
 
 function check_txt_file(filename, header_ptrn)
-    % error check if multiple runs have been completed in this directory
-    file_txt = fileread(filename);
-    file_lines = regexp(file_txt, '\r\n|\r|\n', 'split');
-    if sum(contains(file_lines, header_ptrn)) > 1
-        error('%s file has too many headers\n%s',...
-            filename,...
-            'Remove headers and outputs from previous runs before continuing')
-    end
+% error check if multiple runs have been completed in this directory
+file_txt = fileread(filename);
+file_lines = regexp(file_txt, '\r\n|\r|\n', 'split');
+if sum(contains(file_lines, header_ptrn)) > 1
+    error('%s file has too many headers\n%s',...
+        filename,...
+        'Remove headers and outputs from previous runs before continuing')
+end
 end

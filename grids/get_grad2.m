@@ -1,8 +1,8 @@
-function [dx_out dz_out] = get_grad2(in_func)
+function [dx_out dz_out] = get_grad2(in_func, xind, zind)
 % Compute the gradient (f_x, f_y, f_z) of in_func, using appropriate
 % mappings, on a fourier/fourier (unmapped)/cheby grid
 
-persistent Jax Jbx Jaz Jbz Lx Ly Lz Px Py Pz
+persistent Jax Jbx Jaz Jbz Lx Ly Lz Px Py Pz Nx Nz
 if (isempty(Jax) || any(size(Jax) ~= size(in_func)))
     % Compute Jacobians
     xgrid = xgrid_reader();
@@ -56,4 +56,10 @@ db = cvdd(in_func,2);
 
 dx_out = da.*Jax + db.*Jbx;
 dz_out = da.*Jaz + db.*Jbz;
-    
+   
+if nargin > 1
+    if (~exist('xind') || isempty(xind) || strcmp(xind,':')) xind = [1:Nx]; end;
+    if (~exist('zind') || isempty(zind) || strcmp(zind,':')) zind = [1:Nz]; end;
+    dx_out = dx_out(xind, zind);
+    dz_out = dz_out(xind, zind);
+end

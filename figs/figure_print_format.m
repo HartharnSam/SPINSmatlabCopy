@@ -38,6 +38,7 @@ childs = allchild(fig_hand);
 warning('off', 'MATLAB:handle_graphics:exceptions:SceneNode');
 % Change axis
 ax = findobj(childs,'Type','Axes');
+
 if ~isempty(ax)
     for ii = 1:length(ax)
         if ~strcmp(ax(ii).Type, 'axestoolbar')
@@ -64,8 +65,10 @@ if ~isempty(ax)
             % Set the line width & Marker size
             ax(ii).LineWidth = 1.5;
             for i = 1:length(ax(ii).Children)
-                if strcmp(class(ax(ii).Children(i)), 'matlab.graphics.chart.primitive.Line')
-                    ax(ii).Children(i).LineWidth = 1.5;
+                if isequal(class(ax(ii).Children(i)), 'matlab.graphics.chart.primitive.Line')
+                    if isequal(get(groot, 'DefaultLineLineWidth'), ax(ii).Children(i).LineWidth)
+                        ax(ii).Children(i).LineWidth = 1.5;
+                    end
                 end
                 if isfield(ax(ii).Children(i), 'MarkerFaceColor')
                     ax(ii).Children(i).MarkerFaceColor = ax(ii).Children(i).Color;
