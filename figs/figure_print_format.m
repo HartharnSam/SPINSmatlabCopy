@@ -38,17 +38,21 @@ childs = allchild(fig_hand);
 warning('off', 'MATLAB:handle_graphics:exceptions:SceneNode');
 % Change axis
 ax = findobj(childs,'Type','Axes');
-
+LabelFontSizeMultiplier = 1.25;
+%fig_hand.Color = "w";
 if ~isempty(ax)
     for ii = 1:length(ax)
         if ~strcmp(ax(ii).Type, 'axestoolbar')
             % change font size and font
-            ax(ii).FontSize = fontsize;
+            ax(ii).FontSize = fontsize/LabelFontSizeMultiplier;
+            ax(ii).LabelFontSizeMultiplier = LabelFontSizeMultiplier;
+
             ax(ii).FontName = 'Arial';
             ax(ii).XLabel.Interpreter = 'Latex';
             ax(ii).YLabel.Interpreter = 'Latex';
             ax(ii).TickLabelInterpreter = 'Latex';
             ax(ii).Title.FontSize = fontsize;
+            
             % change axis outline
             set(ax(ii),'layer','top');
             ax(ii).Box = 'on';
@@ -86,14 +90,31 @@ if ~isempty(ax)
     end
 end
 
+tlo = findobj(childs,'Type','TiledLayout');
+if ~isempty(tlo)
+    for ii = 1:length(tlo)
+        tlo(ii).XLabel.Interpreter = 'Latex';
+        tlo(ii).XLabel.FontName = 'Arial';
+        tlo(ii).XLabel.FontSize = fontsize;%*LabelFontSizeMultiplier;
+
+        tlo(ii).YLabel.Interpreter = 'Latex';
+        tlo(ii).YLabel.FontName = 'Arial';
+        tlo(ii).YLabel.FontSize = fontsize;%*LabelFontSizeMultiplier;
+
+        tlo(ii).Title.Interpreter = 'Latex';
+        tlo(ii).Title.FontName = 'Arial';
+        tlo(ii).Title.FontSize = fontsize;
+
+    end
+end
 % Change colorbar
 cbar = findobj(childs,'Type','ColorBar');
 if ~isempty(cbar)
     for ii = 1:length(cbar)
         cbar(ii).TickLabelInterpreter = 'Latex';
         cbar(ii).Label.Interpreter = 'Latex';
-        cbar(ii).FontSize = fontsize;
-        
+        cbar(ii).FontSize = fontsize/LabelFontSizeMultiplier;
+        cbar(ii).Label.FontSize = fontsize;
     end
 end
 
@@ -102,6 +123,7 @@ leg = findobj(childs,'Type','Legend');
 if ~isempty(leg)
     for ii = 1:length(leg)
         leg(ii).Interpreter = 'Latex';
+        leg(ii).FontSize = fontsize; 
     end
 end
 

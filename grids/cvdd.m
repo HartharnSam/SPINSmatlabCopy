@@ -1,6 +1,6 @@
-function dd = cvdd(f,dim);
+function dd = cvdd(f,dim)
 % Chebyshev derivative along dimension dim
-if (~exist('dim')) dim=1; end;
+if (~exist('dim')); dim=1; end
 sz = size(f);
 perm = 1:length(sz);
 perm(dim)=1;perm(1)=dim;
@@ -14,7 +14,7 @@ cc = cvt(real(f));
 dd = zeros(size(cc));
 N = psz(1);
 dd(N-1,:) = (N-1)*cc(N,:);
-for k = N-2:-1:1;
+for k = N-2:-1:1
     dd(k,:) = dd(k+2,:) + 2*k*cc(k+1,:);
 end
 

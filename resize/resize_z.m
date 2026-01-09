@@ -145,15 +145,20 @@ else
          field = permute(field,[3,2,1]);
          
      else
+         
          %Calculates coefficients in cheb expansion
          r_coeffs = vals2coeffs(field'); 
 
-         %Create Padding
-         padding = zeros(Nz_new-Nz_old,Nx); 
-         
-         %Pad along the first dimension (field is permuted so that z axis
-         %is along first dimension)
-         r_coeffs_padded = cat(1,r_coeffs,padding); 
+         if Nz_new > Nz_old
+             %Create Padding
+             padding = zeros(Nz_new-Nz_old,Nx); 
+             
+             %Pad along the first dimension (field is permuted so that z axis
+             %is along first dimension)
+             r_coeffs_padded = cat(1,r_coeffs,padding); 
+         else
+             r_coeffs_padded = r_coeffs(1:Nz_new, :);
+         end
          
          %Go back to real space
          field = (coeffs2vals(r_coeffs_padded))';         

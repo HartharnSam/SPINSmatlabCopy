@@ -575,7 +575,7 @@ if make_plots
                 set(gca,'yscale','linear');
             end
             ylabel('Velocity (m/s)')
-            xlim([10 max(diagnos.Time)])
+            xlim([1 max(diagnos.Time)])
             
             title('Max velocity')
             leg = legend({'Max $|u|$','Max $|v|$','Max $|w|$','Max $|\vec{u}|$'},...
@@ -594,7 +594,7 @@ if make_plots
             plot(diagnos.Time,[diagnos.KE_x, diagnos.KE_y, diagnos.KE_z, KE_tot])
             set(gca,'yscale','linear');
             xlabel('time (s)')
-            xlim([10 max(diagnos.Time)])
+            xlim([1 max(diagnos.Time)])
             
             ylabel('Kinetic Energy (J)')
             title('KE components')
@@ -635,7 +635,7 @@ if make_plots
             grid on
             box on
             ylabel('Energy (J)')
-            xlim([10 max(diagnos.Time)])
+            xlim([1 max(diagnos.Time)])
             
             title('Energy components')
             legend(energy_label)
@@ -678,7 +678,7 @@ if make_plots
             grid on
             box on
             xlabel('time (s)')
-            xlim([10 max(diagnos.Time)])
+            xlim([1 max(diagnos.Time)])
             set(gca, 'YLim', [0 prctile(max_per_timestep,99.98)]);
             ylabel('Rate (J/s)')
             title('Energy rates of change')
@@ -726,7 +726,7 @@ if make_plots
             end
             grid on
             ylabel('Energy (J)')
-            xlim([10 max(diagnos.Time)])
+            xlim([1 max(diagnos.Time)])
             
             title('Energy converted')
             legend(energy_label)
@@ -781,8 +781,8 @@ if make_plots
             max_per_timestep = max(abs(max_per_timestep),[], 2);
             grid on
             xlabel('time (s)')
-            xlim([10 max(diagnos.Time)])
-            set(gca, 'YLim', [-1 1].*prctile(max_per_timestep, 80));
+            xlim([1 max(diagnos.Time)])
+            %set(gca, 'YLim', [-1 1].*prctile(max_per_timestep, 80));
             
             ylabel('Rate (J/s)')
             title('Energy conversion rates')
@@ -810,7 +810,7 @@ if make_plots
                     (diagnos.Mass(first_ind-20:end) - M0)/M0,'.')
                 ylabel('M/M_0 - 1')
                 title('Mass deviation')
-                ylim([0 prctile((diagnos.Mass(first_ind-20:end) - M0)/M0, 99.9)])
+%                ylim(sort([0 prctile((diagnos.Mass(first_ind-20:end) - M0)/M0, 99.9)]))
             end
             
             %%%% Maximum Density or Salt/Temp %%%%
@@ -828,14 +828,14 @@ if make_plots
                 legend('boxoff')
                 ax = gca;
                 ax.YGrid = 'on';
-                ylim([0 prctile([rho_max_diff -rho_min_diff], 99.9)])
+                %ylim(sort(prctile([rho_max_diff -rho_min_diff], 99.9)));
 
             else
                 plot(diagnos.Time, rho_var)
                 ylabel('$\rho_\mathrm{max}/\rho_\mathrm{max}(0) - 1$',...
                     'Interpreter','Latex','FontSize',12)
                 title('Max density deviation')
-                ylim([0 prctile(rho_var, 99.9)])
+%                ylim([0 prctile(rho_var, 99.9)])
             end
         elseif strcmp(name, 'Min_density')
             continue

@@ -71,7 +71,7 @@ filename = 'plume_characteristics';
 % Settings for one isopycnal
 rho_1 = params.rho_bot; rho_2 = params.rho_top;
 
-contval = rho_1 + 0.5*(rho_2 - rho_1); % Set as the mid-density currently, but open to change the 0.5 to any ratio
+contval = rho_1 + 0.2*(rho_2 - rho_1); % Set as the mid-density currently, but open to change the 0.5 to any ratio
 
 % Set up vectors of wave characteristics
 n_cont = length(contval);
@@ -144,7 +144,7 @@ parfor jj = 1:noutputs
     for nn = 1:n_cont
         % find background depth of chosen isopycnal (contval)
         [strat_pos, ~] = find_position(z_mid, strat, contval(nn));         %#ok<PFBNS>
-        h_plume_tmp(jj, nn) = Lz+min_z - strat_pos;
+        h_plume_tmp(jj, nn) = Lz + min_z - strat_pos;
         %[cont_x, cont_y] = find_contour(x, z, rho, contval(nn));
 
         top_inds = rho < contval(nn);

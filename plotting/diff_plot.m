@@ -1,4 +1,4 @@
-function basic_single_plot(ii, xlimits, zlimits)
+function diff_plot(ii, xlimits, zlimits)
 %BASIC PLOTTING - produces simplest single frame plot of real density and horizontal
 %velocity.
 %
@@ -61,7 +61,7 @@ clf
 
 %% Plot density first
 s = subaxis(2,1,1);
-pcolor(x,z,rho),shading flat; %caxis(rhoRange);
+pcolor(x,z,rho-mean(rho)),shading flat; %caxis(rhoRange);
 hold on
 rho_scale = (mean(rho)/max(abs(rho(:)))+1)*params.Lx/2;
 plot(rho_scale, mean(z), 'w-');
@@ -75,10 +75,10 @@ set(gca, 'ylim', zlimits);
 
 colormap(s, cmocean('dense'))
 %colormap(s, 'jet')
-colorbar; 
+
 %% Plot Horizontal Velocity Next
 s = subaxis(2,1,2);
-pcolor(x,z,u),shading flat,clim([-1 1]*umaxabs)
+pcolor(x,z,u-mean(u)),shading flat,clim([-1 1]*umaxabs*0.05)
 hold on
 u_scale = (mean(u)/max(abs(u(:)))+1)*params.Lx/2;
 plot(u_scale, mean(z), 'k-');
@@ -87,7 +87,7 @@ ylabel('z (m)')
 xlabel('x (m)')
 set(gca, 'xlim', xlimits);
 set(gca, 'ylim', zlimits);
-colorbar;
+
 colormap(s, cmocean('balance'));
 
 

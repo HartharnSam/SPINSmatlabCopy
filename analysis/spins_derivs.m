@@ -30,11 +30,18 @@ params = spins_params;
 switch lower(derivative)
     case 'ri' % Richardson Number
         g_rho0 = -params.g/params.rho_0;
-        u = spins_reader_new('u', ii);        
-        rho = (spins_reader_new('rho', ii)+1)*params.rho_0;
+        u = spins_reader_new('u', ii);    
+        try
+            rho = (spins_reader_new('rho', ii)+1)*params.rho_0;
+        catch
+            rho = nleos(spins_reader_new('s', ii), spins_reader_new('t', ii));
+        end
         [~, du_dz] = get_grad2(u, xinds, zinds);
         [~, drho_dz] = get_grad2(rho, xinds, zinds);
         N_sq = g_rho0 * drho_dz;
+        N_sq(abs(N_sq)<1e-3) = NaN; 
+        du_dz(abs(du_dz)<21e-4) = NaN; 
+
         data = N_sq./(du_dz.^2);
         %data = smoothdata(data, 2, 'rlowess', 5);
     case 'n2'

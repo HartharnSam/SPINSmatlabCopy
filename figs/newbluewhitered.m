@@ -32,7 +32,7 @@ function newmap = newbluewhitered(m, pivot, ax)
 
 
 if nargin < 1
-    m = size(get(gcf,'colormap'),1);
+    m = size(get(gca,'colormap'),1);
 end
 if nargin < 3
     ax = gca;
@@ -59,7 +59,6 @@ if (lims(1) < pivot) && (lims(2) > pivot)
         bottom(i) = interp1([-max_lims pivot max_lims], [bottom(i) middle(i) top(i)], lims(1));
         top(i) = interp1([-max_lims pivot max_lims], [bottom(i) middle(i) top(i)], lims(2));
     end
-    
     
     ratio = (pivot - lims(1)) / diff(lims);
     

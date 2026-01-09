@@ -123,7 +123,7 @@ for jj = 1:length(fields)
     fprintf('Changing field: %-8s ...',field)
 
     % read and expand field
-    data = spins_reader(field, ii);
+    data = spins_reader_new(field, ii);
     
     %Account for any unchagned sizes
     

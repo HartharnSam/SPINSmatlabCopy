@@ -21,3 +21,5 @@ if nargout > 1
     wi = wci*(params.Lz)*0.5;
     k_tot = sum(wi.*k).*params.Lx;
 end
+
+warning("Check this properly!")

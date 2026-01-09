@@ -91,16 +91,16 @@ elseif (is_grid && nargin>1) || (~is_grid && nargin>2)
 end
 
 % Sanitize the ranges:
-if (~exist('xrange') || isempty(xrange) || strcmp(xrange,':')) xrange = [1:Nx]; end
-if (~exist('yrange') || isempty(yrange) || strcmp(yrange,':')) yrange = [1:Ny]; end
-if (~exist('zrange') || isempty(zrange) || strcmp(zrange,':')) zrange = [1:Nz]; end
+if (~exist('xrange') || isempty(xrange) || strcmp(xrange,':')) xrange = 1:Nx; end
+if (~exist('yrange') || isempty(yrange) || strcmp(yrange,':')) yrange = 1:Ny; end
+if (~exist('zrange') || isempty(zrange) || strcmp(zrange,':')) zrange = 1:Nz; end
 xrange(xrange < 1) = []; xrange(xrange > Nx) = [];
 yrange(yrange < 1) = []; yrange(yrange > Ny) = [];
 zrange(zrange < 1) = []; zrange(zrange > Nz) = [];
 % reset ranges if they were input as values outside of the extrema
-if isempty(xrange) xrange = [1:Nx]; end;
-if isempty(yrange) yrange = [1:Ny]; end;
-if isempty(zrange) zrange = [1:Nz]; end;
+if isempty(xrange) xrange = 1:Nx; end
+if isempty(yrange) yrange = 1:Ny; end
+if isempty(zrange) zrange = 1:Nz; end
 
 % Define ranges in file-ordering
 ranges = {xrange,yrange,zrange};

@@ -1,4 +1,4 @@
-function spins_movie_maker(parameters, xlimits, min_t, savevideo, savefnm)
+function SPINS_movie_maker(parameters, xlimits, min_t, savevideo, savefnm)
 %SPINS_MOVIE_MAKER - Plots a video of the SPINS outputs outlined by
 % parameters over the time and x space specified
 %
@@ -186,49 +186,36 @@ bot_stresses = nan(length(x(:, 1)), length(time));
 %% Run video code
 ax = gobjects(1, n_plots);
 for ii = min_t:max_t
+
     %% Rho
     if ~isempty(positioning.rho)
         rho = rho_converter(spins_reader_new('rho',ii, xlimits_ind, [])); % Read in density and convert to real units
         rholimits = [rho_0 rho_0*(1+delta_rho)];
 
-        if ii == min_t
-            ax(positioning.rho) = subaxis(n_rows,n_columns, positioning.rho, 'SpacingVert', SpacingVert, 'Margin', Margin);
-        else
-            axes(ax(positioning.rho));
-        end
+        ax(positioning.rho) = subaxis(n_rows,n_columns, positioning.rho, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,rho),shading flat
         hold on
         plot(x(:, 1), z(:, end), 'k-');
-
-        set(ax(positioning.rho), 'NextPlot', 'replacechildren')
-        cmocean('dense');
-
         %colormap darkjet
-        if ii == min_t
-            c = colorbar(ax(positioning.rho));
-            ylabel(c, '$\rho (kg m^{-3})$');
-            clim(gca, rholimits);
-            %title('Density')
-            title(subplot_labels(positioning.rho, 2))
-            pcolor_plots(positioning.rho) = 1;
-        end
+        c = colorbar(ax(positioning.rho));
+        ylabel(c, '$\rho (kg m^{-3})$');
+        cmocean('dense');
+        caxis(gca, rholimits);
+        %title('Density')
+        title(subplot_labels(positioning.rho, 2))
+        pcolor_plots(positioning.rho) = 1;
     end
     %% U Velocity
     if ~isempty(positioning.u)
         u = spins_reader_new('u', ii, xlimits_ind, []);
         %umaxabs=max(abs(u(:)));
-        if ii == min_t
-            ax(positioning.u) = subaxis(n_rows,n_columns, positioning.u, 'SpacingVert', SpacingVert, 'Margin', Margin);
-        else
-            axes(ax(positioning.u));
-        end
-
+        ax(positioning.u) = subaxis(n_rows,n_columns, positioning.u, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,u),shading flat
         cmocean('delta');
         c = colorbar(ax(positioning.u));
         ylabel(c, '$u$');
         umaxabs = 0.15;
-        clim(gca, umaxabs*[-1 1]);
+        caxis(gca, umaxabs*[-1 1]);
         title('u (m/s)')
         pcolor_plots(positioning.u) = 1;
 
@@ -242,16 +229,13 @@ for ii = min_t:max_t
         pcolor(x, z, u_normalised), shading flat
         %colormap darkjet
         cmocean('delta');
-        set(ax(positioning.u), 'NextPlot', 'replacechildren')
-        if ii == min_t
+        c = colorbar(ax(positioning.u_normalised));
+        ylabel(c, '$u / c$');
+        caxis(gca, [-.1 .1]);
+        %title('u/c')
+        title(subplot_labels(positioning.u_normalised, 2))
+        pcolor_plots(positioning.u_normalised) = 1;
 
-            c = colorbar(ax(positioning.u_normalised));
-            ylabel(c, '$u / c$');
-            clim(gca, [-.1 .1]);
-            %title('u/c')
-            title(subplot_labels(positioning.u_normalised, 2))
-            pcolor_plots(positioning.u_normalised) = 1;
-        end
     end
     %% V Velocity
     if ~isempty(positioning.v)
@@ -261,7 +245,7 @@ for ii = min_t:max_t
         ax(positioning.v) = subaxis(n_rows,n_columns, positioning.v, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,v),shading flat
 
-        clim(gca, vmaxabs*[-1 1]);
+        caxis(gca, vmaxabs*[-1 1]);
         title('v (m/s)')
         pcolor_plots(positioning.v) = 1;
 
@@ -273,10 +257,10 @@ for ii = min_t:max_t
 
         ax(positioning.w) = subaxis(n_rows,n_columns, positioning.w, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,w),shading flat
-        colormap(ax(positioning.w), darkjet)
+        colormap darkjet
         cmocean('delta');
         wmaxabs = 0.15;
-        clim(gca, wmaxabs*[-1 1]);
+        caxis(gca, wmaxabs*[-1 1]);
         c = colorbar(ax(positioning.w));
         ylabel(c, '$w$');
         title('w (m/s)')
@@ -295,7 +279,7 @@ for ii = min_t:max_t
         cmocean('delta');
         c = colorbar(ax(positioning.w_normalised));
         ylabel(c, '$w / c$');
-        clim(gca, [-0.1 0.1]);
+        caxis(gca, [-0.1 0.1]);
         %title('w/c')
         title(subplot_labels(positioning.w_normalised, 2))
         pcolor_plots(positioning.w_normalised) = 1;
@@ -309,7 +293,7 @@ for ii = min_t:max_t
         ax(positioning.diss) = subaxis(n_rows,n_columns, positioning.diss, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,log10(diss)),shading flat
         cmocean('amp');
-        clim(gca, disslimits);
+        caxis(gca, disslimits);
         title('dissipation')
         pcolor_plots(positioning.diss) = 1;
         c = colorbar(ax(positioning.diss));
@@ -323,10 +307,11 @@ for ii = min_t:max_t
 
         ax(positioning.vorty) = subaxis(n_rows,n_columns, positioning.vorty, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,vorty),shading flat; hold on
+
         plot(x(:, 1), z(:,1), 'k-');
         plot(x(:, end), z(:,end), 'k-');
 
-        clim([-1 1]*6);
+        caxis([-1 1]*6);
         colormap(gca, newbluewhitered);
         q_scale = 1.2;
         linespec = struct('Color', 'k', 'LineWidth', .2);
@@ -348,8 +333,9 @@ for ii = min_t:max_t
         ax(positioning.tracer) = subaxis(n_rows,n_columns, positioning.tracer, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,tracer),shading flat
         cmocean('turbid');
-        clim(gca, [0 1]);
+        caxis(gca, [0 1]);
         c = colorbar(ax(positioning.tracer));
+
         ylabel(c, 'Tracer');
         title(subplot_labels(positioning.tracer, 2))
         pcolor_plots(positioning.tracer) = 1;
@@ -363,7 +349,7 @@ for ii = min_t:max_t
         ax(positioning.dye1) = subaxis(n_rows,n_columns, positioning.dye1, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,dye1),shading flat
         cmocean('turbid');
-        clim(gca, [0 1]);
+        caxis(gca, [0 1]);
         c = colorbar(ax(positioning.dye1));
         ylabel(c, 'Tracer 1');
         title(subplot_labels(positioning.dye1, 2))
@@ -376,7 +362,7 @@ for ii = min_t:max_t
         ax(positioning.dye2) = subaxis(n_rows,n_columns, positioning.dye2, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x,z,dye2),shading flat
         cmocean('turbid');
-        clim(gca, [0 1]);
+        caxis(gca, [0 1]);
         c = colorbar(ax(positioning.dye2));
         ylabel(c, 'Tracer 2');
         title(subplot_labels(positioning.dye2, 2))
@@ -434,40 +420,38 @@ for ii = min_t:max_t
         ax(positioning.bot_stresses) = subaxis(n_rows,n_columns, positioning.bot_stresses, 'SpacingVert', SpacingVert, 'Margin', Margin);
         pcolor(x(:, 1), time, bot_stresses'); shading flat;
         cmocean('curl');
-        clim(ax(positioning.bot_stresses), [-.1 .1]);
+        caxis(ax(positioning.bot_stresses), [-.1 .1]);
         c = colorbar(ax(positioning.bot_stresses));
         ylabel(c, '$t_x$');
         title(subplot_labels(positioning.bot_stresses, 2))
         pcolor_plots(positioning.bot_stresses) = 1;
     end
     %% Correct axis titles etc.
-    if ii == min_t
 
-        for i = 1:n_columns
-            [~, last_in_column(i)] = find((pcolor_plots(i,:) == 1), 1, 'last');
-        end
-        for ai = 1:n_plots
-            if pcolor_plots(ai)
-                if mod(ai, n_columns) ~= 1 && n_columns ~= 1
+    for i = 1:n_columns
+        [~, last_in_column(i)] = find((pcolor_plots(i,:) == 1), 1, 'last');
+    end
+    for ai = 1:n_plots
+        if pcolor_plots(ai)
+            if mod(ai, n_columns) ~= 1 && n_columns ~= 1
 
-                    ax(ai).YLabel = [];
-                    ax(ai).YTickLabel = {};
-                else
-                    ax(ai).YLabel.String = 'z (m)';
-                end
-                ax(ai).YLim = [params.min_z params.min_z+params.Lz];
-                % set(ax(ai), 'XDir', 'reverse');
-                ax(ai).XLim = xlimits;
-                col_num = mod(ai-1, n_columns)+1;
-                if ceil(ai/n_columns) == last_in_column(col_num)
-                    ax(ai).XLabel.String = 'x (m)';
-                else
-                    ax(ai).XLabel = [];
-                    ax(ai).XTickLabel = {};
-                end
+                ax(ai).YLabel = [];
+                ax(ai).YTickLabel = {};
+            else
+                ax(ai).YLabel.String = 'z (m)';
             end
-            %daspect(ax(ai), [1 1 1]);
+            ax(ai).YLim = [params.min_z params.min_z+params.Lz];
+           % set(ax(ai), 'XDir', 'reverse');
+            ax(ai).XLim = xlimits;
+            col_num = mod(ai-1, n_columns)+1;
+            if ceil(ai/n_columns) == last_in_column(col_num)
+                ax(ai).XLabel.String = 'x (m)';
+            else
+                ax(ai).XLabel = [];
+                ax(ai).XTickLabel = {};
+            end
         end
+        %daspect(ax(ai), [1 1 1]);
     end
 
     if ~isempty(positioning.bot_stresses)

@@ -151,8 +151,6 @@ for jj = 1:noutputs
     x_inds = xlind:xrind;
     z_inds = zbind:ztind;
     
-    
-    
     for nn = 1:n_cont
         % find background depth of chosen isopycnal (contval)
         if isvector(gd.z)

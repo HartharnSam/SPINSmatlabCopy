@@ -14,3 +14,4 @@ else
     for k=1:(N-1)/2, v=v-2*cos(2*k*theta(ii))/(4*k^2-1); end
 end
 w(ii) = 2*v/N;
+end

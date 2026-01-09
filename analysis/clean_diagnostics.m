@@ -2,7 +2,7 @@ function [new_diagnos] = clean_diagnostics()
 % clean_diagnostics reads in the diagnostic file and removed repeated
 % times, and saves clean version as a .mat file
 
-files_to_clean = {'diagnostics','stresses_top','stresses_bottom', 'plot_times'}; % without file extensions (all are .txt)
+files_to_clean = {'diagnostics','plot_times', 'stresses_top','stresses_bottom'}; % without file extensions (all are .txt)
 %%
 for nn = 1:length(files_to_clean)
     % read analysis file (if it exists

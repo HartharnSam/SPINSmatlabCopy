@@ -62,6 +62,9 @@ for ii = 1:length(RunDirectoryName)
         warning('off', 'MATLAB:DELETE:FileNotFound');
         delete('wave_characteristics.mat'); delete('wavestats.mat')
         %if exist('wave_characteristics.mat', 'file') == 0 % Has characterize_wave been run before for this experiment?
+
+        
+
         if n_layers == 1
             WaveStats = wave_characteriser([10 45]); % Less robust script for use with continuous stratification
         else

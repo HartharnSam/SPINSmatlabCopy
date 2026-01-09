@@ -1,5 +1,4 @@
 function rho = nleos(s,t,varargin)
-
 %
 % NLEOS.M    Density of sea water - adapted from densmdjwf.m for MITGCM
 %=========================================================================
