@@ -27,3 +27,7 @@ end
 % Lx=sz(1)*dx;
 % sz=size(x);
 % [wtz,wt]=clencurt(sz(2)-1); wt=wt*Lz/2;
+
+function myslice = yzslice(f, kk)
+% Returns the kkth yz slice of a 3D spins field
+myslice=squeeze(f(kk, :, :));
