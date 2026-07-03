@@ -52,12 +52,13 @@ filename = 'wave_characteristics';
 
 % read grid and parameters
 gd.z = zgrid_reader;
-gd.x = xgrid_reader;
 params = spins_params;
+gd.x = xgrid_reader;
+gd.x = params.Lx - gd.x;
 tank_end = params.Lx; % Provisionally
 if isfield(params, 'hill_height')
     hill_length = params.hill_height/params.hill_slope;
-    tank_end = tank_end - hill_length - params.hill_end_dist;
+    %tank_end = tank_end - hill_length - params.hill_end_dist;
 % elseif isfield(params, 'ice_length')
 %     ice_length = params.ice_length + params.ice_trans; %todo fix the adjustment of the ice transition length
 %     tank_end = tank_end - ice_length;
@@ -83,7 +84,7 @@ end
  if isTwoLayer
      isopyc_loc = params.pyc_loc -params.h_halfwidth + 0.01;
  else
-     isopyc_loc = params.pyc_loc;%-params.h_halfwidth;
+     isopyc_loc = params.pyc_adj_loc;%-params.h_halfwidth;
  end
  if isvector(gd.z)
      contval = interp1(gd.z, strat, isopyc_loc);
@@ -148,7 +149,9 @@ for jj = 1:noutputs
     %disp(num2str(jj));
     % current output and indices to use
     ii = outputs(jj);
-    x_inds = xlind:xrind;
+    xlinds(1) = min(xlind, xrind);
+    xlinds(2) = max(xlind, xrind);
+    x_inds = xlinds(1):xlinds(2);
     z_inds = zbind:ztind;
     
     for nn = 1:n_cont
@@ -288,7 +291,7 @@ end
 % calculate time means for key parameters - over flat topography
 
 read_inds = find(wave_center(:, 1)>(params.L_adj*1.15) & wave_center(:, 1)< tank_end);
-
+read_inds = 1:length(amplitude);
 mean_amp = mean(amplitude(read_inds, :), 'omitnan');
 mean_speed = mean(wave_speed(read_inds, :), 'omitnan');
 end_of_tank = time(max(read_inds));
