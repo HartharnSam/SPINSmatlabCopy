@@ -1,11 +1,15 @@
 function data = get_spins_data(var, ii, xminInd, xmaxInd, zInds)
 %GET_SPINS_DATA - returns spins data, basically a wrapper for
 %spins_reader_new, but it can do some computations for certain derived variables
-
-if nargin < 4
-    params = spins_params;
+if nargin < 3 || isempty(xminInd)
     xminInd = 1;
+end
+if nargin < 4 || isempty(xmaxInd)
+    params = spins_params;
     xmaxInd = params.Nx;
+end
+if nargin < 5 || isempty(zInds)
+    params = spins_params;
     zInds = 1:params.Nz;
 end
 
@@ -17,7 +21,13 @@ switch lower(var)
         try
             data = spins_reader_new('enst', ii, xminInd:xmaxInd, zInds);
         catch
-            data = 0.5*spins_reader_new('vorty', ii, xminInd:xmaxInd, zInds).^2;
+            try
+                data = 0.5*spins_reader_new('vorty', ii, xminInd:xmaxInd, zInds).^2;
+            catch 
+                spins_derivs('vorty', ii, true);
+                data = 0.5*spins_reader_new('vorty', ii, xminInd:xmaxInd, zInds).^2;
+
+            end
         end
     case 'ke'
         u = spins_reader_new('u', ii, xminInd:xmaxInd, zInds);
@@ -50,8 +60,7 @@ switch lower(var)
         catch
             %rho0 = params.rho_0;
             data = (eqn_of_state(spins_reader_new('t', ii, xminInd:xmaxInd,...
-                zInds), spins_reader_new('s', ii, xminInd:xmaxInd,...
-                zInds)));
+                zInds), 0));
         end
         %data1 = data1 + -0.5*params.delta_rho * tanh((z-params.rho_loc)/params.dz_rho);
     case 'rho_z2'
@@ -75,6 +84,18 @@ switch lower(var)
             spins_derivs('u_z', ii, true);
             data = spins_reader_new('u_z', ii, xminInd:xmaxInd, zInds).^2;
             delete("u_z."+ii);
+        end
+    case 'grad_rho'
+        try
+            data = spins_reader_new('rho_z', ii, xminInd:xmaxInd, zInds).^2;
+            data = data + spins_reader_new('rho_x', ii, xminInd:xmaxInd, zInds).^2;
+            data = sqrt(data);
+        catch
+            spins_derivs('rho_z', ii, true); spins_derivs('rho_x', ii, true);
+            data = spins_reader_new('rho_z', ii, xminInd:xmaxInd, zInds).^2;
+            data = data + spins_reader_new('rho_x', ii, xminInd:xmaxInd, zInds).^2;
+            data = sqrt(data);
+            delete("rho_z."+ii);
         end
     otherwise
         try

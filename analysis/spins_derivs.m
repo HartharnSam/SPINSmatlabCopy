@@ -39,7 +39,7 @@ switch lower(derivative)
         [~, du_dz] = get_grad2(u, xinds, zinds);
         [~, drho_dz] = get_grad2(rho, xinds, zinds);
         N_sq = g_rho0 * drho_dz;
-        N_sq(abs(N_sq)<1e-3) = NaN; 
+        N_sq(abs(N_sq)<1e-2) = NaN; 
         du_dz(abs(du_dz)<21e-4) = NaN; 
 
         data = N_sq./(du_dz.^2);

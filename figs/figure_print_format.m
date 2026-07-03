@@ -21,8 +21,9 @@ function figure_print_format(fig_hand, fontsize)
 % School of Mathematics, Statistics and Physics, Newcastle University
 % email address: s.hartharn-evans2@newcastle.ac.uk
 % GitHub: https://github.com/HartharnSam
-% 15-Dec-2020; Last revision: 15-Dec-2020
-% MATLAB Version: 9.9.0.1467703 (R2020b)
+% 15-Dec-2020; Last revision: 15-Mar-2026
+% MATLAB Version: 25.2.0.3123386 (R2025b)
+
 
 if nargin == 0
     fig_hand = gcf;
@@ -52,7 +53,7 @@ if ~isempty(ax)
             ax(ii).YLabel.Interpreter = 'Latex';
             ax(ii).TickLabelInterpreter = 'Latex';
             ax(ii).Title.FontSize = fontsize;
-            
+            %ax(ii).TickLength = ax(ii).TickLength*2;
             % change axis outline
             set(ax(ii),'layer','top');
             ax(ii).Box = 'on';
