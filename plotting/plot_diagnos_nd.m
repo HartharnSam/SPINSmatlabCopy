@@ -223,6 +223,7 @@ end
 if compute_enstrophy
     if params.ndims == 3
         enst_x_tot = diagnos.Enst_x_tot;
+        %warning('temporary fix');
         enst_y_tot = diagnos.Enst_y_tot;
         enst_z_tot = diagnos.Enst_z_tot;
     else
@@ -575,7 +576,7 @@ if make_plots
                 set(gca,'yscale','linear');
             end
             ylabel('Velocity')
-            xlim([1 max(diagnos.Time)])
+            xlim([0 max(diagnos.Time)])
             
             title('Max velocity')
             leg = legend({'Max $|u|$','Max $|v|$','Max $|w|$','Max $|\vec{u}|$'},...
@@ -594,7 +595,7 @@ if make_plots
             plot(diagnos.Time,[diagnos.KE_x, diagnos.KE_y, diagnos.KE_z, KE_tot])
             set(gca,'yscale','linear');
             xlabel('time (s)')
-            xlim([1 max(diagnos.Time)])
+            xlim([0 max(diagnos.Time)])
             
             ylabel('Kinetic Energy')
             title('KE components')
@@ -635,7 +636,7 @@ if make_plots
             grid on
             box on
             ylabel('Energy (J)')
-            xlim([1 max(diagnos.Time)])
+            xlim([0 max(diagnos.Time)])
             
             title('Energy components')
             legend(energy_label)
@@ -678,7 +679,7 @@ if make_plots
             grid on
             box on
             xlabel('time (s)')
-            xlim([1 max(diagnos.Time)])
+            xlim([0 max(diagnos.Time)])
             set(gca, 'YLim', [0 prctile(max_per_timestep,99.98)]);
             ylabel('Rate (J/s)')
             title('Energy rates of change')
@@ -726,7 +727,7 @@ if make_plots
             end
             grid on
             ylabel('Energy (J)')
-            xlim([1 max(diagnos.Time)])
+            xlim([0 max(diagnos.Time)])
             
             title('Energy converted')
             legend(energy_label)
@@ -781,7 +782,7 @@ if make_plots
             max_per_timestep = max(abs(max_per_timestep),[], 2);
             grid on
             xlabel('time (s)')
-            xlim([1 max(diagnos.Time)])
+            xlim([0 max(diagnos.Time)])
             %set(gca, 'YLim', [-1 1].*prctile(max_per_timestep, 80));
             
             ylabel('Rate (J/s)')
