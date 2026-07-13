@@ -1,77 +1,53 @@
 function cmap = colormap_richardson(varargin)
-% cmocean returns perceptually-uniform colormaps created by Kristen Thyng.
-%
+%COLORMAP_RICHARDSON Three-segment colormap for Richardson-number-type data
+% Generates a colormap for data with two meaningful physical thresholds (e.g. Richardson
+%  number, Ri = 0; 0.25). Built from the "oxy" colormap in cmocean (Thyng et al., 2016). 
+%  Scaled by current axes colour limits, set these first. Thresholds hard-coded currently
 %% Syntax
 %
-%  cmocean
-%  cmap = cmocean('ColormapName')
-%  cmap = cmocean('-ColormapName')
-%  cmap = cmocean(...,NLevels)
-%  cmap = cmocean(...,'pivot',PivotValue)
-%  cmap = cmocean(...,'negative')
-%  cmocean(...)
+%  cmap = colormap_richardson
+%  cmap = colormap_richardson(NLevels)
+%  colormap_richardson(...)
 %
 %% Description
 %
-% cmocean without any inputs displays the options for colormaps.
+%% Description
 %
-% cmap = cmocean('ColormapName') returns a 256x3 colormap. 
+% cmap = colormap_richardson returns a 256x3 RGB colormap, with segment
+% widths determined by the color axis limits (clim) of the CURRENT axes.
+% Set clim/caxis BEFORE calling this function.
 %
-% cmap = cmocean('-ColormapName') a minus sign preceeding any ColormapName flips the
-% order of the colormap.
+% cmap = colormap_richardson(NLevels) returns a colormap with NLevels rows
+% instead of the default 256.
 %
-% cmap = cmocean(...,NLevels) specifies a number of levels in the colormap.  Default
-% value is 256.
-%
-% cmap = cmocean(...,'pivot',PivotValue) centers a diverging colormap such that white
-% corresponds to a given value and maximum extents are set using current caxis limits.
-% If no PivotValue is set, 0 is assumed. Early versions of this function used 'zero'
-% as the syntax for 'pivot',0 and the old syntax is still supported.
-%
-% cmap = cmocean(...,'negative') inverts the lightness profile of the colormap. This can be
-% useful particularly for divergent colormaps if the default white point of divergence
-% gets lost in a white background.
-%
-% cmocean(...) without any outputs sets the current colormap to the current axes.
+% colormap_richardson(...) with no output argument applies the colormap
+% directly to the current axes (equivalent to colormap(gca,cmap)).
 %
 %% Examples
 % Using this sample plot:
 %
-%   imagesc(peaks(1000)+1)
+% Using this sample plot:
+%
+%   imagesc(RichardsonNumberData)
+%   caxis([-1 2])
+%   colormap(colormap_richardson)
 %   colorbar
 %
-% Set the colormap to 'algae':
-%
-%   cmocean('algae')
-%
-% Same as above, but with an inverted algae colormap:
-%
-%   cmocean('-algae')
-%
-% Set the colormap to a 12-level 'solar':
-%
-%   cmocean('solar',12)
-%
-% Get the RGB values of a 5-level thermal colormap:
-%
-%   RGB = cmocean('thermal',5)
-%
-% Some of those values are below zero and others are above. If this dataset represents
-% anomalies, perhaps a diverging colormap is more appropriate:
-%
-%   cmocean('balance')
-%
-% It's unlikely that 1.7776 is an interesting value about which the data values
-% diverge.  If you want to center the colormap on zero using the current color
-% axis limits, simply include the 'pivot' option:
-%
-%   cmocean('balance','pivot',0)
-%
 %% Author Info
-% This function was written by Chad A. Greene of the Institute for Geophysics at the
+% The cmocean function was written by Chad A. Greene of the Institute for Geophysics at the
 % University of Texas at Austin (UTIG), June 2016, using colormaps created by Kristen
 % Thyng of Texas A&M University, Department of Oceanography. More information on the
 % cmocean project can be found at http://matplotlib.org/cmocean/.
+% 
+% Cutting down and changed interpolation logic to pivot on two fixed thresholds instead of one.
+% from Sam Hartharn-Evans
+%
+% Author: Sam Hartharn-Evans
+% School of Geography and Natural Sciences, Northumbria University
+% email address: sam.hartharn-evans@northumbria.ac.uk
+% GitHub: https://github.com/HartharnSam
+% 03-Jul-2026; Last revision: 03-Jul-2026
+% MATLAB Version: (R2026a)
 %
 %% Citing this colormap:
 % If you find an occasion to cite these colormaps for any reason, or if you just want
